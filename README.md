@@ -12,11 +12,14 @@ Answers
 -------
 
 I've found the answers to my questions.  
-How long does a game last? About 270 moves.  
-How often do you get a WAR? About 6 every 100 moves.  
-How often do you get a double war?  About 3 every 1000 moves.  
-Can you have an unending game?  YES, but only if the players don't mix up any cards won after a turn.
-  How often are there unending games?  About a tenth of all games are unending.  
+
+Questions | Answers
+ ------------- | -----------
+How long does a game last? | About 270 moves.
+How often do you get a WAR? | About 6 every 100 moves.
+How often do you get a double war? | About 3 every 1000 moves.
+Can you have an unending game? | YES, but only if the players don't mix up any cards won after a turn.
+  How often are there unending games? | About a tenth of all games are unending.
 
 [See all my results here](Results.md)
 
