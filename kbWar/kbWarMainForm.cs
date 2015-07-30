@@ -609,10 +609,10 @@ namespace kbWar
             Int64 nCountTotalWars;
             double dAvgTotalWars;
             GetMaxMinAvgCount(bwo.nTotalWarsList, out nMaxTotalWars, out nMinTotalWars, out dAvgTotalWars, out nCountTotalWars);
-            sb.AppendLine("Max single wars in a game: " + nMaxTotalWars.ToString("N0"));
-            sb.AppendLine("Min single wars in a game: " + nMinTotalWars.ToString("N0"));
-            sb.AppendLine("Avg single wars in a game: " + dAvgTotalWars.ToString());
-            sb.AppendLine("Total single wars in all games: " + nCountTotalWars.ToString("N0"));
+            sb.AppendLine("Max total wars in a game: " + nMaxTotalWars.ToString("N0"));
+            sb.AppendLine("Min total wars in a game: " + nMinTotalWars.ToString("N0"));
+            sb.AppendLine("Avg total wars in a game: " + dAvgTotalWars.ToString());
+            sb.AppendLine("Total total wars in all games: " + nCountTotalWars.ToString("N0"));
             sb.AppendLine("");
 
             int nMinSingleWars, nMaxSingleWars;
