@@ -1,4 +1,4 @@
-# War
+# kbWar
 A simulation of the card game WAR!
 
 If you don’t know what the card game WAR is, read this article:
