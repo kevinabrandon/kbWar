@@ -23,5 +23,5 @@ How often are there unending games?  about a tenth of all games are unending (if
 Building
 --------
 
-Open the [kbWar.sln] file in Visual Studio 2010 and build the project.  
+Open the [kbWar.sln](kbWar/kbWar.sln) file in Visual Studio 2010 and build the project.  
 It should also work in later versions of Visual Studio, but I haven't tested it.
