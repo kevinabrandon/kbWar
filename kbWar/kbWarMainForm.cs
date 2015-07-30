@@ -10,6 +10,7 @@ using System.Threading;
 
 namespace kbWar
 {
+    #region public partial class kbWarMainForm : Form
     public partial class kbWarMainForm : Form
     {
         #region private member vars...
@@ -18,6 +19,7 @@ namespace kbWar
         private kbCardHand m_Hand1 = new kbCardHand();      // player one's hand  
         private kbCardHand m_Hand2 = new kbCardHand();      // player two's hand
         private kbCardHand m_MiddlePile = new kbCardHand(); // the pile of cards in the middle during wars!
+
         private kbCardHand m_LastWinnings = new kbCardHand();
         private bool m_bLastWinner = false;
 
@@ -34,6 +36,18 @@ namespace kbWar
         private int m_nSixWars = 0;
         private int m_nSevenWars = 0;
 
+        #endregion
+
+        #region construction...
+        public kbWarMainForm()
+        {
+            InitializeComponent();
+
+            Restart();
+            UpdateUI();
+            UpdateCountsUI();
+            textBoxOutput.Clear();
+        }
         #endregion
 
         #region UpdateUI()
@@ -55,44 +69,46 @@ namespace kbWar
 
                     if (m_Hand1.Count == 0) richTextBoxPot.AppendText("\nPLAYER TWO WINS!!!");
                     if (m_Hand2.Count == 0) richTextBoxPot.AppendText("\nPLAYER ONE WINS!!!");
-                    ColorTextBoxes(richTextBoxPot, "Player One Won:", Color.White, Color.Red);
-                    ColorTextBoxes(richTextBoxPot, "Player Two Won:", Color.White, Color.Blue);
-                    ColorTextBoxes(richTextBoxPot, "PLAYER ONE WINS!!!", Color.White, Color.Red);
-                    ColorTextBoxes(richTextBoxPot, "PLAYER TWO WINS!!!", Color.White, Color.Blue);
-                    ColorTextBoxes(richTextBoxPot, "Ace", Color.Red, Color.GreenYellow);
-                    ColorTextBoxes(richTextBoxPot, "Hearts", Color.White, Color.Red);
-                    ColorTextBoxes(richTextBoxPot, "Dimonds", Color.White, Color.Red);
-                    ColorTextBoxes(richTextBoxPot, "Spades", Color.White, Color.Black);
-                    ColorTextBoxes(richTextBoxPot, "Clubs", Color.White, Color.Black);
+                    ColorTextBoxeSelection(richTextBoxPot, "Player One Won:", Color.White, Color.Red);
+                    ColorTextBoxeSelection(richTextBoxPot, "Player Two Won:", Color.White, Color.Blue);
+                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER ONE WINS!!!", Color.White, Color.Red);
+                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER TWO WINS!!!", Color.White, Color.Blue);
+                    ColorTextBoxeSelection(richTextBoxPot, "Ace", Color.Red, Color.GreenYellow);
+                    ColorTextBoxeSelection(richTextBoxPot, "Hearts", Color.White, Color.Red);
+                    ColorTextBoxeSelection(richTextBoxPot, "Dimonds", Color.White, Color.Red);
+                    ColorTextBoxeSelection(richTextBoxPot, "Spades", Color.White, Color.Black);
+                    ColorTextBoxeSelection(richTextBoxPot, "Clubs", Color.White, Color.Black);
                 }
                 else richTextBoxPot.Clear();
                 
-                ColorTextBoxes(richTextBoxDeck, "Ace", Color.Red, Color.GreenYellow);
-                ColorTextBoxes(richTextBoxPlayer1, "Ace", Color.Red, Color.GreenYellow);
-                ColorTextBoxes(richTextBoxPlayer2, "Ace", Color.Red, Color.GreenYellow);
+                ColorTextBoxeSelection(richTextBoxDeck, "Ace", Color.Red, Color.GreenYellow);
+                ColorTextBoxeSelection(richTextBoxPlayer1, "Ace", Color.Red, Color.GreenYellow);
+                ColorTextBoxeSelection(richTextBoxPlayer2, "Ace", Color.Red, Color.GreenYellow);
                 
 
-                ColorTextBoxes(richTextBoxDeck, "Hearts", Color.White, Color.Red);
-                ColorTextBoxes(richTextBoxPlayer1, "Hearts", Color.White, Color.Red);
-                ColorTextBoxes(richTextBoxPlayer2, "Hearts", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxDeck, "Hearts", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer1, "Hearts", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer2, "Hearts", Color.White, Color.Red);
                 
 
-                ColorTextBoxes(richTextBoxDeck, "Dimonds", Color.White, Color.Red);
-                ColorTextBoxes(richTextBoxPlayer1, "Dimonds", Color.White, Color.Red);
-                ColorTextBoxes(richTextBoxPlayer2, "Dimonds", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxDeck, "Dimonds", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer1, "Dimonds", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer2, "Dimonds", Color.White, Color.Red);
                 
 
-                ColorTextBoxes(richTextBoxDeck, "Spades", Color.White, Color.Black);
-                ColorTextBoxes(richTextBoxPlayer1, "Spades", Color.White, Color.Black);
-                ColorTextBoxes(richTextBoxPlayer2, "Spades", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxDeck, "Spades", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer1, "Spades", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer2, "Spades", Color.White, Color.Black);
                 
 
-                ColorTextBoxes(richTextBoxDeck, "Clubs", Color.White, Color.Black);
-                ColorTextBoxes(richTextBoxPlayer1, "Clubs", Color.White, Color.Black);
-                ColorTextBoxes(richTextBoxPlayer2, "Clubs", Color.White, Color.Black);
-                
+                ColorTextBoxeSelection(richTextBoxDeck, "Clubs", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer1, "Clubs", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer2, "Clubs", Color.White, Color.Black);       
             }
         }
+        #endregion
+
+        #region UpdateCountsUI()
         private void UpdateCountsUI()
         {
             lock(m_Lock)
@@ -109,8 +125,13 @@ namespace kbWar
                 textBoxCounts.Text = sb.ToString();
             }
         }
+        #endregion
 
-        public void ColorTextBoxes(RichTextBox textBox, string s, Color textColor, Color backColor)
+        #region ColorTextBoxeSelection()
+        /// <summary>
+        /// This is mostly a copy and paste of a bit I found online (probably stack exchange)
+        /// </summary>
+        private void ColorTextBoxeSelection(RichTextBox textBox, string s, Color textColor, Color backColor)
         {
             int start = 0, current = 0;
             RichTextBoxFinds options = RichTextBoxFinds.MatchCase;
@@ -129,28 +150,9 @@ namespace kbWar
                     break;
             }
         }
-
-        #endregion
-
-        #region construction...
-        public kbWarMainForm()
-        {
-            InitializeComponent();
-
-            Restart();
-            UpdateUI();
-            UpdateCountsUI();
-            textBoxOutput.Clear();
-        }
         #endregion
 
         #region Shuffle()
-        private void buttonShuffle_Click(object sender, EventArgs e)
-        {
-            Shuffle();
-            UpdateUI();
-        }
-
         /// <summary>
         /// Shuffles everything, the deck and the player's hands.
         /// </summary>
@@ -166,13 +168,6 @@ namespace kbWar
         #endregion
 
         #region Restart()
-        private void buttonRestart_Click(object sender, EventArgs e)
-        {
-            Restart();
-            UpdateUI();
-            UpdateCountsUI();
-        }
-
         /// <summary>
         /// Clears the two hands, and resets the deck.
         ///   also clears the counters.
@@ -199,18 +194,6 @@ namespace kbWar
         #endregion
 
         #region Deal()
-        private void buttonDeal_Click(object sender, EventArgs e)
-        {
-            if (m_Deck.Count == 0)
-            {
-                Restart();
-                Shuffle();
-            }
-            Deal();
-            UpdateUI();
-            UpdateCountsUI();
-        }
-
         /// <summary>
         /// Simply deals the cards out, taking the cards from the top of the deck, 
         /// and putting them on top of the player's hands.  It alternating between 
@@ -229,26 +212,6 @@ namespace kbWar
                     bHand1 = !bHand1;
                 }
             }
-        }
-        #endregion
-
-        #region Throw Clicked
-        private void buttonThrow_Click(object sender, EventArgs e)
-        {
-            lock (m_Lock)
-            {
-                if (m_Hand1.Count == 0 || m_Hand2.Count == 0)
-                {
-                    MessageBox.Show("You need to make sure both players have cards.  Try dealing first.");
-                    return;
-                }
-            }
-
-            Throw();
-            UpdateUI();
-            UpdateCountsUI();
-            if (m_Hand1.Count == 0) MessageBox.Show("Player 2 WINS!!! " + m_nThrows);
-            if (m_Hand2.Count == 0) MessageBox.Show("Player 1 WINS!!! " + m_nThrows);
         }
         #endregion
 
@@ -360,16 +323,99 @@ namespace kbWar
         }
         #endregion
 
-        #region AutoRunClicked()
-        private void AutoRunClicked(object sender, EventArgs e)
+        #region Button clicks...
+
+        #region shuffle clicked
+        private void buttonShuffle_Click(object sender, EventArgs e)
         {
-            if (!workerMultiAutoRun.IsBusy && !workerSingleAutoRun.IsBusy)
+            Shuffle();
+            UpdateUI();
+        }
+        #endregion
+
+        #region restart clicked
+        private void buttonRestart_Click(object sender, EventArgs e)
+        {
+            Restart();
+            UpdateUI();
+            UpdateCountsUI();
+        }
+        #endregion
+
+        #region deal clicked
+        private void buttonDeal_Click(object sender, EventArgs e)
+        {
+            if (m_Deck.Count == 0)
+            {
+                Restart();
+                Shuffle();
+            }
+            Deal();
+            UpdateUI();
+            UpdateCountsUI();
+        }
+        #endregion
+
+        #region throw clicked
+        private void buttonThrow_Click(object sender, EventArgs e)
+        {
+            lock (m_Lock)
+            {
+                if (m_Hand1.Count == 0 || m_Hand2.Count == 0)
+                {
+                    MessageBox.Show("You need to make sure both players have cards.  Try dealing first.");
+                    return;
+                }
+            }
+
+            Throw();
+            UpdateUI();
+            UpdateCountsUI();
+            if (m_Hand1.Count == 0) MessageBox.Show("Player 2 WINS!!! " + m_nThrows);
+            if (m_Hand2.Count == 0) MessageBox.Show("Player 1 WINS!!! " + m_nThrows);
+        }
+        #endregion
+
+        #region auto-throw clicked
+        private void buttonAutoThrow_Clicked(object sender, EventArgs e)
+        {
+            if (!workerManyGames.IsBusy && !workerAutoThrow.IsBusy)
             {
                 EnableUI(false);
-                workerSingleAutoRun.RunWorkerAsync();
+                workerAutoThrow.RunWorkerAsync();
             }
             else MessageBox.Show("Auto run already running!");
         }
+        #endregion
+
+        #region run many games clicked
+        private void buttonRunManyGames_Clicked(object sender, EventArgs e)
+        {
+            if (!workerManyGames.IsBusy && !workerAutoThrow.IsBusy)
+            {
+                EnableUI(false);
+                workerManyGames.RunWorkerAsync();
+            }
+            else MessageBox.Show("Auto run already running!");
+
+        }
+        #endregion
+
+        #region cancel clicked
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
+            if (workerAutoThrow.IsBusy) workerAutoThrow.CancelAsync();
+            if (workerManyGames.IsBusy) workerManyGames.CancelAsync();
+        }
+        #endregion
+
+        #region clear output clicked
+        private void buttonClearOutput_Click(object sender, EventArgs e)
+        {
+            textBoxOutput.Clear();
+        }
+        #endregion
+
         #endregion
 
         #region EnableUI()
@@ -380,27 +426,6 @@ namespace kbWar
                 c.Enabled = bEnable;
             }
             buttonCancel.Enabled = !bEnable;
-        }
-        #endregion
-
-        #region AutoRunMultipleClicked()
-        private void AutoRunMultipleClicked(object sender, EventArgs e)
-        {
-            if (!workerMultiAutoRun.IsBusy && !workerSingleAutoRun.IsBusy)
-            {
-                EnableUI(false);
-                workerMultiAutoRun.RunWorkerAsync();
-            }
-            else MessageBox.Show("Auto run already running!");
-            
-        }
-        #endregion
-
-        #region cancel clicked
-        private void buttonCancel_Click(object sender, EventArgs e)
-        {
-            if (workerSingleAutoRun.IsBusy) workerSingleAutoRun.CancelAsync();
-            if(workerMultiAutoRun.IsBusy) workerMultiAutoRun.CancelAsync();
         }
         #endregion
 
@@ -440,20 +465,8 @@ namespace kbWar
         }
         #endregion
 
-        #region Sum values in a list
-        private Int64 Sum(List<int> l)
-        {
-            Int64 sum = 0;
-            foreach (int i in l)
-            {
-                sum += i;
-            }
-            return sum;
-        }
-        #endregion
-
-        #region workerMultiAutoRun do work
-        private void workerMultiAutoRun_DoWork(object sender, DoWorkEventArgs e)
+        #region workerManyGames DoWork
+        private void workerManyGames_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker bw = sender as BackgroundWorker;
             BackgroundWorkerOutput bwo = new BackgroundWorkerOutput();
@@ -532,8 +545,8 @@ namespace kbWar
         }
         #endregion
 
-        #region workerMultiAutoRun Progress Changed
-        private void workerMultiAutoRun_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        #region workerManyGames ProgressChanged
+        private void workerManyGames_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             progressBar1.Value = e.ProgressPercentage;
             //if (checkBoxDisplay.Checked) UpdateUI();
@@ -558,8 +571,8 @@ namespace kbWar
         }
         #endregion
 
-        #region workerMultiAutoRun completed
-        private void workerMultiAutoRun_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        #region workerManyGames RunWorkerCompleted
+        private void workerManyGames_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             progressBar1.Value = 0;
 
@@ -676,26 +689,8 @@ namespace kbWar
         }
         #endregion
 
-        #region GetMaxMinAvgCount()
-        private void GetMaxMinAvgCount(List<int> input, out int max, out int min, out double avg, out Int64 count)
-        {
-            max = Int32.MinValue;
-            min = Int32.MaxValue;
-            avg = 0;
-            count = 0;
-
-            foreach(int i in input)
-            {
-                if (i > max) max = i;
-                if (i < min) min = i;
-                count += i;
-            }
-            avg = (double)count / (double)input.Count;
-        }
-        #endregion
-
-        #region workerSingleAutoRun DoWork
-        private void workerSingleAutoRun_DoWork(object sender, DoWorkEventArgs e)
+        #region workerAutoThrow DoWork
+        private void workerAutoThrow_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker bw = sender as BackgroundWorker;
 
@@ -729,16 +724,16 @@ namespace kbWar
         }
         #endregion
 
-        #region workerSingleAutoRun progress changed
-        private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        #region workerAutoThrow progress changed
+        private void workerAutoThrow_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             UpdateUI();
             UpdateCountsUI();
         }
         #endregion
 
-        #region workerSingleAutoRun Completed
-        private void workerSingleAutoRun_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        #region workerAutoThrow RunWorkerCompleted
+        private void workerAutoThrow_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (m_Hand1.Count == 0) MessageBox.Show("Player 2 WINS!!! " + m_nThrows);
             if (m_Hand2.Count == 0) MessageBox.Show("Player 1 WINS!!! " + m_nThrows);
@@ -747,12 +742,35 @@ namespace kbWar
         }
         #endregion
 
-        #region buttonClearOutput clicked
-        private void buttonClearOutput_Click(object sender, EventArgs e)
+        #region GetMaxMinAvgCount()
+        private void GetMaxMinAvgCount(List<int> input, out int max, out int min, out double avg, out Int64 count)
         {
-            textBoxOutput.Clear();
+            max = Int32.MinValue;
+            min = Int32.MaxValue;
+            avg = 0;
+            count = 0;
+
+            foreach (int i in input)
+            {
+                if (i > max) max = i;
+                if (i < min) min = i;
+                count += i;
+            }
+            avg = (double)count / (double)input.Count;
         }
         #endregion
 
+        #region Sum values in a list
+        private Int64 Sum(List<int> l)
+        {
+            Int64 sum = 0;
+            foreach (int i in l)
+            {
+                sum += i;
+            }
+            return sum;
+        }
+        #endregion
     }
+    #endregion
 }

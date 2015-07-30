@@ -30,36 +30,36 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(kbWarMainForm));
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.richTextBoxPot = new System.Windows.Forms.RichTextBox();
+            this.textBoxCounts = new System.Windows.Forms.TextBox();
             this.buttonClearOutput = new System.Windows.Forms.Button();
-            this.textBoxOutput = new System.Windows.Forms.TextBox();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.checkBoxDisplay = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.numericUpDownNGames = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
-            this.buttonMultiRun = new System.Windows.Forms.Button();
+            this.buttonRunManyGames = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.numericUpDownSleep = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
-            this.buttonSingleRun = new System.Windows.Forms.Button();
+            this.buttonAutoThrow = new System.Windows.Forms.Button();
             this.checkBoxShuffleAll = new System.Windows.Forms.CheckBox();
             this.checkBoxShuffleResult = new System.Windows.Forms.CheckBox();
             this.buttonThrow = new System.Windows.Forms.Button();
             this.buttonDeal = new System.Windows.Forms.Button();
             this.buttonShuffle = new System.Windows.Forms.Button();
             this.buttonRestart = new System.Windows.Forms.Button();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.label1 = new System.Windows.Forms.Label();
+            this.richTextBoxPlayer2 = new System.Windows.Forms.RichTextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.richTextBoxPlayer1 = new System.Windows.Forms.RichTextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.richTextBoxDeck = new System.Windows.Forms.RichTextBox();
-            this.richTextBoxPlayer1 = new System.Windows.Forms.RichTextBox();
-            this.richTextBoxPlayer2 = new System.Windows.Forms.RichTextBox();
-            this.workerSingleAutoRun = new System.ComponentModel.BackgroundWorker();
-            this.workerMultiAutoRun = new System.ComponentModel.BackgroundWorker();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.textBoxCounts = new System.Windows.Forms.TextBox();
-            this.richTextBoxPot = new System.Windows.Forms.RichTextBox();
+            this.textBoxOutput = new System.Windows.Forms.TextBox();
+            this.workerAutoThrow = new System.ComponentModel.BackgroundWorker();
+            this.workerManyGames = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -90,9 +90,9 @@
             this.splitContainer2.Panel1.Controls.Add(this.progressBar1);
             this.splitContainer2.Panel1.Controls.Add(this.checkBoxDisplay);
             this.splitContainer2.Panel1.Controls.Add(this.tableLayoutPanel2);
-            this.splitContainer2.Panel1.Controls.Add(this.buttonMultiRun);
+            this.splitContainer2.Panel1.Controls.Add(this.buttonRunManyGames);
             this.splitContainer2.Panel1.Controls.Add(this.tableLayoutPanel1);
-            this.splitContainer2.Panel1.Controls.Add(this.buttonSingleRun);
+            this.splitContainer2.Panel1.Controls.Add(this.buttonAutoThrow);
             this.splitContainer2.Panel1.Controls.Add(this.checkBoxShuffleAll);
             this.splitContainer2.Panel1.Controls.Add(this.checkBoxShuffleResult);
             this.splitContainer2.Panel1.Controls.Add(this.buttonThrow);
@@ -107,6 +107,30 @@
             this.splitContainer2.SplitterDistance = 183;
             this.splitContainer2.TabIndex = 30;
             // 
+            // richTextBoxPot
+            // 
+            this.richTextBoxPot.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBoxPot.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBoxPot.Location = new System.Drawing.Point(0, 448);
+            this.richTextBoxPot.Name = "richTextBoxPot";
+            this.richTextBoxPot.ReadOnly = true;
+            this.richTextBoxPot.Size = new System.Drawing.Size(183, 310);
+            this.richTextBoxPot.TabIndex = 42;
+            this.richTextBoxPot.Text = "";
+            // 
+            // textBoxCounts
+            // 
+            this.textBoxCounts.Dock = System.Windows.Forms.DockStyle.Top;
+            this.textBoxCounts.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxCounts.Location = new System.Drawing.Point(0, 287);
+            this.textBoxCounts.Multiline = true;
+            this.textBoxCounts.Name = "textBoxCounts";
+            this.textBoxCounts.ReadOnly = true;
+            this.textBoxCounts.Size = new System.Drawing.Size(183, 161);
+            this.textBoxCounts.TabIndex = 41;
+            this.textBoxCounts.Text = resources.GetString("textBoxCounts.Text");
+            this.textBoxCounts.WordWrap = false;
+            // 
             // buttonClearOutput
             // 
             this.buttonClearOutput.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -117,20 +141,6 @@
             this.buttonClearOutput.Text = "Clear Output";
             this.buttonClearOutput.UseVisualStyleBackColor = true;
             this.buttonClearOutput.Click += new System.EventHandler(this.buttonClearOutput_Click);
-            // 
-            // textBoxOutput
-            // 
-            this.textBoxOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBoxOutput.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxOutput.Location = new System.Drawing.Point(0, 0);
-            this.textBoxOutput.Multiline = true;
-            this.textBoxOutput.Name = "textBoxOutput";
-            this.textBoxOutput.ReadOnly = true;
-            this.textBoxOutput.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxOutput.Size = new System.Drawing.Size(308, 781);
-            this.textBoxOutput.TabIndex = 39;
-            this.textBoxOutput.Text = "****************************************";
-            this.textBoxOutput.WordWrap = false;
             // 
             // buttonCancel
             // 
@@ -212,16 +222,16 @@
             this.label6.Text = "# of Games to Play";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // buttonMultiRun
+            // buttonRunManyGames
             // 
-            this.buttonMultiRun.Dock = System.Windows.Forms.DockStyle.Top;
-            this.buttonMultiRun.Location = new System.Drawing.Point(0, 176);
-            this.buttonMultiRun.Name = "buttonMultiRun";
-            this.buttonMultiRun.Size = new System.Drawing.Size(183, 23);
-            this.buttonMultiRun.TabIndex = 19;
-            this.buttonMultiRun.Text = "Multi Auto-Run";
-            this.buttonMultiRun.UseVisualStyleBackColor = true;
-            this.buttonMultiRun.Click += new System.EventHandler(this.AutoRunMultipleClicked);
+            this.buttonRunManyGames.Dock = System.Windows.Forms.DockStyle.Top;
+            this.buttonRunManyGames.Location = new System.Drawing.Point(0, 176);
+            this.buttonRunManyGames.Name = "buttonRunManyGames";
+            this.buttonRunManyGames.Size = new System.Drawing.Size(183, 23);
+            this.buttonRunManyGames.TabIndex = 19;
+            this.buttonRunManyGames.Text = "Run Many Games!";
+            this.buttonRunManyGames.UseVisualStyleBackColor = true;
+            this.buttonRunManyGames.Click += new System.EventHandler(this.buttonRunManyGames_Clicked);
             // 
             // tableLayoutPanel1
             // 
@@ -271,21 +281,21 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(111, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(56, 26);
+            this.label4.Size = new System.Drawing.Size(62, 26);
             this.label4.TabIndex = 33;
-            this.label4.Text = "Auto-Run Sleep (ms)";
+            this.label4.Text = "Auto-Throw Sleep (ms)";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // buttonSingleRun
+            // buttonAutoThrow
             // 
-            this.buttonSingleRun.Dock = System.Windows.Forms.DockStyle.Top;
-            this.buttonSingleRun.Location = new System.Drawing.Point(0, 126);
-            this.buttonSingleRun.Name = "buttonSingleRun";
-            this.buttonSingleRun.Size = new System.Drawing.Size(183, 23);
-            this.buttonSingleRun.TabIndex = 18;
-            this.buttonSingleRun.Text = "Auto-Throw";
-            this.buttonSingleRun.UseVisualStyleBackColor = true;
-            this.buttonSingleRun.Click += new System.EventHandler(this.AutoRunClicked);
+            this.buttonAutoThrow.Dock = System.Windows.Forms.DockStyle.Top;
+            this.buttonAutoThrow.Location = new System.Drawing.Point(0, 126);
+            this.buttonAutoThrow.Name = "buttonAutoThrow";
+            this.buttonAutoThrow.Size = new System.Drawing.Size(183, 23);
+            this.buttonAutoThrow.TabIndex = 18;
+            this.buttonAutoThrow.Text = "Auto-Throw";
+            this.buttonAutoThrow.UseVisualStyleBackColor = true;
+            this.buttonAutoThrow.Click += new System.EventHandler(this.buttonAutoThrow_Clicked);
             // 
             // checkBoxShuffleAll
             // 
@@ -359,84 +369,6 @@
             this.buttonRestart.UseVisualStyleBackColor = true;
             this.buttonRestart.Click += new System.EventHandler(this.buttonRestart_Click);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(3, 3);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(50, 20);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "Deck";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.ForeColor = System.Drawing.Color.Blue;
-            this.label3.Location = new System.Drawing.Point(265, 3);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(73, 20);
-            this.label3.TabIndex = 7;
-            this.label3.Text = "Player 2";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.Color.Red;
-            this.label2.Location = new System.Drawing.Point(132, 3);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(73, 20);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "Player 1";
-            // 
-            // richTextBoxDeck
-            // 
-            this.richTextBoxDeck.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxDeck.Location = new System.Drawing.Point(3, 26);
-            this.richTextBoxDeck.Name = "richTextBoxDeck";
-            this.richTextBoxDeck.ReadOnly = true;
-            this.richTextBoxDeck.Size = new System.Drawing.Size(127, 751);
-            this.richTextBoxDeck.TabIndex = 15;
-            this.richTextBoxDeck.Text = "";
-            // 
-            // richTextBoxPlayer1
-            // 
-            this.richTextBoxPlayer1.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxPlayer1.Location = new System.Drawing.Point(136, 26);
-            this.richTextBoxPlayer1.Name = "richTextBoxPlayer1";
-            this.richTextBoxPlayer1.ReadOnly = true;
-            this.richTextBoxPlayer1.Size = new System.Drawing.Size(127, 751);
-            this.richTextBoxPlayer1.TabIndex = 16;
-            this.richTextBoxPlayer1.Text = "";
-            // 
-            // richTextBoxPlayer2
-            // 
-            this.richTextBoxPlayer2.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxPlayer2.Location = new System.Drawing.Point(269, 26);
-            this.richTextBoxPlayer2.Name = "richTextBoxPlayer2";
-            this.richTextBoxPlayer2.ReadOnly = true;
-            this.richTextBoxPlayer2.Size = new System.Drawing.Size(127, 751);
-            this.richTextBoxPlayer2.TabIndex = 17;
-            this.richTextBoxPlayer2.Text = "";
-            // 
-            // workerSingleAutoRun
-            // 
-            this.workerSingleAutoRun.WorkerReportsProgress = true;
-            this.workerSingleAutoRun.WorkerSupportsCancellation = true;
-            this.workerSingleAutoRun.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerSingleAutoRun_DoWork);
-            this.workerSingleAutoRun.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker2_ProgressChanged);
-            this.workerSingleAutoRun.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerSingleAutoRun_RunWorkerCompleted);
-            // 
-            // workerMultiAutoRun
-            // 
-            this.workerMultiAutoRun.WorkerReportsProgress = true;
-            this.workerMultiAutoRun.WorkerSupportsCancellation = true;
-            this.workerMultiAutoRun.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerMultiAutoRun_DoWork);
-            this.workerMultiAutoRun.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.workerMultiAutoRun_ProgressChanged);
-            this.workerMultiAutoRun.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerMultiAutoRun_RunWorkerCompleted);
-            // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -460,37 +392,105 @@
             this.splitContainer1.SplitterDistance = 398;
             this.splitContainer1.TabIndex = 18;
             // 
-            // textBoxCounts
+            // label1
             // 
-            this.textBoxCounts.Dock = System.Windows.Forms.DockStyle.Top;
-            this.textBoxCounts.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxCounts.Location = new System.Drawing.Point(0, 287);
-            this.textBoxCounts.Multiline = true;
-            this.textBoxCounts.Name = "textBoxCounts";
-            this.textBoxCounts.ReadOnly = true;
-            this.textBoxCounts.Size = new System.Drawing.Size(183, 161);
-            this.textBoxCounts.TabIndex = 41;
-            this.textBoxCounts.Text = resources.GetString("textBoxCounts.Text");
-            this.textBoxCounts.WordWrap = false;
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(3, 3);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(50, 20);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "Deck";
             // 
-            // richTextBoxPot
+            // richTextBoxPlayer2
             // 
-            this.richTextBoxPot.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBoxPot.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxPot.Location = new System.Drawing.Point(0, 448);
-            this.richTextBoxPot.Name = "richTextBoxPot";
-            this.richTextBoxPot.ReadOnly = true;
-            this.richTextBoxPot.Size = new System.Drawing.Size(183, 310);
-            this.richTextBoxPot.TabIndex = 42;
-            this.richTextBoxPot.Text = "";
+            this.richTextBoxPlayer2.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBoxPlayer2.Location = new System.Drawing.Point(269, 26);
+            this.richTextBoxPlayer2.Name = "richTextBoxPlayer2";
+            this.richTextBoxPlayer2.ReadOnly = true;
+            this.richTextBoxPlayer2.Size = new System.Drawing.Size(127, 751);
+            this.richTextBoxPlayer2.TabIndex = 17;
+            this.richTextBoxPlayer2.Text = "";
             // 
-            // WarMainForm
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.ForeColor = System.Drawing.Color.Blue;
+            this.label3.Location = new System.Drawing.Point(265, 3);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(73, 20);
+            this.label3.TabIndex = 7;
+            this.label3.Text = "Player 2";
+            // 
+            // richTextBoxPlayer1
+            // 
+            this.richTextBoxPlayer1.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBoxPlayer1.Location = new System.Drawing.Point(136, 26);
+            this.richTextBoxPlayer1.Name = "richTextBoxPlayer1";
+            this.richTextBoxPlayer1.ReadOnly = true;
+            this.richTextBoxPlayer1.Size = new System.Drawing.Size(127, 751);
+            this.richTextBoxPlayer1.TabIndex = 16;
+            this.richTextBoxPlayer1.Text = "";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.Red;
+            this.label2.Location = new System.Drawing.Point(132, 3);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(73, 20);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Player 1";
+            // 
+            // richTextBoxDeck
+            // 
+            this.richTextBoxDeck.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBoxDeck.Location = new System.Drawing.Point(3, 26);
+            this.richTextBoxDeck.Name = "richTextBoxDeck";
+            this.richTextBoxDeck.ReadOnly = true;
+            this.richTextBoxDeck.Size = new System.Drawing.Size(127, 751);
+            this.richTextBoxDeck.TabIndex = 15;
+            this.richTextBoxDeck.Text = "";
+            // 
+            // textBoxOutput
+            // 
+            this.textBoxOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxOutput.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxOutput.Location = new System.Drawing.Point(0, 0);
+            this.textBoxOutput.Multiline = true;
+            this.textBoxOutput.Name = "textBoxOutput";
+            this.textBoxOutput.ReadOnly = true;
+            this.textBoxOutput.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBoxOutput.Size = new System.Drawing.Size(308, 781);
+            this.textBoxOutput.TabIndex = 39;
+            this.textBoxOutput.Text = "****************************************";
+            this.textBoxOutput.WordWrap = false;
+            // 
+            // workerAutoThrow
+            // 
+            this.workerAutoThrow.WorkerReportsProgress = true;
+            this.workerAutoThrow.WorkerSupportsCancellation = true;
+            this.workerAutoThrow.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerAutoThrow_DoWork);
+            this.workerAutoThrow.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.workerAutoThrow_ProgressChanged);
+            this.workerAutoThrow.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerAutoThrow_RunWorkerCompleted);
+            // 
+            // workerManyGames
+            // 
+            this.workerManyGames.WorkerReportsProgress = true;
+            this.workerManyGames.WorkerSupportsCancellation = true;
+            this.workerManyGames.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerManyGames_DoWork);
+            this.workerManyGames.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.workerManyGames_ProgressChanged);
+            this.workerManyGames.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerManyGames_RunWorkerCompleted);
+            // 
+            // kbWarMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(897, 781);
             this.Controls.Add(this.splitContainer2);
-            this.Name = "WarMainForm";
+            this.Name = "kbWarMainForm";
             this.Text = "WAR!!!     A simulation of the simple card game WAR.";
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel1.PerformLayout();
@@ -523,11 +523,11 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.NumericUpDown numericUpDownNGames;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Button buttonMultiRun;
+        private System.Windows.Forms.Button buttonRunManyGames;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.NumericUpDown numericUpDownSleep;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Button buttonSingleRun;
+        private System.Windows.Forms.Button buttonAutoThrow;
         private System.Windows.Forms.CheckBox checkBoxShuffleAll;
         private System.Windows.Forms.CheckBox checkBoxShuffleResult;
         private System.Windows.Forms.Button buttonThrow;
@@ -540,8 +540,8 @@
         private System.Windows.Forms.RichTextBox richTextBoxDeck;
         private System.Windows.Forms.RichTextBox richTextBoxPlayer1;
         private System.Windows.Forms.RichTextBox richTextBoxPlayer2;
-        private System.ComponentModel.BackgroundWorker workerSingleAutoRun;
-        private System.ComponentModel.BackgroundWorker workerMultiAutoRun;
+        private System.ComponentModel.BackgroundWorker workerAutoThrow;
+        private System.ComponentModel.BackgroundWorker workerManyGames;
         private System.Windows.Forms.Button buttonClearOutput;
         private System.Windows.Forms.RichTextBox richTextBoxPot;
         private System.Windows.Forms.TextBox textBoxCounts;
