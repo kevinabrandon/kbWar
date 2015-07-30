@@ -1,8 +1,6 @@
-Results
-=======
+#Results
 
-One million games
------------------
+##One million games
 
 Here is the output of the program after a run of one million games.  The average game lasts about 270 turns.  
 After every turn, the winning cards are shuffled before being added to the bottom of the winners hand.  Shuffling the winning cards speeds up the gameplay and keeps the game from devolving into an infinate loop.
@@ -52,8 +50,7 @@ After every turn, the winning cards are shuffled before being added to the botto
     Avg septuble wars in a game: 0  
     Total septuble wars in all games: 0  
 
-One hundred thousand games
---------------------------
+##One hundred thousand games
 
 This time we ran the simulation on 100,000 games, but we didn't shuffle the winning cards after each turn.
 You can see that the average game takes much longer (about 594 turns), and about a tenth of the games are unending.
