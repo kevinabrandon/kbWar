@@ -1,5 +1,5 @@
 # kbWar
-A simulation of the card game WAR!
+A monte-carlo simulation for the card game WAR!
 
 If you don’t know what the card game WAR is, read this article:
 https://en.wikipedia.org/wiki/War_(card_game) 
