@@ -50,6 +50,12 @@ After every turn, the winning cards are shuffled before being added to the botto
     Avg septuble wars in a game: 0
     Total septuble wars in all games: 0
 
+##Probability Distribution
+
+Here is the probability distribution calculated by the simulation with 1 million games.
+
+![Probability Distribution](http://i.imgur.com/GJrZyB0.png?1)
+
 ##One hundred thousand games
 
 This time we ran the simulation on 100,000 games, but we didn't shuffle the winning cards after each turn.
