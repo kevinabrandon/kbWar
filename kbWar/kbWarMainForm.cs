@@ -685,7 +685,7 @@ namespace kbWar
                 for (int i = 0; i < bwo.nThrowsList.Count; i++)
                 {
                     sb.Clear();
-                    sb.Append(i);
+                    sb.Append((i+1).ToString());
                     sb.Append(", " + bwo.bPlayer1WinsList[i]);
                     sb.Append(", " + !bwo.bPlayer1WinsList[i]);
                     sb.Append(", " + bwo.nThrowsList[i]);
