@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
+using System.IO;
 
 namespace kbWar
 {
@@ -47,6 +48,8 @@ namespace kbWar
             UpdateUI();
             UpdateCountsUI();
             textBoxOutput.Clear();
+            buttonCancel.Enabled = false;
+            checkBoxVerbose.Enabled = false;
         }
         #endregion
 
@@ -416,6 +419,13 @@ namespace kbWar
         }
         #endregion
 
+        #region checkBoxOutputFiles Checked Changed()
+        private void checkBoxOutputFiles_CheckedChanged(object sender, EventArgs e)
+        {
+            checkBoxVerbose.Enabled = checkBoxOutputFiles.Checked;
+        }
+        #endregion
+
         #endregion
 
         #region EnableUI()
@@ -426,6 +436,7 @@ namespace kbWar
                 c.Enabled = bEnable;
             }
             buttonCancel.Enabled = !bEnable;
+            if (checkBoxVerbose.Enabled) checkBoxVerbose.Enabled = checkBoxOutputFiles.Checked;
         }
         #endregion
 
@@ -433,6 +444,7 @@ namespace kbWar
         private class BackgroundWorkerOutput
         {
             public List<int> nThrowsList = new List<int>();
+            public List<bool> bPlayer1WinsList = new List<bool>();
             public List<int> nTotalWarsList = new List<int>();
             public List<int> nSingleWarsList = new List<int>();
             public List<int> nDoubleWarsList = new List<int>();
@@ -503,10 +515,20 @@ namespace kbWar
                 
                 lock (m_Lock)
                 {
-                    if (m_Hand1.Count == 0) bwo.nPlayer2Wins++;
-                    if (m_Hand2.Count == 0) bwo.nPlayer1Wins++;
+                    if (m_Hand1.Count == 0)
+                    {
+                        bwo.nPlayer2Wins++;
+                        bwo.bPlayer1WinsList.Add(false);
+                    }
+                    if (m_Hand2.Count == 0)
+                    {
+                        bwo.nPlayer1Wins++;
+                        bwo.bPlayer1WinsList.Add(true);
+                    }
                 }
-                if (!bInfiniteLoop) bwo.nThrowsList.Add(m_nThrows);
+                if (bInfiniteLoop)  bwo.nThrowsList.Add(0);         // really should be infinity, but zero will not throw off our counts and averages...
+                else                bwo.nThrowsList.Add(m_nThrows);
+                
                 bwo.nTotalWarsList.Add(m_nTotalWars);
                 bwo.nSingleWarsList.Add(m_nSingleWars);
                 bwo.nDoubleWarsList.Add(m_nDoubleWars);
@@ -584,6 +606,115 @@ namespace kbWar
 
             BackgroundWorkerOutput bwo = e.Result as BackgroundWorkerOutput;
 
+            textBoxOutput.AppendText(GetOutputText(bwo));
+
+            if (checkBoxOutputFiles.Checked) SaveOutputFiles(bwo);
+            // int[] hist = new int[nMaxThrows + 1];
+            // for (int i = 0; i < nMaxThrows + 1; i++) hist[i] = 0;
+            // for (int i = 0; i < bwo.nThrowsList.Count; i++) hist[bwo.nThrowsList[i]]++;
+
+            EnableUI(true);
+        }
+        #endregion
+
+        #region SaveOutputFiles()
+        private void SaveOutputFiles(BackgroundWorkerOutput bwo)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "CSV File|*.csv|Text File|*.txt|All Files|*.*";
+            if (sfd.ShowDialog() != DialogResult.OK) return;
+
+            StreamWriter sw = new StreamWriter(sfd.FileName);
+
+            int nMinThrows, nMaxThrows, nMinTotalWars, nMaxTotalWars, nMinSingleWars, nMaxSingleWars, nMinDouble, nMaxDouble;
+            int nMinTriple, nMaxTriple, nMinQuad, nMaxQuad, nMinFive, nMaxFive, nMinSix, nMaxSix, nMinSeven, nMaxSeven;
+            Int64 nCountThrows, nCountTotalWars, nCountSingleWars, nCountDouble, nCountTriple, nCountQuad, nCountFive, nCountSix, nCountSeven;
+            double dAvgThrows, dAvgTotalWars, dAvgSingleWars, dAvgDouble, dAvgTriple, dAvgQuad, dAvgFive, dAvgSix, dAvgSeven;
+
+            GetMaxMinAvgCount(bwo.nThrowsList, out nMaxThrows, out nMinThrows, out dAvgThrows, out nCountThrows, bwo.nInfiniteLoops);            
+            GetMaxMinAvgCount(bwo.nTotalWarsList, out nMaxTotalWars, out nMinTotalWars, out dAvgTotalWars, out nCountTotalWars);
+            GetMaxMinAvgCount(bwo.nSingleWarsList, out nMaxSingleWars, out nMinSingleWars, out dAvgSingleWars, out nCountSingleWars);
+            GetMaxMinAvgCount(bwo.nDoubleWarsList, out nMaxDouble, out nMinDouble, out dAvgDouble, out nCountDouble);
+            GetMaxMinAvgCount(bwo.nTripleWarsList, out nMaxTriple, out nMinTriple, out dAvgTriple, out nCountTriple);
+            GetMaxMinAvgCount(bwo.nQuadWarsList, out nMaxQuad, out nMinQuad, out dAvgQuad, out nCountQuad);
+            GetMaxMinAvgCount(bwo.nFiveWarsList, out nMaxFive, out nMinFive, out dAvgFive, out nCountFive);
+            GetMaxMinAvgCount(bwo.nSixWarsList, out nMaxSix, out nMinSix, out dAvgSix, out nCountSix);
+            GetMaxMinAvgCount(bwo.nSevenWarsList, out nMaxSeven, out nMinSeven, out dAvgSeven, out nCountSeven);
+
+            sw.WriteLine("Number of Games, " + bwo.nRuns);
+            sw.WriteLine("Player 1 Wins, " + bwo.nPlayer1Wins);
+            sw.WriteLine("Player 2 Wins, " + bwo.nPlayer2Wins);
+            sw.WriteLine("Number of infinite loops, " + bwo.nInfiniteLoops);
+            sw.WriteLine("Max Throws in a game, " + nMaxThrows);
+            sw.WriteLine("Min Throws in a game, " + nMinThrows);
+            sw.WriteLine("Avg Throws in a game, " + dAvgThrows);
+            sw.WriteLine("Total Throws in all games, " + nMinTotalWars);
+            sw.WriteLine("Max total wars in a game, " + nMaxTotalWars);
+            sw.WriteLine("Avg total wars in a game, " + dAvgTotalWars);
+            sw.WriteLine("Total total wars in all games, " + nCountTotalWars);
+            sw.WriteLine("Max single wars in a game, " + nMaxSingleWars);
+            sw.WriteLine("Avg single wars in a game, " + dAvgSingleWars);
+            sw.WriteLine("Total single wars in all games, " + nCountSingleWars);
+            sw.WriteLine("Max double wars in a game, " + nMaxDouble);
+            sw.WriteLine("Avg double wars in a game, " + dAvgDouble);
+            sw.WriteLine("Total double wars in all games, " + nCountDouble);
+            sw.WriteLine("Max triple wars in a game, " + nMaxTriple);
+            sw.WriteLine("Avg triple wars in a game, " + dAvgTriple);
+            sw.WriteLine("Total triple wars in all games, " + nCountTriple);
+            sw.WriteLine("Max quad wars in a game, " + nMaxQuad);
+            sw.WriteLine("Avg quad wars in a game, " + dAvgQuad);
+            sw.WriteLine("Total quad wars in all games, " + nCountQuad);
+            sw.WriteLine("Max quintuple wars in a game, " + nMaxFive);
+            sw.WriteLine("Avg quintuple wars in a game, " + dAvgFive);
+            sw.WriteLine("Total quintuple wars in all games, " + nCountFive);
+            sw.WriteLine("Max sextuple wars in a game, " + nMaxSix);
+            sw.WriteLine("Avg sextuple wars in a game, " + dAvgSix);
+            sw.WriteLine("Total sextuple wars in all games, " + nCountSix);
+            sw.WriteLine("Max septuble wars in a game, " + nMaxSeven);
+            sw.WriteLine("Avg septuble wars in a game, " + dAvgSeven);
+            sw.WriteLine("Total septuble wars in all games, " + nCountSeven);
+
+            sw.WriteLine();
+            sw.WriteLine();
+
+            if( checkBoxVerbose.Checked)
+            {
+                sw.WriteLine("Game Number, Player one Wins, Player two Wins, Number of Throws, Total Wars, Single Wars, Double Wars, Triple Wars, Quadruple Wars, Quintuple Wars, Sextuple Wars, Septuble Wars");
+                
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < bwo.nThrowsList.Count; i++)
+                {
+                    sb.Clear();
+                    sb.Append(i);
+                    sb.Append(", " + bwo.bPlayer1WinsList[i]);
+                    sb.Append(", " + !bwo.bPlayer1WinsList[i]);
+                    sb.Append(", " + bwo.nThrowsList[i]);
+                    sb.Append(", " + bwo.nTotalWarsList[i]);
+                    sb.Append(", " + bwo.nSingleWarsList[i]);
+                    sb.Append(", " + bwo.nDoubleWarsList[i]);
+                    sb.Append(", " + bwo.nTripleWarsList[i]);
+                    sb.Append(", " + bwo.nQuadWarsList[i]);
+                    sb.Append(", " + bwo.nFiveWarsList[i]);
+                    sb.Append(", " + bwo.nSixWarsList[i]);
+                    sb.Append(", " + bwo.nSevenWarsList[i]);
+                    sw.WriteLine(sb.ToString());
+                }
+                sw.WriteLine();
+                sw.WriteLine();
+            }
+
+
+            sw.Close();
+
+        }
+        #endregion
+
+        #region GetOutputText()
+        /// <summary>
+        /// Gets the output text
+        /// </summary>
+        private string GetOutputText(BackgroundWorkerOutput bwo)
+        {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("****************************************");
             sb.AppendLine("Number of games played: " + bwo.nRuns.ToString("N0"));
@@ -592,13 +723,13 @@ namespace kbWar
             if (!checkBoxShuffleAll.Checked && !checkBoxShuffleResult.Checked) sb.AppendLine("Perfect play, no shuffling of cards between turns, infinate loops possible!");
             sb.AppendLine("Player 1 wins: " + bwo.nPlayer1Wins.ToString("N0"));
             sb.AppendLine("Player 2 wins: " + bwo.nPlayer2Wins.ToString("N0"));
-            sb.AppendLine("Number of infinate loops: " + bwo.nInfiniteLoops.ToString("N0"));
+            sb.AppendLine("Number of infinite loops: " + bwo.nInfiniteLoops.ToString("N0"));
             sb.AppendLine("");
 
             int nMinThrows, nMaxThrows;
             Int64 nCountThrows;
             double dAvgThrows;
-            GetMaxMinAvgCount(bwo.nThrowsList, out nMaxThrows, out nMinThrows, out dAvgThrows, out nCountThrows);
+            GetMaxMinAvgCount(bwo.nThrowsList, out nMaxThrows, out nMinThrows, out dAvgThrows, out nCountThrows, bwo.nInfiniteLoops);
             sb.AppendLine("Max throws in a game: " + nMaxThrows.ToString("N0"));
             sb.AppendLine("Min throws in a game: " + nMinThrows.ToString("N0"));
             sb.AppendLine("Avg throws in a game: " + dAvgThrows.ToString());
@@ -679,13 +810,7 @@ namespace kbWar
             sb.AppendLine("Total septuble wars in all games: " + nCountSeven.ToString("N0"));
             sb.AppendLine("");
 
-            textBoxOutput.AppendText(sb.ToString());
-
-            int[] hist = new int[nMaxThrows + 1];
-            for (int i = 0; i < nMaxThrows + 1; i++) hist[i] = 0;
-            for (int i = 0; i < bwo.nThrowsList.Count; i++) hist[bwo.nThrowsList[i]]++;
-
-            EnableUI(true);
+            return sb.ToString();
         }
         #endregion
 
@@ -758,6 +883,31 @@ namespace kbWar
             }
             avg = (double)count / (double)input.Count;
         }
+
+        /// <summary>
+        /// This is a kludge version of GetMaxMinAvgCount which works with the number of throws.  
+        /// It doesn't include zeros into the minimum, or avarage because those are cases where 
+        /// we had an infinite loop.
+        /// </summary>
+        private void GetMaxMinAvgCount(List<int> input, out int max, out int min, out double avg, out Int64 count, int nInfiniteLoops)
+        {
+            max = Int32.MinValue;
+            min = Int32.MaxValue;
+            avg = 0;
+            count = 0;
+
+            foreach (int i in input)
+            {
+                if (i != 0)
+                {
+                    if (i > max) max = i;
+                    if (i < min) min = i;
+                    count += i;
+                }
+            }
+            avg = (double)count / (double)(input.Count - nInfiniteLoops);
+        }
+
         #endregion
 
         #region Sum values in a list
@@ -771,6 +921,8 @@ namespace kbWar
             return sum;
         }
         #endregion
+
+        
     }
     #endregion
 }
