@@ -60,6 +60,9 @@
             this.textBoxOutput = new System.Windows.Forms.TextBox();
             this.workerAutoThrow = new System.ComponentModel.BackgroundWorker();
             this.workerManyGames = new System.ComponentModel.BackgroundWorker();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.checkBoxVerbose = new System.Windows.Forms.CheckBox();
+            this.checkBoxOutputFiles = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -72,6 +75,7 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.tableLayoutPanel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer2
@@ -88,6 +92,7 @@
             this.splitContainer2.Panel1.Controls.Add(this.buttonClearOutput);
             this.splitContainer2.Panel1.Controls.Add(this.buttonCancel);
             this.splitContainer2.Panel1.Controls.Add(this.progressBar1);
+            this.splitContainer2.Panel1.Controls.Add(this.tableLayoutPanel3);
             this.splitContainer2.Panel1.Controls.Add(this.checkBoxDisplay);
             this.splitContainer2.Panel1.Controls.Add(this.tableLayoutPanel2);
             this.splitContainer2.Panel1.Controls.Add(this.buttonRunManyGames);
@@ -111,10 +116,10 @@
             // 
             this.richTextBoxPot.Dock = System.Windows.Forms.DockStyle.Fill;
             this.richTextBoxPot.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxPot.Location = new System.Drawing.Point(0, 448);
+            this.richTextBoxPot.Location = new System.Drawing.Point(0, 475);
             this.richTextBoxPot.Name = "richTextBoxPot";
             this.richTextBoxPot.ReadOnly = true;
-            this.richTextBoxPot.Size = new System.Drawing.Size(183, 310);
+            this.richTextBoxPot.Size = new System.Drawing.Size(183, 283);
             this.richTextBoxPot.TabIndex = 42;
             this.richTextBoxPot.Text = "";
             // 
@@ -122,7 +127,7 @@
             // 
             this.textBoxCounts.Dock = System.Windows.Forms.DockStyle.Top;
             this.textBoxCounts.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxCounts.Location = new System.Drawing.Point(0, 287);
+            this.textBoxCounts.Location = new System.Drawing.Point(0, 314);
             this.textBoxCounts.Multiline = true;
             this.textBoxCounts.Name = "textBoxCounts";
             this.textBoxCounts.ReadOnly = true;
@@ -145,7 +150,7 @@
             // buttonCancel
             // 
             this.buttonCancel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.buttonCancel.Location = new System.Drawing.Point(0, 264);
+            this.buttonCancel.Location = new System.Drawing.Point(0, 291);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(183, 23);
             this.buttonCancel.TabIndex = 30;
@@ -156,7 +161,7 @@
             // progressBar1
             // 
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.progressBar1.Location = new System.Drawing.Point(0, 243);
+            this.progressBar1.Location = new System.Drawing.Point(0, 270);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(183, 21);
             this.progressBar1.TabIndex = 29;
@@ -185,6 +190,7 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(183, 27);
             this.tableLayoutPanel2.TabIndex = 38;
             // 
@@ -484,6 +490,47 @@
             this.workerManyGames.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.workerManyGames_ProgressChanged);
             this.workerManyGames.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerManyGames_RunWorkerCompleted);
             // 
+            // tableLayoutPanel3
+            // 
+            this.tableLayoutPanel3.ColumnCount = 2;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 59.09091F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40.90909F));
+            this.tableLayoutPanel3.Controls.Add(this.checkBoxOutputFiles, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.checkBoxVerbose, 0, 0);
+            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 243);
+            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+            this.tableLayoutPanel3.RowCount = 1;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(183, 27);
+            this.tableLayoutPanel3.TabIndex = 44;
+            // 
+            // checkBoxVerbose
+            // 
+            this.checkBoxVerbose.AutoSize = true;
+            this.checkBoxVerbose.Dock = System.Windows.Forms.DockStyle.Top;
+            this.checkBoxVerbose.Location = new System.Drawing.Point(111, 3);
+            this.checkBoxVerbose.Name = "checkBoxVerbose";
+            this.checkBoxVerbose.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
+            this.checkBoxVerbose.Size = new System.Drawing.Size(69, 17);
+            this.checkBoxVerbose.TabIndex = 44;
+            this.checkBoxVerbose.Text = "Verbose";
+            this.checkBoxVerbose.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxOutputFiles
+            // 
+            this.checkBoxOutputFiles.AutoSize = true;
+            this.checkBoxOutputFiles.Dock = System.Windows.Forms.DockStyle.Top;
+            this.checkBoxOutputFiles.Location = new System.Drawing.Point(3, 3);
+            this.checkBoxOutputFiles.Name = "checkBoxOutputFiles";
+            this.checkBoxOutputFiles.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
+            this.checkBoxOutputFiles.Size = new System.Drawing.Size(102, 17);
+            this.checkBoxOutputFiles.TabIndex = 45;
+            this.checkBoxOutputFiles.Text = "Output Files?";
+            this.checkBoxOutputFiles.UseVisualStyleBackColor = true;
+            this.checkBoxOutputFiles.CheckedChanged += new System.EventHandler(this.checkBoxOutputFiles_CheckedChanged);
+            // 
             // kbWarMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -509,6 +556,8 @@
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.tableLayoutPanel3.ResumeLayout(false);
+            this.tableLayoutPanel3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -546,6 +595,9 @@
         private System.Windows.Forms.RichTextBox richTextBoxPot;
         private System.Windows.Forms.TextBox textBoxCounts;
         private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.CheckBox checkBoxOutputFiles;
+        private System.Windows.Forms.CheckBox checkBoxVerbose;
     }
 }
 
