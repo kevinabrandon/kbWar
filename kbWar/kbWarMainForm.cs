@@ -15,8 +15,8 @@ namespace kbWar
     public partial class kbWarMainForm : Form
     {
         #region private member vars...
-        
-        private kbCardHand m_Deck = new kbCardHand();
+
+        private kbCardDeck m_Deck = new kbCardDeck();
         private kbCardHand m_Hand1 = new kbCardHand();      // player one's hand  
         private kbCardHand m_Hand2 = new kbCardHand();      // player two's hand
         private kbCardHand m_MiddlePile = new kbCardHand(); // the pile of cards in the middle during wars!
@@ -179,9 +179,9 @@ namespace kbWar
         {
             lock (m_Lock)
             {
-                m_Deck.CreateNew52CardDeck();
-                m_Hand1.Clear();
-                m_Hand2.Clear();
+                while (m_Hand1.Count > 0) m_Deck.AddToBottom(m_Hand1.DrawFromBottom());
+                while (m_Hand2.Count > 0) m_Deck.AddToBottom(m_Hand2.DrawFromBottom());
+                
                 m_LastWinnings.Clear();
                 m_nThrows = 0;
                 m_nTotalWars = 0;

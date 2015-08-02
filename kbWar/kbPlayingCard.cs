@@ -63,15 +63,13 @@ namespace kbWar
     #region public class kbCardHand
     /// <summary>
     /// Simulates a card hand.
-    /// 
-    /// Also, when you create the hand, you have the option to create a full ordered 52 card deck
     /// </summary>
     public class kbCardHand
     {
         #region private member vars...
-        private List<kbPlayingCard> m_Cards = new List<kbPlayingCard>();    // the list of cards in the hand.
-        private Random m_Rand = null;                           // used for shuffeling
-        private object m_Lock = new object();                           // used to make the object thread safe
+        protected List<kbPlayingCard> m_Cards = new List<kbPlayingCard>();    // the list of cards in the hand.
+        protected Random m_Rand = null;                           // used for shuffeling
+        protected object m_Lock = new object();                           // used to make the object thread safe
         #endregion
 
         #region public constructors...
@@ -88,63 +86,6 @@ namespace kbWar
         /// <param name="r">Random number generator</param>
         public kbCardHand(Random r) { m_Rand = r; }
 
-        /// <summary>
-        /// Creates a new hand with the option to fill with a new 52-card deck.
-        ///     Uses it's own random number generator.
-        /// </summary>
-        /// <param name="bNewDeck">On true, builds a new deck, on false builds an empty hand</param>
-        public kbCardHand(bool bNewDeck)
-        {
-            m_Rand = new Random();
-            if (bNewDeck) CreateNew52CardDeck();
-        }
-
-        /// <summary>
-        /// Creates a new hand with the option to fill with a new 52-card deck.
-        ///     Uses an external random number generator.
-        /// </summary>
-        /// <param name="r">Random number generator</param>
-        /// <param name="bNewDeck">On true, builds a new deck, on false builds an empty hand</param>
-        public kbCardHand(Random r, bool bNewDeck)
-        {
-            m_Rand = r;
-            if (bNewDeck) CreateNew52CardDeck();
-        }
-        #endregion
-
-        #region public CreateNew52CardDeck()
-        /// <summary>
-        /// Creates a new 52-card ordered deck if true, and empty deck if false.
-        /// If true the the order is A->K Hearts, A->K Clubs, K->A Dimonds, K->A Spades.  
-        ///      So Ace of Hearts is on top, and Ace of Spades is on bottom.
-        ///      (this is the order of a new deck of Bicycle brand cards)
-        /// </summary>
-        public void CreateNew52CardDeck()
-        {
-            lock (m_Lock)
-            {
-                m_Cards.Clear();
-                foreach (kbPlayingCard.Suit s in Enum.GetValues(typeof(kbPlayingCard.Suit)))
-                {
-                    if (s == kbPlayingCard.Suit.Hearts || s == kbPlayingCard.Suit.Clubs)
-                    {
-                        m_Cards.Add(new kbPlayingCard(s, kbPlayingCard.Rank.Ace));
-                        for (int iVal = 2; iVal < 14; iVal++)
-                        {
-                            m_Cards.Add(new kbPlayingCard(s, (kbPlayingCard.Rank)iVal));
-                        }
-                    }
-                    else
-                    {
-                        for (int iVal = 13; iVal >= 2; iVal--)
-                        {
-                            m_Cards.Add(new kbPlayingCard(s, (kbPlayingCard.Rank)iVal));
-                        }
-                        m_Cards.Add(new kbPlayingCard(s, kbPlayingCard.Rank.Ace));
-                    }
-                }
-            }
-        }
         #endregion
 
         #region public Count property
@@ -313,6 +254,70 @@ namespace kbWar
                     sb.AppendLine(pc.ToString());
                 }
                 return sb.ToString();
+            }
+        }
+        #endregion
+    }
+    #endregion
+
+    #region public class kbCardDeck
+    /// <summary>
+    /// This is a card hand that starts out as a new 52 card deck.
+    /// </summary>
+    public class kbCardDeck : kbCardHand
+    {
+        #region Constructors...
+        /// <summary>
+        /// Creates a new ordered 52-card deck.
+        ///    Uses an external random number generator.
+        /// </summary>
+        /// <param name="r"></param>
+        public kbCardDeck(Random r) : base(r)
+        {
+            CreateNew52CardDeck();
+        }
+
+        /// <summary>
+        /// Creats a new ordered 52-card deck.
+        ///    Uses it's own internal random number generator.
+        /// </summary>
+        public kbCardDeck() : base()
+        {
+            CreateNew52CardDeck();
+        }
+        #endregion
+
+        #region public CreateNew52CardDeck()
+        /// <summary>
+        /// Creates a new 52-card ordered deck if true, and empty deck if false.
+        /// If true the the order is A->K Hearts, A->K Clubs, K->A Dimonds, K->A Spades.  
+        ///      So Ace of Hearts is on top, and Ace of Spades is on bottom.
+        ///      (this is the order of a new deck of Bicycle brand cards)
+        /// </summary>
+        private void CreateNew52CardDeck()
+        {
+            lock (m_Lock)
+            {
+                m_Cards.Clear();
+                foreach (kbPlayingCard.Suit s in Enum.GetValues(typeof(kbPlayingCard.Suit)))
+                {
+                    if (s == kbPlayingCard.Suit.Hearts || s == kbPlayingCard.Suit.Clubs)
+                    {
+                        m_Cards.Add(new kbPlayingCard(s, kbPlayingCard.Rank.Ace));
+                        for (int iVal = 2; iVal < 14; iVal++)
+                        {
+                            m_Cards.Add(new kbPlayingCard(s, (kbPlayingCard.Rank)iVal));
+                        }
+                    }
+                    else
+                    {
+                        for (int iVal = 13; iVal >= 2; iVal--)
+                        {
+                            m_Cards.Add(new kbPlayingCard(s, (kbPlayingCard.Rank)iVal));
+                        }
+                        m_Cards.Add(new kbPlayingCard(s, kbPlayingCard.Rank.Ace));
+                    }
+                }
             }
         }
         #endregion
