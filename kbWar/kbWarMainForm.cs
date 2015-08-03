@@ -16,26 +16,11 @@ namespace kbWar
     {
         #region private member vars...
 
-        private kbCardDeck m_Deck = new kbCardDeck();
-        private kbCardHand m_Hand1 = new kbCardHand();      // player one's hand  
-        private kbCardHand m_Hand2 = new kbCardHand();      // player two's hand
-        private kbCardHand m_MiddlePile = new kbCardHand(); // the pile of cards in the middle during wars!
+        // the game to be used with the UI
+        private kbWarGame m_Game = new kbWarGame();
 
-        private kbCardHand m_LastWinnings = new kbCardHand();
-        private bool m_bLastWinner = false;
-
-        private object m_Lock = new object();           
-
-        // stuff for keeping track:
-        private int m_nThrows = 0;
-        private int m_nTotalWars = 0;
-        private int m_nSingleWars = 0;
-        private int m_nDoubleWars = 0;
-        private int m_nTripleWars = 0;
-        private int m_nQuadWars = 0;
-        private int m_nFiveWars = 0;
-        private int m_nSixWars = 0;
-        private int m_nSevenWars = 0;
+        private object m_Lock = new object();      
+     
 
         #endregion
 
@@ -58,24 +43,20 @@ namespace kbWar
         {
             lock (m_Lock)
             {
-                richTextBoxDeck.Text = m_Deck.ToString();
-                richTextBoxPlayer1.Text = m_Hand1.ToString();
-                richTextBoxPlayer2.Text = m_Hand2.ToString();
-                if (m_LastWinnings.Count > 0)
+                richTextBoxDeck.Text = m_Game.Deck;
+                richTextBoxPlayer1.Text = m_Game.GetPlayer(0);
+                richTextBoxPlayer2.Text = m_Game.GetPlayer(1);
+                if (m_Game.State != kbWarGame.GameState.eNotStarted && m_Game.WinnerOfLastTurn > -1)
                 {
-                    string winner;
-                    if (m_bLastWinner) winner = "Player One Won:\n\n";
-                    else winner = "Player Two Won:\n\n";
                     richTextBoxPot.Clear();
-                    richTextBoxPot.AppendText(winner);
-                    richTextBoxPot.AppendText(m_LastWinnings.ToString());
+                    richTextBoxPot.AppendText("Player " + (m_Game.WinnerOfLastTurn + 1).ToString() + " Won:\n\n");
+                    richTextBoxPot.AppendText(m_Game.MostRecentlyWonCards.ToString());
+                    if(m_Game.Winner > 0) richTextBoxPot.AppendText("\nPLAYER " + (m_Game.Winner+1).ToString() + " WINS!!!");
 
-                    if (m_Hand1.Count == 0) richTextBoxPot.AppendText("\nPLAYER TWO WINS!!!");
-                    if (m_Hand2.Count == 0) richTextBoxPot.AppendText("\nPLAYER ONE WINS!!!");
-                    ColorTextBoxeSelection(richTextBoxPot, "Player One Won:", Color.White, Color.Red);
-                    ColorTextBoxeSelection(richTextBoxPot, "Player Two Won:", Color.White, Color.Blue);
-                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER ONE WINS!!!", Color.White, Color.Red);
-                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER TWO WINS!!!", Color.White, Color.Blue);
+            //        ColorTextBoxeSelection(richTextBoxPot, "Player One Won:", Color.White, Color.Red);
+            //        ColorTextBoxeSelection(richTextBoxPot, "Player Two Won:", Color.White, Color.Blue);
+            //        ColorTextBoxeSelection(richTextBoxPot, "PLAYER ONE WINS!!!", Color.White, Color.Red);
+            //        ColorTextBoxeSelection(richTextBoxPot, "PLAYER TWO WINS!!!", Color.White, Color.Blue);
                     ColorTextBoxeSelection(richTextBoxPot, "Ace", Color.Red, Color.GreenYellow);
                     ColorTextBoxeSelection(richTextBoxPot, "Hearts", Color.White, Color.Red);
                     ColorTextBoxeSelection(richTextBoxPot, "Dimonds", Color.White, Color.Red);
@@ -117,14 +98,15 @@ namespace kbWar
             lock(m_Lock)
             {
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine(String.Format("# of Throws:   {0,5}", m_nThrows.ToString("N0")));
-                sb.AppendLine(String.Format("Total Wars:    {0,5}", m_nTotalWars.ToString("N0")));
-                sb.AppendLine(String.Format("Single Wars:   {0,5}", m_nSingleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Double Wars:   {0,5}", m_nDoubleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Triple Wars:   {0,5}", m_nTripleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Quad Wars:     {0,5}", m_nQuadWars.ToString("N0")));
-                sb.AppendLine(String.Format("Quintuple Wars:{0,5}", m_nFiveWars.ToString("N0")));
-                sb.AppendLine(String.Format("Sextuple Wars: {0,5}", m_nSixWars.ToString("N0")));
+                sb.AppendLine(String.Format("# of Throws:   {0,5}", m_Game.Counters.nTurns.ToString("N0")));
+                sb.AppendLine(String.Format("Total Wars:    {0,5}", m_Game.Counters.nTotalWars.ToString("N0")));
+                sb.AppendLine(String.Format("Single Wars:   {0,5}", m_Game.Counters.nSingleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Double Wars:   {0,5}", m_Game.Counters.nDoubleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Triple Wars:   {0,5}", m_Game.Counters.nTripleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Quad Wars:     {0,5}", m_Game.Counters.nQuadrupleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Quintuple Wars:{0,5}", m_Game.Counters.nQuintupleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Sextuple Wars: {0,5}", m_Game.Counters.nSextupleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Septuple Wars: {0,5}", m_Game.Counters.nSeptupleWars.ToString("N0")));
                 textBoxCounts.Text = sb.ToString();
             }
         }
@@ -163,9 +145,7 @@ namespace kbWar
         {
             lock (m_Lock)
             {
-                m_Deck.Shuffle();
-                m_Hand1.Shuffle();
-                m_Hand2.Shuffle();
+                m_Game.ShuffleDeck();
             }
         }
         #endregion
@@ -179,41 +159,20 @@ namespace kbWar
         {
             lock (m_Lock)
             {
-                while (m_Hand1.Count > 0) m_Deck.AddToBottom(m_Hand1.DrawFromBottom());
-                while (m_Hand2.Count > 0) m_Deck.AddToBottom(m_Hand2.DrawFromBottom());
-                
-                m_LastWinnings.Clear();
-                m_nThrows = 0;
-                m_nTotalWars = 0;
-                m_nSingleWars = 0;
-                m_nDoubleWars = 0;
-                m_nTripleWars = 0;
-                m_nQuadWars = 0;
-                m_nFiveWars = 0;
-                m_nSixWars = 0;
-                m_nSevenWars = 0;
+                m_Game.Restart(2);
             }
         }
         #endregion
 
         #region Deal()
         /// <summary>
-        /// Simply deals the cards out, taking the cards from the top of the deck, 
-        /// and putting them on top of the player's hands.  It alternating between 
-        /// the players, player one gets the first card.  It deals out cards till 
-        /// the deck is empty.
+        /// Deal the cards.
         /// </summary>
         private void Deal()
         {
             lock (m_Lock)
             {
-                bool bHand1 = true;
-                while (m_Deck.Count > 0)
-                {
-                    if (bHand1) m_Hand1.AddToTop(m_Deck.DrawFromTop());
-                    else m_Hand2.AddToTop(m_Deck.DrawFromTop());
-                    bHand1 = !bHand1;
-                }
+                m_Game.Deal();
             }
         }
         #endregion
@@ -223,109 +182,11 @@ namespace kbWar
         {
             lock (m_Lock)
             {
-                // setup stuff for call to the recursive throw function
-                int nWars = 0;
-                m_MiddlePile.Clear();   // should be clear already... but what the heck.
-
-                // throw down!!!
-                bool bPlayer1Wins = ThrowReal(ref nWars);
-
-                // shuffle the middle pile of cards, if you want
-                if (checkBoxShuffleResult.Checked) m_MiddlePile.Shuffle();
-
-                // add last winnings:
-                m_LastWinnings.Clear();
-                for (int i = 0; i < m_MiddlePile.Count; i++) m_LastWinnings.AddToBottom(m_MiddlePile[i]);
-                m_bLastWinner = bPlayer1Wins;
-
-                if (bPlayer1Wins)
-                {   // player one wins... add the cards to his hand
-                    while (m_MiddlePile.Count > 0) m_Hand1.AddToBottom(m_MiddlePile.DrawFromBottom());
-                }
-                else
-                {   // player two wins... add the cards to his hand
-                    while (m_MiddlePile.Count > 0) m_Hand2.AddToBottom(m_MiddlePile.DrawFromBottom());
-                }
-
-                // keep track of stuff...
-                m_nThrows++;
-                m_nTotalWars += nWars;
-                if (nWars == 1)      m_nSingleWars++;
-                else if (nWars == 2) m_nDoubleWars++;
-                else if (nWars == 3) m_nTripleWars++;
-                else if (nWars == 4) m_nQuadWars++;
-                else if (nWars == 5) m_nFiveWars++;
-                else if (nWars == 6) m_nSixWars++;
-                else if (nWars == 7) m_nSevenWars++;
-            }
-
-            if (checkBoxShuffleAll.Checked)
-            {
-                Shuffle();
+                m_Game.NewTurn();
             }
         }
         #endregion
-
-        #region ThrowReal()
-        /// <summary>
-        /// Returns true if player 1 wins, false if player 1 looses
-        /// </summary>
-        /// <param name="recursionCount">A counter, to count how many times we recure (keeps track of the number of wars!)</param>
-        /// <returns>Returns True if Player one wins, False if Player one looses.</returns>
-        private bool ThrowReal(ref int recursionCount)
-        {
-            // if both hands are empty, then there is no winner... lets throw an exception:
-            if (m_Hand1.Count == 0 && m_Hand2.Count == 0) throw new Exception("No cards to throw!  no winner!");
-            
-            if (m_Hand1.Count == 0) return false;   // player one has no cards and looses
-            if (m_Hand2.Count == 0) return true;    // player two has no cards and player one wins
-
-            // both players draw one card from the top
-            kbPlayingCard card1 = m_Hand1.DrawFromTop();
-            kbPlayingCard card2 = m_Hand2.DrawFromTop();
-            
-            // add their cards to the middle pile of cards
-            m_MiddlePile.AddToBottom(card1);
-            m_MiddlePile.AddToBottom(card2);
-
-            if (card1.rank > card2.rank)
-            {   // player one wins!  return true!
-                return true;
-            }
-            else if (card1.rank < card2.rank)
-            {   // player one looses!  return false!
-                return false;
-            }
-            else
-            {   // tie... this means... WAR!!!!
-                
-                // player one has no more cards, and can't war, player one looses!
-                if (m_Hand1.Count == 0) return false;
-
-                // player two has no more cards, and can't war, player one wins!
-                if (m_Hand2.Count == 0) return true;
-
-                // players must add 3 more cards to the thrown pile, then they must throw a 4th
-                // if they don't have enough to do that, they need to throw as many as they can
-                // before throwing their last card.
-
-                // player one adding their three cards
-                int nCardsToAdd = 4;
-                if (m_Hand1.Count < 4) nCardsToAdd = m_Hand1.Count;
-                for (int i = 0; i < nCardsToAdd - 1; i++) m_MiddlePile.AddToBottom(m_Hand1.DrawFromTop());
-
-                // player two adding their three cards
-                nCardsToAdd = 4;
-                if (m_Hand2.Count < 4) nCardsToAdd = m_Hand2.Count;
-                for (int i = 0; i < nCardsToAdd - 1; i++) m_MiddlePile.AddToBottom(m_Hand2.DrawFromTop());
-
-                // we're going to recure... 
-                recursionCount++;
-                return ThrowReal(ref recursionCount);
-            }
-        }
-        #endregion
-
+        
         #region Button clicks...
 
         #region shuffle clicked
@@ -348,8 +209,8 @@ namespace kbWar
         #region deal clicked
         private void buttonDeal_Click(object sender, EventArgs e)
         {
-            if (m_Deck.Count == 0)
-            {
+            if (m_Game.State != kbWarGame.GameState.eNotStarted) 
+            {   // if the game is already playing, restart
                 Restart();
                 Shuffle();
             }
@@ -364,18 +225,27 @@ namespace kbWar
         {
             lock (m_Lock)
             {
-                if (m_Hand1.Count == 0 || m_Hand2.Count == 0)
+                if (m_Game.State == kbWarGame.GameState.eInfiniteLoop)
                 {
-                    MessageBox.Show("You need to make sure both players have cards.  Try dealing first.");
+                    MessageBox.Show("We're currently in an infinite loop, try restarting instead!");
+                    return;
+                }
+                else if (m_Game.State == kbWarGame.GameState.eNotStarted)
+                {
+                    MessageBox.Show("We haven't started the game yet, try dealing the cards first!");
+                    return;
+                }
+                else if (m_Game.State == kbWarGame.GameState.eOverWithWinner)
+                {
+                    MessageBox.Show("The game is over, Player " + (m_Game.Winner + 1).ToString() + " has already won!");
                     return;
                 }
             }
-
             Throw();
             UpdateUI();
             UpdateCountsUI();
-            if (m_Hand1.Count == 0) MessageBox.Show("Player 2 WINS!!! " + m_nThrows);
-            if (m_Hand2.Count == 0) MessageBox.Show("Player 1 WINS!!! " + m_nThrows);
+
+            lock(m_Lock)    if (m_Game.Winner >= 0) MessageBox.Show("Player " + (m_Game.Winner + 1).ToString() + " WINS!!!  in " + m_Game.Counters.nTurns + " turns.");
         }
         #endregion
 
@@ -397,10 +267,18 @@ namespace kbWar
             if (!workerManyGames.IsBusy && !workerAutoThrow.IsBusy)
             {
                 EnableUI(false);
-                workerManyGames.RunWorkerAsync();
+                ManyGamesArgs args = new ManyGamesArgs();
+
+                var rand = new Random();
+                args.nGames = (int)numericUpDownNGames.Value;
+                args.nPlayers = 2;
+                args.iSeed = rand.Next();
+                args.bShuffleWinnings = checkBoxShuffleResult.Checked;
+                args.nThreads = (int)numericUpDownNThreads.Value;
+
+                workerManyGames.RunWorkerAsync(args);
             }
             else MessageBox.Show("Auto run already running!");
-
         }
         #endregion
 
@@ -423,6 +301,13 @@ namespace kbWar
         private void checkBoxOutputFiles_CheckedChanged(object sender, EventArgs e)
         {
             checkBoxVerbose.Enabled = checkBoxOutputFiles.Checked;
+        }
+        #endregion
+
+        #region checkBoxShuffleResult checked changed
+        private void checkBoxShuffleResult_CheckedChanged(object sender, EventArgs e)
+        {
+            lock (m_Lock) m_Game.ShuffleRecentlyWonCards = checkBoxShuffleResult.Checked;
         }
         #endregion
 
@@ -477,13 +362,55 @@ namespace kbWar
         }
         #endregion
 
+        #region private class ManyGamesArgs
+        private class ManyGamesArgs
+        {
+            public int nGames;
+            public int nPlayers;
+            public int iSeed;
+            public bool bShuffleWinnings;
+            public int nThreads;
+            public int iThread;
+        }
+        #endregion
+
         #region workerManyGames DoWork
         private void workerManyGames_DoWork(object sender, DoWorkEventArgs e)
         {
+            ManyGamesArgs args = e.Argument as ManyGamesArgs;
+            BackgroundWorker bw = sender as BackgroundWorker;
+
+            BackgroundWorker[] workers = new BackgroundWorker[args.nThreads];
+
+            Random r = new Random(args.iSeed);
+
+            for (int iThread = 0; iThread < args.nThreads; iThread++)
+            {
+                workers[iThread] = new BackgroundWorker();
+                workers[iThread].WorkerReportsProgress = true;
+                workers[iThread].WorkerSupportsCancellation = true;
+                workers[iThread].DoWork += new DoWorkEventHandler(ThreadsDoWork);
+                ManyGamesArgs newArgs = new ManyGamesArgs();
+                newArgs.iSeed = r.Next();
+                newArgs.iThread = iThread;
+                newArgs.nGames = args.nGames / args.nThreads;
+                newArgs.nPlayers = args.nPlayers;
+                newArgs.nThreads = args.nThreads;
+                workers[iThread].RunWorkerAsync(newArgs);
+            }
+
+        }
+
+        private void ThreadsDoWork(object sender, DoWorkEventArgs e)
+        {
+            ManyGamesArgs args = e.Argument as ManyGamesArgs;
             BackgroundWorker bw = sender as BackgroundWorker;
             BackgroundWorkerOutput bwo = new BackgroundWorkerOutput();
 
-            for (int i = 0; i < numericUpDownNGames.Value; i++)
+            kbWarGame game = new kbWarGame(args.nPlayers, new Random(args.iSeed));
+            game.ShuffleRecentlyWonCards = args.bShuffleWinnings;
+
+            for (int i = 0; i < args.nGames; i++)
             {
                 if (bw.CancellationPending)
                 {
@@ -491,64 +418,37 @@ namespace kbWar
                     break;
                 }
 
-                Restart();  // restart with a new deck
-                Shuffle();  // shuffle the deck
-                Deal();     // deal the deck out to the hands
+                game.Restart(args.nPlayers);
+                game.ShuffleDeck();
+                game.Deal();
+                game.PlayTillFinished();
 
-                bool bInfiniteLoop = false;
-                while (m_Hand1.Count > 0 && m_Hand2.Count > 0)
-                {
-                    Throw();
+                if (game.State == kbWarGame.GameState.eInfiniteLoop) bwo.nThrowsList.Add(0);
+                else bwo.nThrowsList.Add(game.Counters.nTurns);
 
-                    if (m_nThrows > 20000)
-                    {   // simple test to see if we've had an infinite loop
-                        bwo.nInfiniteLoops++;
-                        bInfiniteLoop = true;
-                        break;
-                    }
-                    if (checkBoxDisplay.Checked)
-                    {
-                        Thread.Sleep((int)numericUpDownSleep.Value);
-                        MultiAutoRunUpdateProgress(bw, bwo, i);
-                    }
-                }
-                
-                lock (m_Lock)
-                {
-                    if (m_Hand1.Count == 0)
-                    {
-                        bwo.nPlayer2Wins++;
-                        bwo.bPlayer1WinsList.Add(false);
-                    }
-                    if (m_Hand2.Count == 0)
-                    {
-                        bwo.nPlayer1Wins++;
-                        bwo.bPlayer1WinsList.Add(true);
-                    }
-                }
-                if (bInfiniteLoop)  bwo.nThrowsList.Add(0);         // really should be infinity, but zero will not throw off our counts and averages...
-                else                bwo.nThrowsList.Add(m_nThrows);
-                
-                bwo.nTotalWarsList.Add(m_nTotalWars);
-                bwo.nSingleWarsList.Add(m_nSingleWars);
-                bwo.nDoubleWarsList.Add(m_nDoubleWars);
-                bwo.nTripleWarsList.Add(m_nTripleWars);
-                bwo.nQuadWarsList.Add(m_nQuadWars);
-                bwo.nFiveWarsList.Add(m_nFiveWars);
-                bwo.nSixWarsList.Add(m_nSixWars);
-                bwo.nSevenWarsList.Add(m_nSevenWars);
+                if (game.State == kbWarGame.GameState.eInfiniteLoop) bwo.nInfiniteLoops++;
+                if (game.Winner == 0) bwo.nPlayer1Wins++;
+                if (game.Winner == 1) bwo.nPlayer2Wins++;
+                bwo.nTotalWarsList.Add(game.Counters.nTotalWars);
+                bwo.nSingleWarsList.Add(game.Counters.nSingleWars);
+                bwo.nDoubleWarsList.Add(game.Counters.nDoubleWars);
+                bwo.nTripleWarsList.Add(game.Counters.nTripleWars);
+                bwo.nQuadWarsList.Add(game.Counters.nQuadrupleWars);
+                bwo.nFiveWarsList.Add(game.Counters.nQuintupleWars);
+                bwo.nSixWarsList.Add(game.Counters.nSextupleWars);
+                bwo.nSevenWarsList.Add(game.Counters.nSeptupleWars);
                 bwo.nRuns++;
                 if (i % 500 == 0)
                 {
-                    MultiAutoRunUpdateProgress(bw, bwo, i);
+                    MultiAutoRunUpdateProgress(bw, bwo, i, args);
                 }
             }
-            MultiAutoRunUpdateProgress(bw, bwo, (int)numericUpDownNGames.Value);
+            MultiAutoRunUpdateProgress(bw, bwo, args.nGames, args);
             
             e.Result = bwo;
         }
 
-        private void MultiAutoRunUpdateProgress(BackgroundWorker bw, BackgroundWorkerOutput bwo, int iRun)
+        private void MultiAutoRunUpdateProgress(BackgroundWorker bw, BackgroundWorkerOutput bwo, int iRun, ManyGamesArgs args)
         {
             BackgroundWorkerUpdate update = new BackgroundWorkerUpdate();
             update.nRuns = bwo.nRuns;
@@ -563,7 +463,7 @@ namespace kbWar
             update.nTotalSixWars = Sum(bwo.nSixWarsList);
             update.nTotalSevenWars = Sum(bwo.nSevenWarsList);
 
-            bw.ReportProgress((int)(100.0 * iRun / (double)numericUpDownNGames.Value), update);
+            bw.ReportProgress((int)(100.0 * iRun / (double)args.nGames), update);
         }
         #endregion
 
@@ -572,7 +472,7 @@ namespace kbWar
         {
             progressBar1.Value = e.ProgressPercentage;
             //if (checkBoxDisplay.Checked) UpdateUI();
-            UpdateUI();
+            //UpdateUI();
             if (e.UserState != null)
             {
                 BackgroundWorkerUpdate update = e.UserState as BackgroundWorkerUpdate;
@@ -819,26 +719,28 @@ namespace kbWar
         {
             BackgroundWorker bw = sender as BackgroundWorker;
 
-            if (m_Hand1.Count == 0 || m_Hand2.Count == 0)
+            if (m_Game.State == kbWarGame.GameState.eNotStarted)
             {
                 Restart();     // restart with a new deck
                 Shuffle();     // shuffle the deck
                 Deal();        // deal the deck out to the hands
             }
             int count = 0;
-            while (m_Hand1.Count > 0 && m_Hand2.Count > 0)
+            while (true)
             {
                 if (bw.CancellationPending)
                 {
                     e.Cancel = true;
                     break;
                 }
-                Throw();
-                if (m_nThrows > 20000)
-                {
-                    MessageBox.Show("Over a 20,000 throws?!  infinant loop maybe?");
-                    // over a million throws?  infinant loop maybe?
-                    break;
+                lock(m_Lock)
+                {    
+                    var state = m_Game.NewTurn();
+
+                    if (state == kbWarGame.GameState.eInfiniteLoop || state == kbWarGame.GameState.eOverWithWinner)
+                    {
+                        break;
+                    }
                 }
                 bw.ReportProgress(0);
                 
@@ -860,9 +762,11 @@ namespace kbWar
         #region workerAutoThrow RunWorkerCompleted
         private void workerAutoThrow_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (m_Hand1.Count == 0) MessageBox.Show("Player 2 WINS!!! " + m_nThrows);
-            if (m_Hand2.Count == 0) MessageBox.Show("Player 1 WINS!!! " + m_nThrows);
-
+            lock (m_Lock)
+            {
+                if (m_Game.State == kbWarGame.GameState.eInfiniteLoop) MessageBox.Show("Infinite Loop!!!");
+                if (m_Game.State == kbWarGame.GameState.eOverWithWinner) MessageBox.Show("Player " + (m_Game.Winner + 1).ToString() + " WINS!!! In " + m_Game.Counters.nTurns.ToString() + " turns.");
+            }
             EnableUI(true);
         }
         #endregion
@@ -922,7 +826,6 @@ namespace kbWar
         }
         #endregion
 
-        
     }
     #endregion
 }

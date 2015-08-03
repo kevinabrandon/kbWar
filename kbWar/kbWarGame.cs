@@ -7,11 +7,9 @@ namespace kbWar
 {
     #region kbWarGame
     /// <summary>
-    /// Simulates a single game of war.  
-    /// When the game is over, the game is over.  No restarting.  
-    /// If you need to restart, create another game.
+    /// Simulates a game of war.  
     /// 
-    /// *** Allows for a variable number of players! ***
+    /// Allows between 2 and 26 players.
     /// </summary>
     class kbWarGame
     {
@@ -49,6 +47,8 @@ namespace kbWar
 
         private bool m_bShuffleRecentlyWonCards = true;
 
+        private Random m_Rand;
+
         #endregion
 
         #region constructors...
@@ -76,15 +76,34 @@ namespace kbWar
         /// <param name="r">An external random number generator.</param>
         public kbWarGame(int nPlayers, Random r)
         {
-            m_Deck = new kbCardDeck(r);
+            m_Rand = r;
+
+            Restart(nPlayers);
+        }
+        #endregion
+
+        #region public void Restart(int nPlayers)
+        /// <summary>
+        /// Restarts the game, with a new ordered deck.
+        /// </summary>
+        /// <param name="nPlayers">The number of players in the game.</param>
+        public void Restart(int nPlayers)
+        {
+            if (nPlayers < 2 || nPlayers > 26) throw new Exception(nPlayers.ToString() + " Players!  Number of players must be between 2 and 26.");
+            m_Deck = new kbCardDeck(m_Rand);
             m_Players = new kbCardHand[nPlayers];
             m_ThrownCards = new kbCardHand[nPlayers];
-            for (int i = 0; i < nPlayers; i++) 
-            { 
-                m_Players[i] = new kbCardHand(r); 
-                m_ThrownCards[i] = new kbCardHand(r); 
+            for (int i = 0; i < nPlayers; i++)
+            {
+                m_Players[i] = new kbCardHand(m_Rand);
+                m_ThrownCards[i] = new kbCardHand(m_Rand);
             }
-            m_MostRecentlyWonCards = new kbCardDeck(r);
+            m_MostRecentlyWonCards = new kbCardDeck(m_Rand);
+            m_iMostRecentWinner = -1;
+            
+            m_State = GameState.eNotStarted;
+
+            m_Counters = new GameCounters();
         }
         #endregion
 
@@ -166,7 +185,7 @@ namespace kbWar
         }
         #endregion
 
-        #region PlayTillFinished()
+        #region public int PlayTillFinished()
         /// <summary>
         /// Play the game till it's over.
         /// </summary>
@@ -293,19 +312,19 @@ namespace kbWar
             {   // we have a war!
                 // all the winning players need to throw down an additional 3 cards - if they have them, before recursing.
 
-                foreach (int winner in winningPlayers)
+                for(int i = winningPlayers.Count - 1; i >= 0; i--)
                 {
-                    int nCardsToThrow = m_Players[winner].Count;
+                    int nCardsToThrow = m_Players[winningPlayers[i]].Count;
 
                     if (nCardsToThrow == 0)
                     {   // if it doesn't have any more cards left to throw, 
                         // then it's lost and isn't a winner, remove it from the winner list....
-                        winningPlayers.Remove(winner);
+                        winningPlayers.RemoveAt(i);
                         continue;
                     }
 
                     if (nCardsToThrow > 4) nCardsToThrow = 4;
-                    for (int i = 0; i < nCardsToThrow - 1; i++) m_ThrownCards[winner].AddToBottom(m_Players[winner].DrawFromTop());
+                    for (int j = 0; j < nCardsToThrow - 1; j++) m_ThrownCards[winningPlayers[i]].AddToBottom(m_Players[winningPlayers[i]].DrawFromTop());
                 }
 
                 // again check to see if there is more than one winner.
@@ -317,6 +336,47 @@ namespace kbWar
             }
         }
         #endregion
+
+        #region public string Deck
+        /// <summary>
+        /// Gets the Deck.ToString()
+        /// </summary>
+        public string Deck { get { return m_Deck.ToString(); } }
+        #endregion
+
+        #region public string GetPlayer(int iHand)
+        /// <summary>
+        /// Gets Players.ToString()
+        /// </summary>
+        /// <param name="iHand">The Player index.</param>
+        public string GetPlayer(int iHand) { return m_Players[iHand].ToString(); }
+        #endregion
+
+        #region public kbCardHand MostRecentlyWonCards
+        /// <summary>
+        /// Gets a copy of the most recently won cards.
+        /// </summary>
+        public kbCardHand MostRecentlyWonCards
+        {
+            get
+            {
+                kbCardHand newHand = new kbCardHand(m_Rand);
+                for (int i = 0; i < m_MostRecentlyWonCards.Count; i++) newHand.AddToBottom(m_MostRecentlyWonCards[i]);
+                return newHand;
+            }
+        }
+        #endregion
+
+        #region public int WinnerOfLastTurn
+        /// <summary>
+        /// Gets the winner of the last turn.
+        /// </summary>
+        public int WinnerOfLastTurn
+        {
+            get { return m_iMostRecentWinner; }
+        }
+        #endregion
+
     }
     #endregion
 }
