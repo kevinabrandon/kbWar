@@ -166,6 +166,34 @@ namespace kbWar
         }
         #endregion
 
+        #region PlayTillFinished()
+        /// <summary>
+        /// Play the game till it's over.
+        /// </summary>
+        /// <returns>Returns an index to the winner (-1 if there is no winner).</returns>
+        public int PlayTillFinished()
+        {
+            // check to see if the game is already over...
+            if (m_State == GameState.eOverWithWinner || m_State == GameState.eInfiniteLoop) return Winner;  
+
+            // check to see if the game is not started:
+            if (m_State == GameState.eNotStarted)
+            {   // start the game!
+                ShuffleDeck();
+                Deal();
+            }
+
+            // while we're still playing, keep taking turns!
+            while (m_State == GameState.eCurrentlyPlaying)
+            {
+                NewTurn();
+            }
+
+            // return an index to the winner.
+            return Winner;
+        }
+        #endregion
+
         #region public GameState NewTurn()
         /// <summary>
         /// It plays one turn of the game.
