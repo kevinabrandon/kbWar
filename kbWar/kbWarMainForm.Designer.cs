@@ -803,7 +803,7 @@
             this.ClientSize = new System.Drawing.Size(1447, 781);
             this.Controls.Add(this.splitContainer2);
             this.Name = "kbWarMainForm";
-            this.Text = "WAR!!!     A simulation of the simple card game WAR.";
+            this.Text = "kbWar!!!     A simulation of the simple card game WAR.";
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
