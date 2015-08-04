@@ -35,6 +35,8 @@ namespace kbWar
             textBoxOutput.Clear();
             buttonCancel.Enabled = false;
             checkBoxVerbose.Enabled = false;
+
+            numericUpDownNPlayers_ValueChanged(this, new EventArgs());
         }
         #endregion
 
@@ -46,6 +48,11 @@ namespace kbWar
                 richTextBoxDeck.Text = m_Game.Deck;
                 richTextBoxPlayer1.Text = m_Game.GetPlayer(0);
                 richTextBoxPlayer2.Text = m_Game.GetPlayer(1);
+                if (m_Game.nPlayers >= 3) richTextBoxPlayer3.Text = m_Game.GetPlayer(2);
+                if (m_Game.nPlayers >= 4) richTextBoxPlayer4.Text = m_Game.GetPlayer(3);
+                if (m_Game.nPlayers >= 5) richTextBoxPlayer5.Text = m_Game.GetPlayer(4);
+                if (m_Game.nPlayers >= 6) richTextBoxPlayer6.Text = m_Game.GetPlayer(5);
+
                 if (m_Game.State != kbWarGame.GameState.eNotStarted && m_Game.WinnerOfLastTurn > -1)
                 {
                     richTextBoxPot.Clear();
@@ -53,10 +60,18 @@ namespace kbWar
                     richTextBoxPot.AppendText(m_Game.MostRecentlyWonCards.ToString());
                     if(m_Game.Winner > 0) richTextBoxPot.AppendText("\nPLAYER " + (m_Game.Winner+1).ToString() + " WINS!!!");
 
-            //        ColorTextBoxeSelection(richTextBoxPot, "Player One Won:", Color.White, Color.Red);
-            //        ColorTextBoxeSelection(richTextBoxPot, "Player Two Won:", Color.White, Color.Blue);
-            //        ColorTextBoxeSelection(richTextBoxPot, "PLAYER ONE WINS!!!", Color.White, Color.Red);
-            //        ColorTextBoxeSelection(richTextBoxPot, "PLAYER TWO WINS!!!", Color.White, Color.Blue);
+                    ColorTextBoxeSelection(richTextBoxPot, "Player 1 Won:", Color.White, Color.Red);
+                    ColorTextBoxeSelection(richTextBoxPot, "Player 2 Won:", Color.White, Color.Blue);
+                    ColorTextBoxeSelection(richTextBoxPot, "Player 3 Won:", Color.White, Color.Green);
+                    ColorTextBoxeSelection(richTextBoxPot, "Player 4 Won:", Color.White, Color.Purple);
+                    ColorTextBoxeSelection(richTextBoxPot, "Player 5 Won:", Color.Black, Color.Orange);
+                    ColorTextBoxeSelection(richTextBoxPot, "Player 6 Won:", Color.Black, Color.Teal);
+                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER 1 WINS!!!", Color.White, Color.Red);
+                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER 2 WINS!!!", Color.White, Color.Blue);
+                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER 3 WINS!!!", Color.White, Color.Green);
+                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER 4 WINS!!!", Color.White, Color.Purple);
+                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER 5 WINS!!!", Color.Black, Color.Orange);
+                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER 6 WINS!!!", Color.Black, Color.Teal);
                     ColorTextBoxeSelection(richTextBoxPot, "Ace", Color.Red, Color.GreenYellow);
                     ColorTextBoxeSelection(richTextBoxPot, "Hearts", Color.White, Color.Red);
                     ColorTextBoxeSelection(richTextBoxPot, "Dimonds", Color.White, Color.Red);
@@ -68,26 +83,46 @@ namespace kbWar
                 ColorTextBoxeSelection(richTextBoxDeck, "Ace", Color.Red, Color.GreenYellow);
                 ColorTextBoxeSelection(richTextBoxPlayer1, "Ace", Color.Red, Color.GreenYellow);
                 ColorTextBoxeSelection(richTextBoxPlayer2, "Ace", Color.Red, Color.GreenYellow);
+                ColorTextBoxeSelection(richTextBoxPlayer3, "Ace", Color.Red, Color.GreenYellow);
+                ColorTextBoxeSelection(richTextBoxPlayer4, "Ace", Color.Red, Color.GreenYellow);
+                ColorTextBoxeSelection(richTextBoxPlayer5, "Ace", Color.Red, Color.GreenYellow);
+                ColorTextBoxeSelection(richTextBoxPlayer6, "Ace", Color.Red, Color.GreenYellow);
                 
 
                 ColorTextBoxeSelection(richTextBoxDeck, "Hearts", Color.White, Color.Red);
                 ColorTextBoxeSelection(richTextBoxPlayer1, "Hearts", Color.White, Color.Red);
                 ColorTextBoxeSelection(richTextBoxPlayer2, "Hearts", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer3, "Hearts", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer4, "Hearts", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer5, "Hearts", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer6, "Hearts", Color.White, Color.Red);
                 
 
                 ColorTextBoxeSelection(richTextBoxDeck, "Dimonds", Color.White, Color.Red);
                 ColorTextBoxeSelection(richTextBoxPlayer1, "Dimonds", Color.White, Color.Red);
                 ColorTextBoxeSelection(richTextBoxPlayer2, "Dimonds", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer3, "Dimonds", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer4, "Dimonds", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer5, "Dimonds", Color.White, Color.Red);
+                ColorTextBoxeSelection(richTextBoxPlayer6, "Dimonds", Color.White, Color.Red);
                 
 
                 ColorTextBoxeSelection(richTextBoxDeck, "Spades", Color.White, Color.Black);
                 ColorTextBoxeSelection(richTextBoxPlayer1, "Spades", Color.White, Color.Black);
                 ColorTextBoxeSelection(richTextBoxPlayer2, "Spades", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer3, "Spades", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer4, "Spades", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer5, "Spades", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer6, "Spades", Color.White, Color.Black);
                 
 
                 ColorTextBoxeSelection(richTextBoxDeck, "Clubs", Color.White, Color.Black);
                 ColorTextBoxeSelection(richTextBoxPlayer1, "Clubs", Color.White, Color.Black);
-                ColorTextBoxeSelection(richTextBoxPlayer2, "Clubs", Color.White, Color.Black);       
+                ColorTextBoxeSelection(richTextBoxPlayer2, "Clubs", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer3, "Clubs", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer4, "Clubs", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer5, "Clubs", Color.White, Color.Black);
+                ColorTextBoxeSelection(richTextBoxPlayer6, "Clubs", Color.White, Color.Black); 
             }
         }
         #endregion
@@ -159,7 +194,7 @@ namespace kbWar
         {
             lock (m_Lock)
             {
-                m_Game.Restart(2);
+                m_Game.Restart((int)numericUpDownNPlayers.Value);
             }
         }
         #endregion
@@ -261,22 +296,40 @@ namespace kbWar
         }
         #endregion
 
+        BackgroundWorker[] Workers = null;
+
         #region run many games clicked
         private void buttonRunManyGames_Clicked(object sender, EventArgs e)
         {
-            if (!workerManyGames.IsBusy && !workerAutoThrow.IsBusy)
+            if (!workerAutoThrow.IsBusy || Workers != null)
             {
                 EnableUI(false);
-                ManyGamesArgs args = new ManyGamesArgs();
+                int nThreads = (int)numericUpDownNThreads.Value;
+                Workers = new BackgroundWorker[nThreads];
 
                 var rand = new Random();
-                args.nGames = (int)numericUpDownNGames.Value;
-                args.nPlayers = 2;
-                args.iSeed = rand.Next();
-                args.bShuffleWinnings = checkBoxShuffleResult.Checked;
-                args.nThreads = (int)numericUpDownNThreads.Value;
+                m_WorkersOutput = new BackgroundWorker();
 
-                workerManyGames.RunWorkerAsync(args);
+                for( int iThread = 0; iThread < nThreads; iThread++)
+                {
+                    Workers[iThread] = new BackgroundWorker();
+                    Workers[iThread].WorkerReportsProgress = true;
+                    Workers[iThread].WorkerSupportsCancellation = true;
+                    Workers[iThread].DoWork += new DoWorkEventHandler(workerManyGames_DoWork);
+                    Workers[iThread].ProgressChanged +=new ProgressChangedEventHandler(workerManyGames_ProgressChanged);
+                    Workers[iThread].RunWorkerCompleted +=new RunWorkerCompletedEventHandler(workerManyGames_RunWorkerCompleted);
+
+                    ManyGamesArgs args = new ManyGamesArgs();
+                    
+                    args.nGames = (int)numericUpDownNGames.Value;
+                    args.nPlayers = (int)numericUpDownNPlayers.Value;
+                    args.iSeed = rand.Next();
+                    args.bShuffleWinnings = checkBoxShuffleResult.Checked;
+                    args.nThreads = nThreads;
+                    args.iThread = iThread;
+
+                    Workers[iThread].RunWorkerAsync(args);
+                }
             }
             else MessageBox.Show("Auto run already running!");
         }
@@ -342,6 +395,7 @@ namespace kbWar
             public int nPlayer2Wins = 0;
             public int nRuns = 0;
             public int nInfiniteLoops = 0;
+            public int iThread;
         }
         #endregion
 
@@ -379,38 +433,13 @@ namespace kbWar
         {
             ManyGamesArgs args = e.Argument as ManyGamesArgs;
             BackgroundWorker bw = sender as BackgroundWorker;
-
-            BackgroundWorker[] workers = new BackgroundWorker[args.nThreads];
-
-            Random r = new Random(args.iSeed);
-
-            for (int iThread = 0; iThread < args.nThreads; iThread++)
-            {
-                workers[iThread] = new BackgroundWorker();
-                workers[iThread].WorkerReportsProgress = true;
-                workers[iThread].WorkerSupportsCancellation = true;
-                workers[iThread].DoWork += new DoWorkEventHandler(ThreadsDoWork);
-                ManyGamesArgs newArgs = new ManyGamesArgs();
-                newArgs.iSeed = r.Next();
-                newArgs.iThread = iThread;
-                newArgs.nGames = args.nGames / args.nThreads;
-                newArgs.nPlayers = args.nPlayers;
-                newArgs.nThreads = args.nThreads;
-                workers[iThread].RunWorkerAsync(newArgs);
-            }
-
-        }
-
-        private void ThreadsDoWork(object sender, DoWorkEventArgs e)
-        {
-            ManyGamesArgs args = e.Argument as ManyGamesArgs;
-            BackgroundWorker bw = sender as BackgroundWorker;
             BackgroundWorkerOutput bwo = new BackgroundWorkerOutput();
+            bwo.iThread = args.iThread;
 
             kbWarGame game = new kbWarGame(args.nPlayers, new Random(args.iSeed));
             game.ShuffleRecentlyWonCards = args.bShuffleWinnings;
 
-            for (int i = 0; i < args.nGames; i++)
+            for (int i = 0; i < args.nGames / args.nThreads; i++)
             {
                 if (bw.CancellationPending)
                 {
@@ -475,32 +504,37 @@ namespace kbWar
             //UpdateUI();
             if (e.UserState != null)
             {
+                var nThreads = numericUpDownNThreads.Value;
                 BackgroundWorkerUpdate update = e.UserState as BackgroundWorkerUpdate;
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine(String.Format("# of games: {0,13}", update.nRuns.ToString("N0")));
-                sb.AppendLine(String.Format("# of Throws:{0,13}", update.nTotalThrows.ToString("N0")));
-                sb.AppendLine(String.Format("# Infinite Loops:{0,8}", update.nInfinateLoops.ToString("N0")));
-                sb.AppendLine(String.Format("Total Wars:    {0,10}", update.nTotalWars.ToString("N0")));
-                sb.AppendLine(String.Format("Single Wars:   {0,10}", update.nTotalSingleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Double Wars:   {0,10}", update.nTotalDoubleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Triple Wars:   {0,10}", update.nTotalTripleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Quad Wars:     {0,10}", update.nTotalQuadWars.ToString("N0")));
-                sb.AppendLine(String.Format("Quintuple Wars:{0,10}", update.nTotalFiveWars.ToString("N0")));
-                sb.AppendLine(String.Format("Sextuple Wars: {0,10}", update.nTotalSixWars.ToString("N0")));
-                sb.AppendLine(String.Format("Septuble Wars: {0,10}", update.nTotalSevenWars.ToString("N0")));
+                sb.AppendLine(String.Format("# of games: {0,13}", (update.nRuns * nThreads).ToString("N0")));           // multiplying by number of threads is kinda cheating here...
+                sb.AppendLine(String.Format("# of Throws:{0,13}", (update.nTotalThrows * nThreads).ToString("N0")));
+                sb.AppendLine(String.Format("# Infinite Loops:{0,8}", (update.nInfinateLoops * nThreads).ToString("N0")));
+                sb.AppendLine(String.Format("Total Wars:    {0,10}", (update.nTotalWars * nThreads).ToString("N0")));
+                sb.AppendLine(String.Format("Single Wars:   {0,10}", (update.nTotalSingleWars * nThreads).ToString("N0")));
+                sb.AppendLine(String.Format("Double Wars:   {0,10}", (update.nTotalDoubleWars * nThreads).ToString("N0")));
+                sb.AppendLine(String.Format("Triple Wars:   {0,10}", (update.nTotalTripleWars * nThreads).ToString("N0")));
+                sb.AppendLine(String.Format("Quad Wars:     {0,10}", (update.nTotalQuadWars * nThreads).ToString("N0")));
+                sb.AppendLine(String.Format("Quintuple Wars:{0,10}", (update.nTotalFiveWars * nThreads).ToString("N0")));
+                sb.AppendLine(String.Format("Sextuple Wars: {0,10}", (update.nTotalSixWars * nThreads).ToString("N0")));
+                sb.AppendLine(String.Format("Septuble Wars: {0,10}", (update.nTotalSevenWars * nThreads).ToString("N0")));
                 textBoxCounts.Text = sb.ToString();
             }
         }
         #endregion
 
+        BackgroundWorker m_WorkersOutput;
+
         #region workerManyGames RunWorkerCompleted
         private void workerManyGames_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            progressBar1.Value = 0;
+
 
             if (e.Cancelled || e.Error != null)
             {   // if it was cancelled or there was an error, just return
-                EnableUI(true);
+                //EnableUI(true);
+
+
                 return; 
             }
 
@@ -823,6 +857,77 @@ namespace kbWar
                 sum += i;
             }
             return sum;
+        }
+        #endregion
+
+        #region numbericUPDownNPlayers Value Changed
+        /// <summary>
+        /// When the number of players change, we change the window to make  
+        /// the correct number of players visible.  Then we restart the game.
+        /// </summary>
+        private void numericUpDownNPlayers_ValueChanged(object sender, EventArgs e)
+        {
+            // splitter distance is 936 when all 6 are visible.
+            // full window size is 1463 when all 6 are visible.
+            // textbox is 127 px wide plus 3 px margin, 130 per player.
+
+            int width = 1463;
+            int split = 936;
+            int playerSize = 130;
+
+            if (numericUpDownNPlayers.Value >= 6)
+            {
+                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = true;
+                labelPlayer3.Visible = labelPlayer4.Visible = labelPlayer5.Visible = labelPlayer6.Visible = true;
+                this.Width = width;
+                splitContainer1.SplitterDistance = split;
+            }
+            else if (numericUpDownNPlayers.Value == 5)
+            {
+                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = true;
+                labelPlayer3.Visible = labelPlayer4.Visible = labelPlayer5.Visible = true;
+
+                richTextBoxPlayer6.Visible = false;
+                labelPlayer6.Visible = false;
+
+                this.Width = width - (playerSize);
+                splitContainer1.SplitterDistance = split - (playerSize);
+
+            }
+            else if (numericUpDownNPlayers.Value == 4)
+            {
+                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = true;
+                labelPlayer3.Visible = labelPlayer4.Visible = true;
+
+                richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = false;
+                labelPlayer5.Visible = labelPlayer6.Visible = false;
+                
+                this.Width = width - (playerSize * 2);
+                splitContainer1.SplitterDistance = split - (playerSize * 2);
+            }
+            else if (numericUpDownNPlayers.Value == 3)
+            {
+                richTextBoxPlayer3.Visible = true;
+                labelPlayer3.Visible = true;
+
+                richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = false;
+                labelPlayer4.Visible = labelPlayer5.Visible = labelPlayer6.Visible = false;
+                
+                this.Width = width - (playerSize * 3);
+                splitContainer1.SplitterDistance = split - (playerSize * 3);
+            }
+            else if (numericUpDownNPlayers.Value <= 2)
+            {
+                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = false;
+                labelPlayer3.Visible = labelPlayer4.Visible = labelPlayer5.Visible = labelPlayer6.Visible = false;
+
+                this.Width = width - (playerSize * 4);
+                splitContainer1.SplitterDistance = split - (playerSize * 4);
+            }
+
+            Restart();
+            UpdateUI();
+            UpdateCountsUI();
         }
         #endregion
 

@@ -377,6 +377,13 @@ namespace kbWar
         }
         #endregion
 
+        #region public int nPlayers
+        /// <summary>
+        /// Gets the number of players in the Game
+        /// </summary>
+        public int nPlayers { get { return m_Players.Length; } }
+        #endregion
+
     }
     #endregion
 }
