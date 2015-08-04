@@ -120,6 +120,7 @@
   <data name="textBoxCounts.Text" xml:space="preserve">
     <value># of games:           100
 nInfiniteLoops:         0
+# of Ties:       0
 # of Throws:       30,722
 Total Wars:         1,810
 Single Wars:        1,644
@@ -132,8 +133,5 @@ Septuble Wars:          0</value>
   </data>
   <metadata name="workerAutoThrow.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>6, 12</value>
-  </metadata>
-  <metadata name="workerManyGames.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>170, 12</value>
   </metadata>
 </root>

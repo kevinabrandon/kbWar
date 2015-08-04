@@ -15,27 +15,11 @@ namespace kbWar
     public partial class kbWarMainForm : Form
     {
         #region private member vars...
+
+        private kbCardGameWar m_Game = new kbCardGameWar();     // the game to be used with the UI
         
-        private kbCardHand m_Deck = new kbCardHand();
-        private kbCardHand m_Hand1 = new kbCardHand();      // player one's hand  
-        private kbCardHand m_Hand2 = new kbCardHand();      // player two's hand
-        private kbCardHand m_MiddlePile = new kbCardHand(); // the pile of cards in the middle during wars!
-
-        private kbCardHand m_LastWinnings = new kbCardHand();
-        private bool m_bLastWinner = false;
-
-        private object m_Lock = new object();           
-
-        // stuff for keeping track:
-        private int m_nThrows = 0;
-        private int m_nTotalWars = 0;
-        private int m_nSingleWars = 0;
-        private int m_nDoubleWars = 0;
-        private int m_nTripleWars = 0;
-        private int m_nQuadWars = 0;
-        private int m_nFiveWars = 0;
-        private int m_nSixWars = 0;
-        private int m_nSevenWars = 0;
+        BackgroundWorker[] m_Workers = null;            // the background threads for the monte-carlo simulation.
+        BackgroundWorkerOutput m_WorkersOutput = null;  // used to collect output from the multitple workers.
 
         #endregion
 
@@ -50,81 +34,129 @@ namespace kbWar
             textBoxOutput.Clear();
             buttonCancel.Enabled = false;
             checkBoxVerbose.Enabled = false;
+
+            numericUpDownNPlayers_ValueChanged(this, new EventArgs());
         }
         #endregion
 
         #region UpdateUI()
         private void UpdateUI()
         {
-            lock (m_Lock)
+            lock (m_Game)
             {
-                richTextBoxDeck.Text = m_Deck.ToString();
-                richTextBoxPlayer1.Text = m_Hand1.ToString();
-                richTextBoxPlayer2.Text = m_Hand2.ToString();
-                if (m_LastWinnings.Count > 0)
-                {
-                    string winner;
-                    if (m_bLastWinner) winner = "Player One Won:\n\n";
-                    else winner = "Player Two Won:\n\n";
-                    richTextBoxPot.Clear();
-                    richTextBoxPot.AppendText(winner);
-                    richTextBoxPot.AppendText(m_LastWinnings.ToString());
+                richTextBoxDeck.Text = m_Game.Deck;
+                richTextBoxPlayer1.Text = m_Game.GetPlayer(0);
+                richTextBoxPlayer2.Text = m_Game.GetPlayer(1);
 
-                    if (m_Hand1.Count == 0) richTextBoxPot.AppendText("\nPLAYER TWO WINS!!!");
-                    if (m_Hand2.Count == 0) richTextBoxPot.AppendText("\nPLAYER ONE WINS!!!");
-                    ColorTextBoxeSelection(richTextBoxPot, "Player One Won:", Color.White, Color.Red);
-                    ColorTextBoxeSelection(richTextBoxPot, "Player Two Won:", Color.White, Color.Blue);
-                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER ONE WINS!!!", Color.White, Color.Red);
-                    ColorTextBoxeSelection(richTextBoxPot, "PLAYER TWO WINS!!!", Color.White, Color.Blue);
-                    ColorTextBoxeSelection(richTextBoxPot, "Ace", Color.Red, Color.GreenYellow);
-                    ColorTextBoxeSelection(richTextBoxPot, "Hearts", Color.White, Color.Red);
-                    ColorTextBoxeSelection(richTextBoxPot, "Dimonds", Color.White, Color.Red);
-                    ColorTextBoxeSelection(richTextBoxPot, "Spades", Color.White, Color.Black);
-                    ColorTextBoxeSelection(richTextBoxPot, "Clubs", Color.White, Color.Black);
+                if (m_Game.nPlayers >= 3) richTextBoxPlayer3.Text = m_Game.GetPlayer(2);
+                else richTextBoxPlayer3.Clear();
+
+                if (m_Game.nPlayers >= 4) richTextBoxPlayer4.Text = m_Game.GetPlayer(3);
+                else richTextBoxPlayer4.Clear();
+
+                if (m_Game.nPlayers >= 5) richTextBoxPlayer5.Text = m_Game.GetPlayer(4);
+                else richTextBoxPlayer5.Clear();
+
+                if (m_Game.nPlayers >= 6) richTextBoxPlayer6.Text = m_Game.GetPlayer(5);
+                else richTextBoxPlayer6.Clear();
+
+                if (m_Game.WinnerOfLastTurn > -2)
+                {
+                    richTextBoxPot.Clear();
+                    if (m_Game.WinnerOfLastTurn < 0) richTextBoxPot.AppendText("TIE!!\n\n");
+                    else    richTextBoxPot.AppendText("Player " + (m_Game.WinnerOfLastTurn + 1).ToString() + " Won:\n\n");
+
+                    richTextBoxPot.AppendText(m_Game.MostRecentlyWonCards.ToString());
+                    if(m_Game.Winner > 0) richTextBoxPot.AppendText("\nPLAYER " + (m_Game.Winner+1).ToString() + " WINS!!!");
                 }
                 else richTextBoxPot.Clear();
-                
-                ColorTextBoxeSelection(richTextBoxDeck, "Ace", Color.Red, Color.GreenYellow);
-                ColorTextBoxeSelection(richTextBoxPlayer1, "Ace", Color.Red, Color.GreenYellow);
-                ColorTextBoxeSelection(richTextBoxPlayer2, "Ace", Color.Red, Color.GreenYellow);
-                
-
-                ColorTextBoxeSelection(richTextBoxDeck, "Hearts", Color.White, Color.Red);
-                ColorTextBoxeSelection(richTextBoxPlayer1, "Hearts", Color.White, Color.Red);
-                ColorTextBoxeSelection(richTextBoxPlayer2, "Hearts", Color.White, Color.Red);
-                
-
-                ColorTextBoxeSelection(richTextBoxDeck, "Dimonds", Color.White, Color.Red);
-                ColorTextBoxeSelection(richTextBoxPlayer1, "Dimonds", Color.White, Color.Red);
-                ColorTextBoxeSelection(richTextBoxPlayer2, "Dimonds", Color.White, Color.Red);
-                
-
-                ColorTextBoxeSelection(richTextBoxDeck, "Spades", Color.White, Color.Black);
-                ColorTextBoxeSelection(richTextBoxPlayer1, "Spades", Color.White, Color.Black);
-                ColorTextBoxeSelection(richTextBoxPlayer2, "Spades", Color.White, Color.Black);
-                
-
-                ColorTextBoxeSelection(richTextBoxDeck, "Clubs", Color.White, Color.Black);
-                ColorTextBoxeSelection(richTextBoxPlayer1, "Clubs", Color.White, Color.Black);
-                ColorTextBoxeSelection(richTextBoxPlayer2, "Clubs", Color.White, Color.Black);       
             }
+            ColorTextBoxes();
+        }
+        #endregion
+
+        #region ColorTextBoxes()
+        private void ColorTextBoxes()
+        {
+            ColorTextBoxeSelection(richTextBoxPot, "TIE!!", Color.White, Color.Black);
+
+            ColorTextBoxeSelection(richTextBoxPot, "Player 1 Won:", Color.White, Color.Maroon);
+            ColorTextBoxeSelection(richTextBoxPot, "Player 2 Won:", Color.White, Color.Blue);
+            ColorTextBoxeSelection(richTextBoxPot, "Player 3 Won:", Color.White, Color.Green);
+            ColorTextBoxeSelection(richTextBoxPot, "Player 4 Won:", Color.White, Color.Purple);
+            ColorTextBoxeSelection(richTextBoxPot, "Player 5 Won:", Color.Black, Color.Orange);
+            ColorTextBoxeSelection(richTextBoxPot, "Player 6 Won:", Color.Black, Color.Teal);
+
+            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 1 WINS!!!", Color.White, Color.Maroon);
+            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 2 WINS!!!", Color.White, Color.Blue);
+            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 3 WINS!!!", Color.White, Color.Green);
+            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 4 WINS!!!", Color.White, Color.Purple);
+            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 5 WINS!!!", Color.Black, Color.Orange);
+            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 6 WINS!!!", Color.Black, Color.Teal);          
+
+            ColorTextBoxeSelection(richTextBoxPot, "Ace", Color.Red, Color.GreenYellow);
+            ColorTextBoxeSelection(richTextBoxDeck, "Ace", Color.Red, Color.GreenYellow);
+            ColorTextBoxeSelection(richTextBoxPlayer1, "Ace", Color.Red, Color.GreenYellow);
+            ColorTextBoxeSelection(richTextBoxPlayer2, "Ace", Color.Red, Color.GreenYellow);
+            ColorTextBoxeSelection(richTextBoxPlayer3, "Ace", Color.Red, Color.GreenYellow);
+            ColorTextBoxeSelection(richTextBoxPlayer4, "Ace", Color.Red, Color.GreenYellow);
+            ColorTextBoxeSelection(richTextBoxPlayer5, "Ace", Color.Red, Color.GreenYellow);
+            ColorTextBoxeSelection(richTextBoxPlayer6, "Ace", Color.Red, Color.GreenYellow);
+
+            ColorTextBoxeSelection(richTextBoxPot, "Hearts", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxDeck, "Hearts", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer1, "Hearts", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer2, "Hearts", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer3, "Hearts", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer4, "Hearts", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer5, "Hearts", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer6, "Hearts", Color.White, Color.Red);
+
+            ColorTextBoxeSelection(richTextBoxDeck, "Diamonds", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPot, "Diamonds", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer1, "Diamonds", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer2, "Diamonds", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer3, "Diamonds", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer4, "Diamonds", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer5, "Diamonds", Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPlayer6, "Diamonds", Color.White, Color.Red);
+
+            ColorTextBoxeSelection(richTextBoxDeck, "Spades", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPot, "Spades", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer1, "Spades", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer2, "Spades", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer3, "Spades", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer4, "Spades", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer5, "Spades", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer6, "Spades", Color.White, Color.Black);
+
+            ColorTextBoxeSelection(richTextBoxDeck, "Clubs", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPot, "Clubs", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer1, "Clubs", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer2, "Clubs", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer3, "Clubs", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer4, "Clubs", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer5, "Clubs", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPlayer6, "Clubs", Color.White, Color.Black); 
         }
         #endregion
 
         #region UpdateCountsUI()
         private void UpdateCountsUI()
         {
-            lock(m_Lock)
+            lock(m_Game)
             {
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine(String.Format("# of Throws:   {0,5}", m_nThrows.ToString("N0")));
-                sb.AppendLine(String.Format("Total Wars:    {0,5}", m_nTotalWars.ToString("N0")));
-                sb.AppendLine(String.Format("Single Wars:   {0,5}", m_nSingleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Double Wars:   {0,5}", m_nDoubleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Triple Wars:   {0,5}", m_nTripleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Quad Wars:     {0,5}", m_nQuadWars.ToString("N0")));
-                sb.AppendLine(String.Format("Quintuple Wars:{0,5}", m_nFiveWars.ToString("N0")));
-                sb.AppendLine(String.Format("Sextuple Wars: {0,5}", m_nSixWars.ToString("N0")));
+                sb.AppendLine(String.Format("# of Throws:   {0,5}", m_Game.Counters.nTurns.ToString("N0")));
+                sb.AppendLine(String.Format("# of Ties:     {0,5}", m_Game.Counters.nTies.ToString("N0")));
+                sb.AppendLine(String.Format("Total Wars:    {0,5}", m_Game.Counters.nTotalWars.ToString("N0")));
+                sb.AppendLine(String.Format("Single Wars:   {0,5}", m_Game.Counters.nSingleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Double Wars:   {0,5}", m_Game.Counters.nDoubleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Triple Wars:   {0,5}", m_Game.Counters.nTripleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Quad Wars:     {0,5}", m_Game.Counters.nQuadrupleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Quintuple Wars:{0,5}", m_Game.Counters.nQuintupleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Sextuple Wars: {0,5}", m_Game.Counters.nSextupleWars.ToString("N0")));
+                sb.AppendLine(String.Format("Septuple Wars: {0,5}", m_Game.Counters.nSeptupleWars.ToString("N0")));
                 textBoxCounts.Text = sb.ToString();
             }
         }
@@ -161,11 +193,9 @@ namespace kbWar
         /// </summary>
         private void Shuffle()
         {
-            lock (m_Lock)
+            lock (m_Game)
             {
-                m_Deck.Shuffle();
-                m_Hand1.Shuffle();
-                m_Hand2.Shuffle();
+                m_Game.ShuffleDeck();
             }
         }
         #endregion
@@ -177,43 +207,22 @@ namespace kbWar
         /// </summary>
         void Restart()
         {
-            lock (m_Lock)
+            lock (m_Game)
             {
-                m_Deck.CreateNew52CardDeck();
-                m_Hand1.Clear();
-                m_Hand2.Clear();
-                m_LastWinnings.Clear();
-                m_nThrows = 0;
-                m_nTotalWars = 0;
-                m_nSingleWars = 0;
-                m_nDoubleWars = 0;
-                m_nTripleWars = 0;
-                m_nQuadWars = 0;
-                m_nFiveWars = 0;
-                m_nSixWars = 0;
-                m_nSevenWars = 0;
+                m_Game.Restart((int)numericUpDownNPlayers.Value);
             }
         }
         #endregion
 
         #region Deal()
         /// <summary>
-        /// Simply deals the cards out, taking the cards from the top of the deck, 
-        /// and putting them on top of the player's hands.  It alternating between 
-        /// the players, player one gets the first card.  It deals out cards till 
-        /// the deck is empty.
+        /// Deal the cards.
         /// </summary>
         private void Deal()
         {
-            lock (m_Lock)
+            lock (m_Game)
             {
-                bool bHand1 = true;
-                while (m_Deck.Count > 0)
-                {
-                    if (bHand1) m_Hand1.AddToTop(m_Deck.DrawFromTop());
-                    else m_Hand2.AddToTop(m_Deck.DrawFromTop());
-                    bHand1 = !bHand1;
-                }
+                m_Game.Deal();
             }
         }
         #endregion
@@ -221,111 +230,13 @@ namespace kbWar
         #region Throw()
         private void Throw()
         {
-            lock (m_Lock)
+            lock (m_Game)
             {
-                // setup stuff for call to the recursive throw function
-                int nWars = 0;
-                m_MiddlePile.Clear();   // should be clear already... but what the heck.
-
-                // throw down!!!
-                bool bPlayer1Wins = ThrowReal(ref nWars);
-
-                // shuffle the middle pile of cards, if you want
-                if (checkBoxShuffleResult.Checked) m_MiddlePile.Shuffle();
-
-                // add last winnings:
-                m_LastWinnings.Clear();
-                for (int i = 0; i < m_MiddlePile.Count; i++) m_LastWinnings.AddToBottom(m_MiddlePile[i]);
-                m_bLastWinner = bPlayer1Wins;
-
-                if (bPlayer1Wins)
-                {   // player one wins... add the cards to his hand
-                    while (m_MiddlePile.Count > 0) m_Hand1.AddToBottom(m_MiddlePile.DrawFromBottom());
-                }
-                else
-                {   // player two wins... add the cards to his hand
-                    while (m_MiddlePile.Count > 0) m_Hand2.AddToBottom(m_MiddlePile.DrawFromBottom());
-                }
-
-                // keep track of stuff...
-                m_nThrows++;
-                m_nTotalWars += nWars;
-                if (nWars == 1)      m_nSingleWars++;
-                else if (nWars == 2) m_nDoubleWars++;
-                else if (nWars == 3) m_nTripleWars++;
-                else if (nWars == 4) m_nQuadWars++;
-                else if (nWars == 5) m_nFiveWars++;
-                else if (nWars == 6) m_nSixWars++;
-                else if (nWars == 7) m_nSevenWars++;
-            }
-
-            if (checkBoxShuffleAll.Checked)
-            {
-                Shuffle();
+                m_Game.NewTurn();
             }
         }
         #endregion
-
-        #region ThrowReal()
-        /// <summary>
-        /// Returns true if player 1 wins, false if player 1 looses
-        /// </summary>
-        /// <param name="recursionCount">A counter, to count how many times we recure (keeps track of the number of wars!)</param>
-        /// <returns>Returns True if Player one wins, False if Player one looses.</returns>
-        private bool ThrowReal(ref int recursionCount)
-        {
-            // if both hands are empty, then there is no winner... lets throw an exception:
-            if (m_Hand1.Count == 0 && m_Hand2.Count == 0) throw new Exception("No cards to throw!  no winner!");
-            
-            if (m_Hand1.Count == 0) return false;   // player one has no cards and looses
-            if (m_Hand2.Count == 0) return true;    // player two has no cards and player one wins
-
-            // both players draw one card from the top
-            kbPlayingCard card1 = m_Hand1.DrawFromTop();
-            kbPlayingCard card2 = m_Hand2.DrawFromTop();
-            
-            // add their cards to the middle pile of cards
-            m_MiddlePile.AddToBottom(card1);
-            m_MiddlePile.AddToBottom(card2);
-
-            if (card1.rank > card2.rank)
-            {   // player one wins!  return true!
-                return true;
-            }
-            else if (card1.rank < card2.rank)
-            {   // player one looses!  return false!
-                return false;
-            }
-            else
-            {   // tie... this means... WAR!!!!
-                
-                // player one has no more cards, and can't war, player one looses!
-                if (m_Hand1.Count == 0) return false;
-
-                // player two has no more cards, and can't war, player one wins!
-                if (m_Hand2.Count == 0) return true;
-
-                // players must add 3 more cards to the thrown pile, then they must throw a 4th
-                // if they don't have enough to do that, they need to throw as many as they can
-                // before throwing their last card.
-
-                // player one adding their three cards
-                int nCardsToAdd = 4;
-                if (m_Hand1.Count < 4) nCardsToAdd = m_Hand1.Count;
-                for (int i = 0; i < nCardsToAdd - 1; i++) m_MiddlePile.AddToBottom(m_Hand1.DrawFromTop());
-
-                // player two adding their three cards
-                nCardsToAdd = 4;
-                if (m_Hand2.Count < 4) nCardsToAdd = m_Hand2.Count;
-                for (int i = 0; i < nCardsToAdd - 1; i++) m_MiddlePile.AddToBottom(m_Hand2.DrawFromTop());
-
-                // we're going to recure... 
-                recursionCount++;
-                return ThrowReal(ref recursionCount);
-            }
-        }
-        #endregion
-
+        
         #region Button clicks...
 
         #region shuffle clicked
@@ -348,8 +259,8 @@ namespace kbWar
         #region deal clicked
         private void buttonDeal_Click(object sender, EventArgs e)
         {
-            if (m_Deck.Count == 0)
-            {
+            if (m_Game.State != kbCardGameWar.GameState.eNotStarted) 
+            {   // if the game is already playing, restart
                 Restart();
                 Shuffle();
             }
@@ -362,28 +273,45 @@ namespace kbWar
         #region throw clicked
         private void buttonThrow_Click(object sender, EventArgs e)
         {
-            lock (m_Lock)
+            lock (m_Game)
             {
-                if (m_Hand1.Count == 0 || m_Hand2.Count == 0)
+                if (m_Game.State == kbCardGameWar.GameState.eInfiniteLoop)
                 {
-                    MessageBox.Show("You need to make sure both players have cards.  Try dealing first.");
+                    MessageBox.Show("We're currently in an infinite loop, try restarting instead!");
+                    return;
+                }
+                else if (m_Game.State == kbCardGameWar.GameState.eNotStarted)
+                {
+                    MessageBox.Show("We haven't started the game yet, try dealing the cards first!");
+                    return;
+                }
+                else if (m_Game.State == kbCardGameWar.GameState.eOverWithWinner)
+                {
+                    MessageBox.Show("The game is over, Player " + (m_Game.Winner + 1).ToString() + " has already won!");
                     return;
                 }
             }
-
             Throw();
             UpdateUI();
             UpdateCountsUI();
-            if (m_Hand1.Count == 0) MessageBox.Show("Player 2 WINS!!! " + m_nThrows);
-            if (m_Hand2.Count == 0) MessageBox.Show("Player 1 WINS!!! " + m_nThrows);
+
+            lock(m_Game)    if (m_Game.Winner >= 0) MessageBox.Show("Player " + (m_Game.Winner + 1).ToString() + " WINS!!!  in " + m_Game.Counters.nTurns + " turns.");
         }
         #endregion
 
         #region auto-throw clicked
         private void buttonAutoThrow_Clicked(object sender, EventArgs e)
         {
-            if (!workerManyGames.IsBusy && !workerAutoThrow.IsBusy)
+            if (CheckIfAllDone() && !workerAutoThrow.IsBusy)
             {
+                lock (m_Game)
+                {
+                    if (m_Game.State == kbCardGameWar.GameState.eOverWithWinner || 
+                        m_Game.State == kbCardGameWar.GameState.eInfiniteLoop)
+                    {
+                        m_Game.Restart((int)numericUpDownNPlayers.Value);
+                    }
+                }
                 EnableUI(false);
                 workerAutoThrow.RunWorkerAsync();
             }
@@ -391,24 +319,17 @@ namespace kbWar
         }
         #endregion
 
-        #region run many games clicked
-        private void buttonRunManyGames_Clicked(object sender, EventArgs e)
-        {
-            if (!workerManyGames.IsBusy && !workerAutoThrow.IsBusy)
-            {
-                EnableUI(false);
-                workerManyGames.RunWorkerAsync();
-            }
-            else MessageBox.Show("Auto run already running!");
-
-        }
-        #endregion
-
         #region cancel clicked
         private void buttonCancel_Click(object sender, EventArgs e)
         {
             if (workerAutoThrow.IsBusy) workerAutoThrow.CancelAsync();
-            if (workerManyGames.IsBusy) workerManyGames.CancelAsync();
+            if (m_Workers != null)
+            {
+                foreach (var worker in m_Workers)
+                {
+                    if (worker.IsBusy) worker.CancelAsync();
+                }
+            }
         }
         #endregion
 
@@ -426,6 +347,13 @@ namespace kbWar
         }
         #endregion
 
+        #region checkBoxShuffleResult checked changed
+        private void checkBoxShuffleResult_CheckedChanged(object sender, EventArgs e)
+        {
+            lock (m_Game) m_Game.ShuffleRecentlyWonCards = checkBoxShuffleResult.Checked;
+        }
+        #endregion
+
         #endregion
 
         #region EnableUI()
@@ -433,7 +361,14 @@ namespace kbWar
         {
             foreach (Control c in splitContainer2.Panel1.Controls)
             {
-                c.Enabled = bEnable;
+                if (c.HasChildren)
+                {
+                    foreach (Control c2 in c.Controls)
+                    {   // disables all the controls inside the groupboxes without disabling the groupboxes themselves.
+                        c2.Enabled = bEnable;
+                    }
+                }
+                else c.Enabled = bEnable;
             }
             buttonCancel.Enabled = !bEnable;
             if (checkBoxVerbose.Enabled) checkBoxVerbose.Enabled = checkBoxOutputFiles.Checked;
@@ -444,7 +379,8 @@ namespace kbWar
         private class BackgroundWorkerOutput
         {
             public List<int> nThrowsList = new List<int>();
-            public List<bool> bPlayer1WinsList = new List<bool>();
+            public List<int> nTiesList = new List<int>();
+            public List<int> iWinnerList = new List<int>();
             public List<int> nTotalWarsList = new List<int>();
             public List<int> nSingleWarsList = new List<int>();
             public List<int> nDoubleWarsList = new List<int>();
@@ -453,10 +389,36 @@ namespace kbWar
             public List<int> nFiveWarsList = new List<int>();
             public List<int> nSixWarsList = new List<int>();
             public List<int> nSevenWarsList = new List<int>();
-            public int nPlayer1Wins = 0;
-            public int nPlayer2Wins = 0;
             public int nRuns = 0;
             public int nInfiniteLoops = 0;
+            public int iThread;
+            public int nPlayers;
+        }
+        #endregion
+
+        #region private void CombineOutputs(BackgroundWorkerOutput bwo)
+        private void CombineOutputs(BackgroundWorkerOutput bwo)
+        {
+            if (m_WorkersOutput == null)
+            {
+                m_WorkersOutput = new BackgroundWorkerOutput();
+            }
+
+            m_WorkersOutput.iThread++;  // use this as a counter to know how many times we've combined outputs.
+            m_WorkersOutput.nPlayers = bwo.nPlayers;
+            m_WorkersOutput.nInfiniteLoops += bwo.nInfiniteLoops;
+            m_WorkersOutput.nRuns += bwo.nRuns;
+            m_WorkersOutput.iWinnerList.AddRange(bwo.iWinnerList);
+            m_WorkersOutput.nThrowsList.AddRange(bwo.nThrowsList);
+            m_WorkersOutput.nTiesList.AddRange(bwo.nTiesList);
+            m_WorkersOutput.nTotalWarsList.AddRange(bwo.nTotalWarsList);
+            m_WorkersOutput.nSingleWarsList.AddRange(bwo.nSingleWarsList);
+            m_WorkersOutput.nDoubleWarsList.AddRange(bwo.nDoubleWarsList);
+            m_WorkersOutput.nTripleWarsList.AddRange(bwo.nTripleWarsList);
+            m_WorkersOutput.nQuadWarsList.AddRange(bwo.nQuadWarsList);
+            m_WorkersOutput.nFiveWarsList.AddRange(bwo.nFiveWarsList);
+            m_WorkersOutput.nSixWarsList.AddRange(bwo.nSixWarsList);
+            m_WorkersOutput.nSevenWarsList.AddRange(bwo.nSevenWarsList);
         }
         #endregion
 
@@ -464,6 +426,7 @@ namespace kbWar
         private class BackgroundWorkerUpdate
         {
             public int nRuns = 0;
+            public int iThread = 0;
             public Int64 nTotalThrows = 0;
             public Int64 nInfinateLoops = 0;
             public Int64 nTotalWars = 0;
@@ -474,16 +437,73 @@ namespace kbWar
             public Int64 nTotalFiveWars = 0;
             public Int64 nTotalSixWars = 0;
             public Int64 nTotalSevenWars = 0;
+            public Int64 nTotalTies = 0;
+        }
+        #endregion
+
+        #region private class ManyGamesArgs
+        private class ManyGamesArgs
+        {
+            public int nGames;
+            public int nPlayers;
+            public int iSeed;
+            public bool bShuffleWinnings;
+            public int nThreads;
+            public int iThread;
+        }
+        #endregion
+
+        #region StartMonteCarloSimulation
+        private void StartMonteCarloSimulation(object sender, EventArgs e)
+        {
+            if (!workerAutoThrow.IsBusy || m_Workers != null)
+            {
+                EnableUI(false);
+                int nThreads = (int)numericUpDownNThreads.Value;
+                m_Workers = new BackgroundWorker[nThreads];
+
+                var rand = new Random();
+                m_WorkersOutput = new BackgroundWorkerOutput();
+                m_WorkersOutput.iThread = 0;
+
+                for (int iThread = 0; iThread < nThreads; iThread++)
+                {
+                    m_Workers[iThread] = new BackgroundWorker();
+                    m_Workers[iThread].WorkerReportsProgress = true;
+                    m_Workers[iThread].WorkerSupportsCancellation = true;
+                    m_Workers[iThread].DoWork += new DoWorkEventHandler(workerManyGames_DoWork);
+                    m_Workers[iThread].ProgressChanged += new ProgressChangedEventHandler(workerManyGames_ProgressChanged);
+                    m_Workers[iThread].RunWorkerCompleted += new RunWorkerCompletedEventHandler(workerManyGames_RunWorkerCompleted);
+
+                    ManyGamesArgs args = new ManyGamesArgs();
+
+                    args.nGames = (int)numericUpDownNGames.Value / nThreads;
+                    args.nPlayers = (int)numericUpDownNPlayers.Value;
+                    args.iSeed = rand.Next();
+                    args.bShuffleWinnings = checkBoxShuffleResult.Checked;
+                    args.nThreads = nThreads;
+                    args.iThread = iThread;
+
+                    m_Workers[iThread].RunWorkerAsync(args);
+                }
+            }
+            else MessageBox.Show("Auto run already running!");
         }
         #endregion
 
         #region workerManyGames DoWork
         private void workerManyGames_DoWork(object sender, DoWorkEventArgs e)
         {
+            ManyGamesArgs args = e.Argument as ManyGamesArgs;
             BackgroundWorker bw = sender as BackgroundWorker;
             BackgroundWorkerOutput bwo = new BackgroundWorkerOutput();
+            bwo.iThread = args.iThread;
+            bwo.nPlayers = args.nPlayers;
 
-            for (int i = 0; i < numericUpDownNGames.Value; i++)
+            kbCardGameWar game = new kbCardGameWar(args.nPlayers, new Random(args.iSeed));
+            game.ShuffleRecentlyWonCards = args.bShuffleWinnings;
+
+            for (int i = 0; i < args.nGames; i++)
             {
                 if (bw.CancellationPending)
                 {
@@ -491,70 +511,47 @@ namespace kbWar
                     break;
                 }
 
-                Restart();  // restart with a new deck
-                Shuffle();  // shuffle the deck
-                Deal();     // deal the deck out to the hands
+                game.Restart(args.nPlayers);
+                game.ShuffleDeck();
+                game.Deal();
+                game.PlayTillFinished();
 
-                bool bInfiniteLoop = false;
-                while (m_Hand1.Count > 0 && m_Hand2.Count > 0)
-                {
-                    Throw();
+                if (game.State == kbCardGameWar.GameState.eInfiniteLoop) bwo.nThrowsList.Add(0);
+                else bwo.nThrowsList.Add(game.Counters.nTurns);
 
-                    if (m_nThrows > 20000)
-                    {   // simple test to see if we've had an infinite loop
-                        bwo.nInfiniteLoops++;
-                        bInfiniteLoop = true;
-                        break;
-                    }
-                    if (checkBoxDisplay.Checked)
-                    {
-                        Thread.Sleep((int)numericUpDownSleep.Value);
-                        MultiAutoRunUpdateProgress(bw, bwo, i);
-                    }
-                }
-                
-                lock (m_Lock)
-                {
-                    if (m_Hand1.Count == 0)
-                    {
-                        bwo.nPlayer2Wins++;
-                        bwo.bPlayer1WinsList.Add(false);
-                    }
-                    if (m_Hand2.Count == 0)
-                    {
-                        bwo.nPlayer1Wins++;
-                        bwo.bPlayer1WinsList.Add(true);
-                    }
-                }
-                if (bInfiniteLoop)  bwo.nThrowsList.Add(0);         // really should be infinity, but zero will not throw off our counts and averages...
-                else                bwo.nThrowsList.Add(m_nThrows);
-                
-                bwo.nTotalWarsList.Add(m_nTotalWars);
-                bwo.nSingleWarsList.Add(m_nSingleWars);
-                bwo.nDoubleWarsList.Add(m_nDoubleWars);
-                bwo.nTripleWarsList.Add(m_nTripleWars);
-                bwo.nQuadWarsList.Add(m_nQuadWars);
-                bwo.nFiveWarsList.Add(m_nFiveWars);
-                bwo.nSixWarsList.Add(m_nSixWars);
-                bwo.nSevenWarsList.Add(m_nSevenWars);
+                if (game.State == kbCardGameWar.GameState.eInfiniteLoop) bwo.nInfiniteLoops++;
+                bwo.iWinnerList.Add(game.Winner);
+                bwo.nTiesList.Add(game.Counters.nTies);
+                bwo.nTotalWarsList.Add(game.Counters.nTotalWars);
+                bwo.nSingleWarsList.Add(game.Counters.nSingleWars);
+                bwo.nDoubleWarsList.Add(game.Counters.nDoubleWars);
+                bwo.nTripleWarsList.Add(game.Counters.nTripleWars);
+                bwo.nQuadWarsList.Add(game.Counters.nQuadrupleWars);
+                bwo.nFiveWarsList.Add(game.Counters.nQuintupleWars);
+                bwo.nSixWarsList.Add(game.Counters.nSextupleWars);
+                bwo.nSevenWarsList.Add(game.Counters.nSeptupleWars);
                 bwo.nRuns++;
                 if (i % 500 == 0)
                 {
-                    MultiAutoRunUpdateProgress(bw, bwo, i);
+                    MultiAutoRunUpdateProgress(bw, bwo, i, args);
                 }
             }
-            MultiAutoRunUpdateProgress(bw, bwo, (int)numericUpDownNGames.Value);
+            MultiAutoRunUpdateProgress(bw, bwo, args.nGames, args);
             
             e.Result = bwo;
         }
+        #endregion
 
-        private void MultiAutoRunUpdateProgress(BackgroundWorker bw, BackgroundWorkerOutput bwo, int iRun)
+        #region UpdateCountersAtEndOfSim()
+        private void UpdateCountersAtEndOfSim(BackgroundWorkerOutput bwo)
         {
             BackgroundWorkerUpdate update = new BackgroundWorkerUpdate();
             update.nRuns = bwo.nRuns;
+            update.iThread = -1;
             update.nTotalThrows = Sum(bwo.nThrowsList);
             update.nInfinateLoops = bwo.nInfiniteLoops;
             update.nTotalWars = Sum(bwo.nTotalWarsList);
+            update.nTotalTies = Sum(bwo.nTiesList);
             update.nTotalSingleWars = Sum(bwo.nSingleWarsList);
             update.nTotalDoubleWars = Sum(bwo.nDoubleWarsList);
             update.nTotalTripleWars = Sum(bwo.nTripleWarsList);
@@ -563,32 +560,78 @@ namespace kbWar
             update.nTotalSixWars = Sum(bwo.nSixWarsList);
             update.nTotalSevenWars = Sum(bwo.nSevenWarsList);
 
-            bw.ReportProgress((int)(100.0 * iRun / (double)numericUpDownNGames.Value), update);
+            int iProgress = 100;
+            workerManyGames_ProgressChanged(this, new ProgressChangedEventArgs(iProgress, update));
+
+        }
+        #endregion
+
+        #region MultiAutoRunUpdateProgress()
+        private void MultiAutoRunUpdateProgress(BackgroundWorker bw, BackgroundWorkerOutput bwo, int iRun, ManyGamesArgs args)
+        {
+            BackgroundWorkerUpdate update = new BackgroundWorkerUpdate();
+            update.nRuns = bwo.nRuns;
+            update.iThread = args.iThread;
+            update.nTotalThrows = Sum(bwo.nThrowsList);
+            update.nInfinateLoops = bwo.nInfiniteLoops;
+            update.nTotalWars = Sum(bwo.nTotalWarsList);
+            update.nTotalTies = Sum(bwo.nTiesList);
+            update.nTotalSingleWars = Sum(bwo.nSingleWarsList);
+            update.nTotalDoubleWars = Sum(bwo.nDoubleWarsList);
+            update.nTotalTripleWars = Sum(bwo.nTripleWarsList);
+            update.nTotalQuadWars = Sum(bwo.nQuadWarsList);
+            update.nTotalFiveWars = Sum(bwo.nFiveWarsList);
+            update.nTotalSixWars = Sum(bwo.nSixWarsList);
+            update.nTotalSevenWars = Sum(bwo.nSevenWarsList);
+
+            bw.ReportProgress((int)(100.0 * iRun / (double)args.nGames), update);
         }
         #endregion
 
         #region workerManyGames ProgressChanged
         private void workerManyGames_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            progressBar1.Value = e.ProgressPercentage;
-            //if (checkBoxDisplay.Checked) UpdateUI();
-            UpdateUI();
             if (e.UserState != null)
             {
                 BackgroundWorkerUpdate update = e.UserState as BackgroundWorkerUpdate;
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine(String.Format("# of games: {0,13}", update.nRuns.ToString("N0")));
-                sb.AppendLine(String.Format("# of Throws:{0,13}", update.nTotalThrows.ToString("N0")));
-                sb.AppendLine(String.Format("# Infinite Loops:{0,8}", update.nInfinateLoops.ToString("N0")));
-                sb.AppendLine(String.Format("Total Wars:    {0,10}", update.nTotalWars.ToString("N0")));
-                sb.AppendLine(String.Format("Single Wars:   {0,10}", update.nTotalSingleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Double Wars:   {0,10}", update.nTotalDoubleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Triple Wars:   {0,10}", update.nTotalTripleWars.ToString("N0")));
-                sb.AppendLine(String.Format("Quad Wars:     {0,10}", update.nTotalQuadWars.ToString("N0")));
-                sb.AppendLine(String.Format("Quintuple Wars:{0,10}", update.nTotalFiveWars.ToString("N0")));
-                sb.AppendLine(String.Format("Sextuple Wars: {0,10}", update.nTotalSixWars.ToString("N0")));
-                sb.AppendLine(String.Format("Septuble Wars: {0,10}", update.nTotalSevenWars.ToString("N0")));
-                textBoxCounts.Text = sb.ToString();
+
+                if (update.iThread == 0 || update.iThread == -1)
+                {   // here -1 means it's over and it's the main thread calling it.
+
+                    progressBar1.Value = e.ProgressPercentage;
+                    int nThreads = (int)numericUpDownNThreads.Value;
+
+                    if (update.iThread == 0)
+                    {// multiplying by number of threads is kinda cheating here...
+                        update.nRuns *= nThreads;
+                        update.nInfinateLoops *= nThreads;
+                        update.nTotalThrows *= nThreads;
+                        update.nTotalTies *= nThreads;
+                        update.nTotalWars *= nThreads;
+                        update.nTotalSingleWars *= nThreads;
+                        update.nTotalDoubleWars *= nThreads;
+                        update.nTotalTripleWars *= nThreads;
+                        update.nTotalQuadWars *= nThreads;
+                        update.nTotalFiveWars *= nThreads;
+                        update.nTotalSixWars *= nThreads;
+                        update.nTotalSevenWars *= nThreads;
+                    }
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine(String.Format("Games:    {0,15}", update.nRuns.ToString("N0")));
+                    sb.AppendLine(String.Format("Infinite Loops:{0,10}", update.nInfinateLoops.ToString("N0")));
+                    sb.AppendLine(String.Format("Throws:   {0,15}", update.nTotalThrows.ToString("N0")));
+                    sb.AppendLine(String.Format("Total Ties:    {0,10}", update.nTotalTies.ToString("N0")));
+                    sb.AppendLine(String.Format("Total Wars: {0,13}", update.nTotalWars.ToString("N0")));
+                    sb.AppendLine(String.Format("Single Wars:{0,13}", update.nTotalSingleWars.ToString("N0")));
+                    sb.AppendLine(String.Format("Double Wars:{0,13}", update.nTotalDoubleWars.ToString("N0")));
+                    sb.AppendLine(String.Format("Triple Wars:{0,13}", update.nTotalTripleWars.ToString("N0")));
+                    sb.AppendLine(String.Format("Quad Wars:     {0,10}", update.nTotalQuadWars.ToString("N0")));
+                    sb.AppendLine(String.Format("Quintuple Wars:{0,10}", update.nTotalFiveWars.ToString("N0")));
+                    sb.AppendLine(String.Format("Sextuple Wars: {0,10}", update.nTotalSixWars.ToString("N0")));
+                    sb.AppendLine(String.Format("Septuble Wars: {0,10}", update.nTotalSevenWars.ToString("N0")));
+                    textBoxCounts.Text = sb.ToString();
+                }
             }
         }
         #endregion
@@ -596,24 +639,52 @@ namespace kbWar
         #region workerManyGames RunWorkerCompleted
         private void workerManyGames_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            progressBar1.Value = 0;
-
             if (e.Cancelled || e.Error != null)
             {   // if it was cancelled or there was an error, just return
-                EnableUI(true);
+                if (CheckIfAllDone())
+                {
+                    foreach (var worker in m_Workers) worker.Dispose();
+                    m_Workers = null;
+                    progressBar1.Value = 0;
+                    EnableUI(true);
+                }
                 return; 
             }
 
             BackgroundWorkerOutput bwo = e.Result as BackgroundWorkerOutput;
+            CombineOutputs(bwo);
 
-            textBoxOutput.AppendText(GetOutputText(bwo));
+            if (CheckIfAllDone())
+            {
+                UpdateCountersAtEndOfSim(m_WorkersOutput);
 
-            if (checkBoxOutputFiles.Checked) SaveOutputFiles(bwo);
-            // int[] hist = new int[nMaxThrows + 1];
-            // for (int i = 0; i < nMaxThrows + 1; i++) hist[i] = 0;
-            // for (int i = 0; i < bwo.nThrowsList.Count; i++) hist[bwo.nThrowsList[i]]++;
+                textBoxOutput.AppendText(GetOutputText(m_WorkersOutput));
 
-            EnableUI(true);
+                if (checkBoxOutputFiles.Checked) SaveOutputFiles(m_WorkersOutput);
+
+                foreach (var worker in m_Workers) worker.Dispose();
+                m_Workers = null;
+
+                progressBar1.Value = 0;
+                EnableUI(true);
+            }
+        }
+        #endregion
+
+        #region private bool CheckIfAllDone()
+        /// <summary>
+        /// Checks if all the background threads are complete.
+        /// </summary>
+        private bool CheckIfAllDone()
+        {
+            if (m_Workers == null) return true;
+
+            foreach (var bw in m_Workers)
+            {
+                if (bw.IsBusy) return false;
+            }
+
+            return true;
         }
         #endregion
 
@@ -626,13 +697,14 @@ namespace kbWar
 
             StreamWriter sw = new StreamWriter(sfd.FileName);
 
-            int nMinThrows, nMaxThrows, nMinTotalWars, nMaxTotalWars, nMinSingleWars, nMaxSingleWars, nMinDouble, nMaxDouble;
+            int nMinThrows, nMaxThrows, nMinTotalWars, nMaxTotalWars, nMinTies, nMaxTies, nMinSingleWars, nMaxSingleWars, nMinDouble, nMaxDouble;
             int nMinTriple, nMaxTriple, nMinQuad, nMaxQuad, nMinFive, nMaxFive, nMinSix, nMaxSix, nMinSeven, nMaxSeven;
-            Int64 nCountThrows, nCountTotalWars, nCountSingleWars, nCountDouble, nCountTriple, nCountQuad, nCountFive, nCountSix, nCountSeven;
-            double dAvgThrows, dAvgTotalWars, dAvgSingleWars, dAvgDouble, dAvgTriple, dAvgQuad, dAvgFive, dAvgSix, dAvgSeven;
+            Int64 nCountThrows, nCountTotalWars, nCountTies, nCountSingleWars, nCountDouble, nCountTriple, nCountQuad, nCountFive, nCountSix, nCountSeven;
+            double dAvgThrows, dAvgTotalWars, dAvgTies, dAvgSingleWars, dAvgDouble, dAvgTriple, dAvgQuad, dAvgFive, dAvgSix, dAvgSeven;
 
-            GetMaxMinAvgCount(bwo.nThrowsList, out nMaxThrows, out nMinThrows, out dAvgThrows, out nCountThrows, bwo.nInfiniteLoops);            
+            GetMaxMinAvgCount(bwo.nThrowsList, out nMaxThrows, out nMinThrows, out dAvgThrows, out nCountThrows, bwo.nInfiniteLoops);
             GetMaxMinAvgCount(bwo.nTotalWarsList, out nMaxTotalWars, out nMinTotalWars, out dAvgTotalWars, out nCountTotalWars);
+            GetMaxMinAvgCount(bwo.nTiesList, out nMaxTies, out nMinTies, out dAvgTies, out nCountTies);
             GetMaxMinAvgCount(bwo.nSingleWarsList, out nMaxSingleWars, out nMinSingleWars, out dAvgSingleWars, out nCountSingleWars);
             GetMaxMinAvgCount(bwo.nDoubleWarsList, out nMaxDouble, out nMinDouble, out dAvgDouble, out nCountDouble);
             GetMaxMinAvgCount(bwo.nTripleWarsList, out nMaxTriple, out nMinTriple, out dAvgTriple, out nCountTriple);
@@ -640,36 +712,52 @@ namespace kbWar
             GetMaxMinAvgCount(bwo.nFiveWarsList, out nMaxFive, out nMinFive, out dAvgFive, out nCountFive);
             GetMaxMinAvgCount(bwo.nSixWarsList, out nMaxSix, out nMinSix, out dAvgSix, out nCountSix);
             GetMaxMinAvgCount(bwo.nSevenWarsList, out nMaxSeven, out nMinSeven, out dAvgSeven, out nCountSeven);
-
+            
             sw.WriteLine("Number of Games, " + bwo.nRuns);
-            sw.WriteLine("Player 1 Wins, " + bwo.nPlayer1Wins);
-            sw.WriteLine("Player 2 Wins, " + bwo.nPlayer2Wins);
+            int[] PlayerWins = GetPlayerWinners(bwo);
+            for (int i = 0; i < bwo.nPlayers; i++)
+            {
+                sw.WriteLine("Player " + (i+1) + " Wins, " + PlayerWins[i]);
+            }
             sw.WriteLine("Number of infinite loops, " + bwo.nInfiniteLoops);
+
             sw.WriteLine("Max Throws in a game, " + nMaxThrows);
             sw.WriteLine("Min Throws in a game, " + nMinThrows);
             sw.WriteLine("Avg Throws in a game, " + dAvgThrows);
-            sw.WriteLine("Total Throws in all games, " + nMinTotalWars);
+            sw.WriteLine("Total Throws in all games, " + nCountThrows);
+
+            sw.WriteLine("Max Ties in a game, " + nMaxTies);
+            sw.WriteLine("Avg Ties in a game, " + dAvgTies);
+            sw.WriteLine("Total Ties in all games, " + nCountTies);
+
             sw.WriteLine("Max total wars in a game, " + nMaxTotalWars);
             sw.WriteLine("Avg total wars in a game, " + dAvgTotalWars);
             sw.WriteLine("Total total wars in all games, " + nCountTotalWars);
+
             sw.WriteLine("Max single wars in a game, " + nMaxSingleWars);
             sw.WriteLine("Avg single wars in a game, " + dAvgSingleWars);
             sw.WriteLine("Total single wars in all games, " + nCountSingleWars);
+
             sw.WriteLine("Max double wars in a game, " + nMaxDouble);
             sw.WriteLine("Avg double wars in a game, " + dAvgDouble);
             sw.WriteLine("Total double wars in all games, " + nCountDouble);
+
             sw.WriteLine("Max triple wars in a game, " + nMaxTriple);
             sw.WriteLine("Avg triple wars in a game, " + dAvgTriple);
             sw.WriteLine("Total triple wars in all games, " + nCountTriple);
+
             sw.WriteLine("Max quad wars in a game, " + nMaxQuad);
             sw.WriteLine("Avg quad wars in a game, " + dAvgQuad);
             sw.WriteLine("Total quad wars in all games, " + nCountQuad);
+
             sw.WriteLine("Max quintuple wars in a game, " + nMaxFive);
             sw.WriteLine("Avg quintuple wars in a game, " + dAvgFive);
             sw.WriteLine("Total quintuple wars in all games, " + nCountFive);
+
             sw.WriteLine("Max sextuple wars in a game, " + nMaxSix);
             sw.WriteLine("Avg sextuple wars in a game, " + dAvgSix);
             sw.WriteLine("Total sextuple wars in all games, " + nCountSix);
+
             sw.WriteLine("Max septuble wars in a game, " + nMaxSeven);
             sw.WriteLine("Avg septuble wars in a game, " + dAvgSeven);
             sw.WriteLine("Total septuble wars in all games, " + nCountSeven);
@@ -679,15 +767,14 @@ namespace kbWar
 
             if( checkBoxVerbose.Checked)
             {
-                sw.WriteLine("Game Number, Player one Wins, Player two Wins, Number of Throws, Total Wars, Single Wars, Double Wars, Triple Wars, Quadruple Wars, Quintuple Wars, Sextuple Wars, Septuble Wars");
+                sw.WriteLine("Game Number, Winner, Number of Throws, Total Wars, Single Wars, Double Wars, Triple Wars, Quadruple Wars, Quintuple Wars, Sextuple Wars, Septuble Wars");
                 
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < bwo.nThrowsList.Count; i++)
                 {
                     sb.Clear();
                     sb.Append((i+1).ToString());
-                    sb.Append(", " + bwo.bPlayer1WinsList[i]);
-                    sb.Append(", " + !bwo.bPlayer1WinsList[i]);
+                    sb.Append(", " + (bwo.iWinnerList[i]+1));
                     sb.Append(", " + bwo.nThrowsList[i]);
                     sb.Append(", " + bwo.nTotalWarsList[i]);
                     sb.Append(", " + bwo.nSingleWarsList[i]);
@@ -709,6 +796,19 @@ namespace kbWar
         }
         #endregion
 
+        #region private int[] GetPlayerWinners(BackgroundWorkerOutput bwo)
+        private int[] GetPlayerWinners(BackgroundWorkerOutput bwo)
+        {
+            int[] winners = new int[bwo.nPlayers + 1];
+            foreach (int winner in bwo.iWinnerList)
+            {
+                if (winner < 0) winners[bwo.nPlayers]++;    // this is for when there was no winner.
+                else winners[winner]++;
+            }
+            return winners;
+        }
+        #endregion
+
         #region GetOutputText()
         /// <summary>
         /// Gets the output text
@@ -719,10 +819,13 @@ namespace kbWar
             sb.AppendLine("****************************************");
             sb.AppendLine("Number of games played: " + bwo.nRuns.ToString("N0"));
             if (checkBoxShuffleResult.Checked) sb.AppendLine("Shuffle the winning cards every turn");
-            if (checkBoxShuffleAll.Checked) sb.AppendLine("Shuffled both hands every turn");
-            if (!checkBoxShuffleAll.Checked && !checkBoxShuffleResult.Checked) sb.AppendLine("Perfect play, no shuffling of cards between turns, infinate loops possible!");
-            sb.AppendLine("Player 1 wins: " + bwo.nPlayer1Wins.ToString("N0"));
-            sb.AppendLine("Player 2 wins: " + bwo.nPlayer2Wins.ToString("N0"));
+            else sb.AppendLine("Perfect play, no shuffling of cards between turns, infinate loops possible!");
+
+            int[] PlayerWins = GetPlayerWinners(bwo);
+            for (int i = 0; i < bwo.nPlayers; i++)
+            {
+                sb.AppendLine("Player " + (i+1) + " Wins: " + PlayerWins[i].ToString("N0"));
+            }
             sb.AppendLine("Number of infinite loops: " + bwo.nInfiniteLoops.ToString("N0"));
             sb.AppendLine("");
 
@@ -734,6 +837,15 @@ namespace kbWar
             sb.AppendLine("Min throws in a game: " + nMinThrows.ToString("N0"));
             sb.AppendLine("Avg throws in a game: " + dAvgThrows.ToString());
             sb.AppendLine("Total throws in all games: " + nCountThrows.ToString("N0"));
+            sb.AppendLine("");
+
+            int nMaxTies, nMinTies;
+            Int64 nCountTies;
+            double dAvgTies;
+            GetMaxMinAvgCount(bwo.nTiesList, out nMaxTies, out nMinTies, out dAvgTies, out nCountTies);
+            sb.AppendLine("Max ties in a game: " + nMaxTies.ToString("N0"));
+            sb.AppendLine("Avg ties in a game: " + dAvgTies.ToString());
+            sb.AppendLine("Total ties in all games: " + nCountTies.ToString("N0"));
             sb.AppendLine("");
 
             int nMinTotalWars, nMaxTotalWars;
@@ -819,26 +931,28 @@ namespace kbWar
         {
             BackgroundWorker bw = sender as BackgroundWorker;
 
-            if (m_Hand1.Count == 0 || m_Hand2.Count == 0)
+            if (m_Game.State == kbCardGameWar.GameState.eNotStarted)
             {
                 Restart();     // restart with a new deck
                 Shuffle();     // shuffle the deck
                 Deal();        // deal the deck out to the hands
             }
             int count = 0;
-            while (m_Hand1.Count > 0 && m_Hand2.Count > 0)
+            while (true)
             {
                 if (bw.CancellationPending)
                 {
                     e.Cancel = true;
                     break;
                 }
-                Throw();
-                if (m_nThrows > 20000)
-                {
-                    MessageBox.Show("Over a 20,000 throws?!  infinant loop maybe?");
-                    // over a million throws?  infinant loop maybe?
-                    break;
+                lock(m_Game)
+                {    
+                    var state = m_Game.NewTurn();
+
+                    if (state == kbCardGameWar.GameState.eInfiniteLoop || state == kbCardGameWar.GameState.eOverWithWinner)
+                    {
+                        break;
+                    }
                 }
                 bw.ReportProgress(0);
                 
@@ -860,9 +974,11 @@ namespace kbWar
         #region workerAutoThrow RunWorkerCompleted
         private void workerAutoThrow_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (m_Hand1.Count == 0) MessageBox.Show("Player 2 WINS!!! " + m_nThrows);
-            if (m_Hand2.Count == 0) MessageBox.Show("Player 1 WINS!!! " + m_nThrows);
-
+            lock (m_Game)
+            {
+                if (m_Game.State == kbCardGameWar.GameState.eInfiniteLoop) MessageBox.Show("Infinite Loop!!!");
+                if (m_Game.State == kbCardGameWar.GameState.eOverWithWinner) MessageBox.Show("Player " + (m_Game.Winner + 1).ToString() + " WINS!!! In " + m_Game.Counters.nTurns.ToString() + " turns.");
+            }
             EnableUI(true);
         }
         #endregion
@@ -922,7 +1038,77 @@ namespace kbWar
         }
         #endregion
 
-        
+        #region numbericUPDownNPlayers Value Changed
+        /// <summary>
+        /// When the number of players change, we change the window to make  
+        /// the correct number of players visible.  Then we restart the game.
+        /// </summary>
+        private void numericUpDownNPlayers_ValueChanged(object sender, EventArgs e)
+        {
+            // splitter distance is 936 when all 6 are visible.
+            // full window size is 1463 when all 6 are visible.
+            // textbox is 127 px wide plus 3 px margin, 130 per player.
+
+            int width = 1463;
+            int split = 936;
+            int playerSize = 130;
+
+            if (numericUpDownNPlayers.Value >= 6)
+            {
+                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = true;
+                labelPlayer3.Visible = labelPlayer4.Visible = labelPlayer5.Visible = labelPlayer6.Visible = true;
+                this.Width = width;
+                splitContainer1.SplitterDistance = split;
+            }
+            else if (numericUpDownNPlayers.Value == 5)
+            {
+                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = true;
+                labelPlayer3.Visible = labelPlayer4.Visible = labelPlayer5.Visible = true;
+
+                richTextBoxPlayer6.Visible = false;
+                labelPlayer6.Visible = false;
+
+                this.Width = width - (playerSize);
+                splitContainer1.SplitterDistance = split - (playerSize);
+
+            }
+            else if (numericUpDownNPlayers.Value == 4)
+            {
+                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = true;
+                labelPlayer3.Visible = labelPlayer4.Visible = true;
+
+                richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = false;
+                labelPlayer5.Visible = labelPlayer6.Visible = false;
+                
+                this.Width = width - (playerSize * 2);
+                splitContainer1.SplitterDistance = split - (playerSize * 2);
+            }
+            else if (numericUpDownNPlayers.Value == 3)
+            {
+                richTextBoxPlayer3.Visible = true;
+                labelPlayer3.Visible = true;
+
+                richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = false;
+                labelPlayer4.Visible = labelPlayer5.Visible = labelPlayer6.Visible = false;
+                
+                this.Width = width - (playerSize * 3);
+                splitContainer1.SplitterDistance = split - (playerSize * 3);
+            }
+            else if (numericUpDownNPlayers.Value <= 2)
+            {
+                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = false;
+                labelPlayer3.Visible = labelPlayer4.Visible = labelPlayer5.Visible = labelPlayer6.Visible = false;
+
+                this.Width = width - (playerSize * 4);
+                splitContainer1.SplitterDistance = split - (playerSize * 4);
+            }
+
+            Restart();
+            UpdateUI();
+            UpdateCountsUI();
+        }
+        #endregion
+
     }
     #endregion
 }

@@ -14,7 +14,7 @@ namespace kbWar
     public class kbPlayingCard
     {
         #region public enum Suit and Rank
-        public enum Suit { Hearts, Clubs, Dimonds, Spades };
+        public enum Suit { Hearts, Clubs, Diamonds, Spades };
         public enum Rank
         {
             Deuce = 2,
@@ -63,15 +63,12 @@ namespace kbWar
     #region public class kbCardHand
     /// <summary>
     /// Simulates a card hand.
-    /// 
-    /// Also, when you create the hand, you have the option to create a full ordered 52 card deck
     /// </summary>
     public class kbCardHand
     {
         #region private member vars...
-        private List<kbPlayingCard> m_Cards = new List<kbPlayingCard>();    // the list of cards in the hand.
-        private Random m_Rand = null;                           // used for shuffeling
-        private object m_Lock = new object();                           // used to make the object thread safe
+        protected List<kbPlayingCard> m_Cards = new List<kbPlayingCard>();  // the list of cards in the hand.
+        protected Random m_Rand = null;                                     // used for shuffeling
         #endregion
 
         #region public constructors...
@@ -87,71 +84,13 @@ namespace kbWar
         /// </summary>
         /// <param name="r">Random number generator</param>
         public kbCardHand(Random r) { m_Rand = r; }
-
-        /// <summary>
-        /// Creates a new hand with the option to fill with a new 52-card deck.
-        ///     Uses it's own random number generator.
-        /// </summary>
-        /// <param name="bNewDeck">On true, builds a new deck, on false builds an empty hand</param>
-        public kbCardHand(bool bNewDeck)
-        {
-            m_Rand = new Random();
-            if (bNewDeck) CreateNew52CardDeck();
-        }
-
-        /// <summary>
-        /// Creates a new hand with the option to fill with a new 52-card deck.
-        ///     Uses an external random number generator.
-        /// </summary>
-        /// <param name="r">Random number generator</param>
-        /// <param name="bNewDeck">On true, builds a new deck, on false builds an empty hand</param>
-        public kbCardHand(Random r, bool bNewDeck)
-        {
-            m_Rand = r;
-            if (bNewDeck) CreateNew52CardDeck();
-        }
-        #endregion
-
-        #region public CreateNew52CardDeck()
-        /// <summary>
-        /// Creates a new 52-card ordered deck if true, and empty deck if false.
-        /// If true the the order is A->K Hearts, A->K Clubs, K->A Dimonds, K->A Spades.  
-        ///      So Ace of Hearts is on top, and Ace of Spades is on bottom.
-        ///      (this is the order of a new deck of Bicycle brand cards)
-        /// </summary>
-        public void CreateNew52CardDeck()
-        {
-            lock (m_Lock)
-            {
-                m_Cards.Clear();
-                foreach (kbPlayingCard.Suit s in Enum.GetValues(typeof(kbPlayingCard.Suit)))
-                {
-                    if (s == kbPlayingCard.Suit.Hearts || s == kbPlayingCard.Suit.Clubs)
-                    {
-                        m_Cards.Add(new kbPlayingCard(s, kbPlayingCard.Rank.Ace));
-                        for (int iVal = 2; iVal < 14; iVal++)
-                        {
-                            m_Cards.Add(new kbPlayingCard(s, (kbPlayingCard.Rank)iVal));
-                        }
-                    }
-                    else
-                    {
-                        for (int iVal = 13; iVal >= 2; iVal--)
-                        {
-                            m_Cards.Add(new kbPlayingCard(s, (kbPlayingCard.Rank)iVal));
-                        }
-                        m_Cards.Add(new kbPlayingCard(s, kbPlayingCard.Rank.Ace));
-                    }
-                }
-            }
-        }
         #endregion
 
         #region public Count property
         /// <summary>
         /// Gets the number of cards in the hand
         /// </summary>
-        public int Count { get { lock (m_Lock) return m_Cards.Count; } }
+        public int Count { get { return m_Cards.Count; } }
         #endregion
 
         #region public Clear()
@@ -160,7 +99,7 @@ namespace kbWar
         /// </summary>
         public void Clear()
         {
-            lock (m_Lock) m_Cards.Clear();
+            m_Cards.Clear();
         }
         #endregion
 
@@ -172,7 +111,7 @@ namespace kbWar
         /// </summary>
         public void AddToBottom(kbPlayingCard pc)
         {
-            lock (m_Lock) m_Cards.Add(pc);
+            m_Cards.Add(pc);
         }
         #endregion
 
@@ -182,7 +121,7 @@ namespace kbWar
         /// </summary>
         public void AddToTop(kbPlayingCard pc)
         {
-            lock (m_Lock) m_Cards.Insert(0, pc);
+            m_Cards.Insert(0, pc);
         }
         #endregion
 
@@ -194,7 +133,7 @@ namespace kbWar
         /// <param name="index">Index location where to add the card.</param>
         public void AddTo(kbPlayingCard pc, int index)
         {
-            lock (m_Lock) m_Cards.Insert(index, pc);
+            m_Cards.Insert(index, pc);
         }
         #endregion
             
@@ -208,12 +147,9 @@ namespace kbWar
         /// </summary>
         public kbPlayingCard DrawFromBottom()
         {
-            lock (m_Lock)
-            {
-                kbPlayingCard pc = m_Cards.Last();
-                m_Cards.RemoveAt(m_Cards.Count - 1);
-                return pc;
-            }
+            kbPlayingCard pc = m_Cards.Last();
+            m_Cards.RemoveAt(m_Cards.Count - 1);
+            return pc;
         }
         #endregion
 
@@ -223,12 +159,9 @@ namespace kbWar
         /// </summary>
         public kbPlayingCard DrawFromTop()
         {
-            lock (m_Lock)
-            {
-                kbPlayingCard pc = m_Cards.First();
-                m_Cards.RemoveAt(0);
-                return pc;
-            }
+            kbPlayingCard pc = m_Cards.First();
+            m_Cards.RemoveAt(0);
+            return pc;
         }
         #endregion
 
@@ -239,12 +172,9 @@ namespace kbWar
         /// <param name="index">The index location where to draw the card from</param>
         public kbPlayingCard DrawFrom(int index)
         {
-            lock (m_Lock)
-            {
-                kbPlayingCard pc = m_Cards[index];
-                m_Cards.RemoveAt(index);
-                return pc;
-            }
+            kbPlayingCard pc = m_Cards[index];
+            m_Cards.RemoveAt(index);
+            return pc;
         }
         #endregion
 
@@ -256,7 +186,7 @@ namespace kbWar
         /// </summary>
         public bool Contains(kbPlayingCard pc)
         {
-            lock (m_Lock) return m_Cards.Any(w => w.suit == pc.suit && w.rank == pc.rank);
+            return m_Cards.Any(w => w.suit == pc.suit && w.rank == pc.rank);
         }
         #endregion
 
@@ -266,7 +196,7 @@ namespace kbWar
         /// </summary>
         public int GetIndexOf(kbPlayingCard pc)
         {
-            lock (m_Lock) return m_Cards.FindIndex(w => w.suit == pc.suit && w.rank == pc.rank);
+            return m_Cards.FindIndex(w => w.suit == pc.suit && w.rank == pc.rank);
         }
         #endregion
 
@@ -277,7 +207,7 @@ namespace kbWar
         /// </summary>
         public kbPlayingCard this[int i]
         {
-            get { lock (m_Lock)  return m_Cards[i]; }
+            get { return m_Cards[i]; }
         }
         #endregion
 
@@ -287,17 +217,14 @@ namespace kbWar
         /// </summary>
         public void Shuffle()
         {
-            lock (m_Lock)
+            int nCardsInDeck = m_Cards.Count;
+            for (int i = 0; i < nCardsInDeck; i++)
             {
-                int nCardsInDeck = m_Cards.Count;
-                for (int i = 0; i < nCardsInDeck; i++)
-                {
-                    int iSwap = (int)(m_Rand.NextDouble() * nCardsInDeck);
+                int iSwap = (int)(m_Rand.NextDouble() * nCardsInDeck);
 
-                    kbPlayingCard swap = m_Cards[i];
-                    m_Cards[i] = m_Cards[iSwap];
-                    m_Cards[iSwap] = swap;
-                }
+                kbPlayingCard swap = m_Cards[i];
+                m_Cards[i] = m_Cards[iSwap];
+                m_Cards[iSwap] = swap;
             }
         }
         #endregion
@@ -305,14 +232,72 @@ namespace kbWar
         #region public ToString()
         public override string ToString()
         {
-            lock (m_Lock)
+            StringBuilder sb = new StringBuilder();
+            foreach (kbPlayingCard pc in m_Cards)
             {
-                StringBuilder sb = new StringBuilder();
-                foreach (kbPlayingCard pc in m_Cards)
+                sb.AppendLine(pc.ToString());
+            }
+            return sb.ToString();
+        }
+        #endregion
+    }
+    #endregion
+
+    #region public class kb52CardDeck
+    /// <summary>
+    /// This is a card hand that starts out as a new 52 card deck.
+    /// </summary>
+    public class kb52CardDeck : kbCardHand
+    {
+        #region Constructors...
+        /// <summary>
+        /// Creates a new ordered 52-card deck.
+        ///    Uses an external random number generator.
+        /// </summary>
+        /// <param name="r"></param>
+        public kb52CardDeck(Random r) : base(r)
+        {
+            CreateNew52CardDeck();
+        }
+
+        /// <summary>
+        /// Creats a new ordered 52-card deck.
+        ///    Uses it's own internal random number generator.
+        /// </summary>
+        public kb52CardDeck() : base()
+        {
+            CreateNew52CardDeck();
+        }
+        #endregion
+
+        #region public CreateNew52CardDeck()
+        /// <summary>
+        /// Creates a new 52-card ordered deck if true, and empty deck if false.
+        /// If true the the order is A->K Hearts, A->K Clubs, K->A Diamonds, K->A Spades.  
+        ///      So Ace of Hearts is on top, and Ace of Spades is on bottom.
+        ///      (this is the order of a new deck of Bicycle brand cards)
+        /// </summary>
+        private void CreateNew52CardDeck()
+        {
+            m_Cards.Clear();
+            foreach (kbPlayingCard.Suit s in Enum.GetValues(typeof(kbPlayingCard.Suit)))
+            {
+                if (s == kbPlayingCard.Suit.Hearts || s == kbPlayingCard.Suit.Clubs)
                 {
-                    sb.AppendLine(pc.ToString());
+                    m_Cards.Add(new kbPlayingCard(s, kbPlayingCard.Rank.Ace));
+                    for (int iVal = 2; iVal < 14; iVal++)
+                    {
+                        m_Cards.Add(new kbPlayingCard(s, (kbPlayingCard.Rank)iVal));
+                    }
                 }
-                return sb.ToString();
+                else
+                {
+                    for (int iVal = 13; iVal >= 2; iVal--)
+                    {
+                        m_Cards.Add(new kbPlayingCard(s, (kbPlayingCard.Rank)iVal));
+                    }
+                    m_Cards.Add(new kbPlayingCard(s, kbPlayingCard.Rank.Ace));
+                }
             }
         }
         #endregion
