@@ -14,7 +14,7 @@ namespace kbWar
     public class kbPlayingCard
     {
         #region public enum Suit and Rank
-        public enum Suit { Hearts, Clubs, Dimonds, Spades };
+        public enum Suit { Hearts, Clubs, Diamonds, Spades };
         public enum Rank
         {
             Deuce = 2,
@@ -243,11 +243,11 @@ namespace kbWar
     }
     #endregion
 
-    #region public class kbCardDeck
+    #region public class kb52CardDeck
     /// <summary>
     /// This is a card hand that starts out as a new 52 card deck.
     /// </summary>
-    public class kbCardDeck : kbCardHand
+    public class kb52CardDeck : kbCardHand
     {
         #region Constructors...
         /// <summary>
@@ -255,7 +255,7 @@ namespace kbWar
         ///    Uses an external random number generator.
         /// </summary>
         /// <param name="r"></param>
-        public kbCardDeck(Random r) : base(r)
+        public kb52CardDeck(Random r) : base(r)
         {
             CreateNew52CardDeck();
         }
@@ -264,7 +264,7 @@ namespace kbWar
         /// Creats a new ordered 52-card deck.
         ///    Uses it's own internal random number generator.
         /// </summary>
-        public kbCardDeck() : base()
+        public kb52CardDeck() : base()
         {
             CreateNew52CardDeck();
         }
@@ -273,7 +273,7 @@ namespace kbWar
         #region public CreateNew52CardDeck()
         /// <summary>
         /// Creates a new 52-card ordered deck if true, and empty deck if false.
-        /// If true the the order is A->K Hearts, A->K Clubs, K->A Dimonds, K->A Spades.  
+        /// If true the the order is A->K Hearts, A->K Clubs, K->A Diamonds, K->A Spades.  
         ///      So Ace of Hearts is on top, and Ace of Spades is on bottom.
         ///      (this is the order of a new deck of Bicycle brand cards)
         /// </summary>

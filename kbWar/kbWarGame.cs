@@ -5,13 +5,13 @@ using System.Text;
 
 namespace kbWar
 {
-    #region kbWarGame
+    #region kbCardGameWar
     /// <summary>
     /// Simulates a game of war.  
     /// 
     /// Allows between 2 and 26 players.
     /// </summary>
-    class kbWarGame
+    class kbCardGameWar
     {
         #region public enum GameState
         public enum GameState { eNotStarted, eCurrentlyPlaying, eInfiniteLoop, eOverWithWinner }
@@ -21,6 +21,7 @@ namespace kbWar
         public struct GameCounters
         {
             public int nTurns;
+            public int nTies;
             public int nTotalWars;
             public int nSingleWars;
             public int nDoubleWars;
@@ -34,20 +35,22 @@ namespace kbWar
 
         #region private member vars...
 
-        private GameState m_State = GameState.eNotStarted;
+        private GameState m_State;                      // the current state of the game
 
-        private kbCardDeck m_Deck;
-        private kbCardHand[] m_Players;
-        private kbCardHand[] m_ThrownCards;
+        private kb52CardDeck m_Deck;                    // the starting deck
+        private kbCardHand[] m_Players;                 // an array of players
+        private kbCardHand[] m_ThrownCards;             // an array of cards thrown to the middle pile
 
-        private kbCardHand m_MostRecentlyWonCards;
-        private int m_iMostRecentWinner = -1;
+        private kbCardHand m_MostRecentlyWonCards;      // a copy of the most recently won cards.
+        private int m_iMostRecentWinner;                // an index to the most recent winner.
+                                                        // -2 means the game hasn't started, so there is no recent winner
+                                                        // -1 means the most recent turn resulted in a tie, so there were multiple winners.
 
-        private GameCounters m_Counters = new GameCounters();
+        private GameCounters m_Counters;                // Counters used to keep track of the game.
 
-        private bool m_bShuffleRecentlyWonCards = true;
+        private bool m_bShuffleRecentlyWonCards = true; // flag to see if we should shuffle the most recently won cards.
 
-        private Random m_Rand;
+        private Random m_Rand;                          // The random number generator used for shuffling.
 
         #endregion
 
@@ -55,26 +58,26 @@ namespace kbWar
         /// <summary>
         /// Creates a new game of war for two players.
         /// </summary>
-        public kbWarGame() : this(2, new Random())  {   }
+        public kbCardGameWar() : this(2, new Random())  {   }
 
         /// <summary>
         /// Creates a new game of war for two players.
         /// </summary>
         /// <param name="r">An external random number generator</param>
-        public kbWarGame(Random r) : this(2, r)     {   }
+        public kbCardGameWar(Random r) : this(2, r)     {   }
 
         /// <summary>
         /// Creates a new game of war.
         /// </summary>
         /// <param name="nPlayers">The number of players.</param>
-        public kbWarGame(int nPlayers) : this(nPlayers, new Random())   {  }
+        public kbCardGameWar(int nPlayers) : this(nPlayers, new Random())   {  }
 
         /// <summary>
         /// Creats a new game of war.
         /// </summary>
         /// <param name="nPlayers">The number of players</param>
         /// <param name="r">An external random number generator.</param>
-        public kbWarGame(int nPlayers, Random r)
+        public kbCardGameWar(int nPlayers, Random r)
         {
             m_Rand = r;
 
@@ -86,11 +89,11 @@ namespace kbWar
         /// <summary>
         /// Restarts the game, with a new ordered deck.
         /// </summary>
-        /// <param name="nPlayers">The number of players in the game.</param>
-        public void Restart(int nPlayers)
+        /// <param name="nPlayers">The number of players in the game (default is 2 players).</param>
+        public void Restart(int nPlayers = 2)
         {
             if (nPlayers < 2 || nPlayers > 26) throw new Exception(nPlayers.ToString() + " Players!  Number of players must be between 2 and 26.");
-            m_Deck = new kbCardDeck(m_Rand);
+            m_Deck = new kb52CardDeck(m_Rand);
             m_Players = new kbCardHand[nPlayers];
             m_ThrownCards = new kbCardHand[nPlayers];
             for (int i = 0; i < nPlayers; i++)
@@ -98,8 +101,8 @@ namespace kbWar
                 m_Players[i] = new kbCardHand(m_Rand);
                 m_ThrownCards[i] = new kbCardHand(m_Rand);
             }
-            m_MostRecentlyWonCards = new kbCardDeck(m_Rand);
-            m_iMostRecentWinner = -1;
+            m_MostRecentlyWonCards = new kb52CardDeck(m_Rand);
+            m_iMostRecentWinner = -2;
             
             m_State = GameState.eNotStarted;
 
@@ -245,12 +248,23 @@ namespace kbWar
             // if we need to, shuffle the winning cards.
             if (m_bShuffleRecentlyWonCards) m_MostRecentlyWonCards.Shuffle();
 
-            // add winning cards into bottom of winners hand
-            for(int iCard = 0; iCard < m_MostRecentlyWonCards.Count; iCard++)
-            {
-                m_Players[m_iMostRecentWinner].AddToBottom(m_MostRecentlyWonCards[iCard]);
+            if (m_iMostRecentWinner < 0)
+            {   // tie!
+                // deal out cards to the tied players
+                m_Counters.nTies++;
+                for (int iCard = 0; iCard < m_MostRecentlyWonCards.Count; iCard++)
+                {
+                    m_Players[players[iCard % players.Count]].AddToBottom(m_MostRecentlyWonCards[iCard]);
+                }
             }
-
+            else
+            {   // only one winner.
+                // add winning cards into bottom of winners hand
+                for (int iCard = 0; iCard < m_MostRecentlyWonCards.Count; iCard++)
+                {
+                    m_Players[m_iMostRecentWinner].AddToBottom(m_MostRecentlyWonCards[iCard]);
+                }
+            }
             // update counters:
             UpdateCounters(nWars);
 
@@ -311,28 +325,37 @@ namespace kbWar
             else
             {   // we have a war!
                 // all the winning players need to throw down an additional 3 cards - if they have them, before recursing.
-
-                for(int i = winningPlayers.Count - 1; i >= 0; i--)
+                List<int> PlayersReadyToThrowDown = new List<int>();
+                foreach(int iPlayer in winningPlayers)
                 {
-                    int nCardsToThrow = m_Players[winningPlayers[i]].Count;
+                    int nCardsToThrow = m_Players[iPlayer].Count;
 
                     if (nCardsToThrow == 0)
                     {   // if it doesn't have any more cards left to throw, 
-                        // then it's lost and isn't a winner, remove it from the winner list....
-                        winningPlayers.RemoveAt(i);
                         continue;
                     }
+                    else PlayersReadyToThrowDown.Add(iPlayer);
 
                     if (nCardsToThrow > 4) nCardsToThrow = 4;
-                    for (int j = 0; j < nCardsToThrow - 1; j++) m_ThrownCards[winningPlayers[i]].AddToBottom(m_Players[winningPlayers[i]].DrawFromTop());
+                    for (int j = 0; j < nCardsToThrow - 1; j++) m_ThrownCards[iPlayer].AddToBottom(m_Players[iPlayer].DrawFromTop());
                 }
 
-                // again check to see if there is more than one winner.
-                if (winningPlayers.Count == 1) return winningPlayers[0];    // the turn is over! return the winner!
-
-                // okay, let's throw down again, this time with our new winners
-                recursionCount++;
-                return ThrowDown(winningPlayers, ref recursionCount);
+                if (PlayersReadyToThrowDown.Count == 0)
+                {   // we have a tie...
+                    // in this case we should split the winnings to the original winners...
+                    Players.Clear();
+                    Players.AddRange(winningPlayers);
+                    return -1;  // return -1 meaning there is no winner.
+                }
+                else if (PlayersReadyToThrowDown.Count == 1)
+                {   // there is only one player ready, they're the winner!!
+                    return PlayersReadyToThrowDown[0];    
+                }
+                else    // if(PlayersReadyToThrowDown.Count > 1)
+                {   // okay, let's throw down again, this time with our new winners
+                    recursionCount++;
+                    return ThrowDown(PlayersReadyToThrowDown, ref recursionCount);
+                }
             }
         }
         #endregion
@@ -369,7 +392,9 @@ namespace kbWar
 
         #region public int WinnerOfLastTurn
         /// <summary>
-        /// Gets the winner of the last turn.
+        /// Gets the index to the player who won the last turn.  
+        ///   -2 means there hasn't been a turn yet. 
+        ///   -1 means the last turn had no winner
         /// </summary>
         public int WinnerOfLastTurn
         {
