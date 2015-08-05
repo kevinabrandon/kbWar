@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Threading;
 using System.IO;
+using ColorDemo;
 
 namespace kbWar
 {
@@ -21,12 +22,21 @@ namespace kbWar
         BackgroundWorker[] m_Workers = null;            // the background threads for the monte-carlo simulation.
         BackgroundWorkerOutput m_WorkersOutput = null;  // used to collect output from the multitple workers.
 
+
+        RichTextBox[] m_TextBoxes = new RichTextBox[27];
+        Label[] m_Labels = new Label[27];
+        Color[] m_PlayerColors = new Color[27];
+
         #endregion
 
         #region construction...
         public kbWarMainForm()
         {
             InitializeComponent();
+            
+            splitContainer1.Panel2Collapsed = true;
+            CreateColors();
+            CreateTextBoxes();
 
             Restart();
             UpdateUI();
@@ -39,26 +49,129 @@ namespace kbWar
         }
         #endregion
 
+        #region CreateColors()
+        private void CreateColors()
+        {
+            for (int i = 0; i < 27; i ++)
+            {
+                m_PlayerColors[i] = new HSLColor(240.0 * (double)i / 26.0, 240, 120);
+                //listView1.Items.Add(i.ToString()).BackColor = color;
+                if (i == 26) m_PlayerColors[i] = Color.Black;
+            }    
+        }
+        #endregion
+
+        private void AdjustColors()
+        {
+            for (int i = 0; i < numericUpDownNPlayers.Value; i++)
+            {
+                m_PlayerColors[i] = new HSLColor(240.0 * (double)i / (double) numericUpDownNPlayers.Value, 240, 120);
+                m_Labels[i].BackColor = m_PlayerColors[i];
+                m_Labels[i].ForeColor = Color.Black;
+            }
+        }
+
+        #region CreateTextBoxes()
+        private void CreateTextBoxes()
+        {
+            //for (int i = 25; i >= 0; i--)
+            
+            for (int i = 25; i >= 0; i--)
+            {
+                CreateTextBox(i);
+            }
+            CreateTextBox(26);
+
+        }
+        private void CreateTextBox(int i)
+        {
+            m_TextBoxes[i] = new RichTextBox();
+            m_Labels[i] = new Label();
+
+            Point textBoxLocation = new Point(136 + i * 130, 26);
+            Point labelLocation = new Point(132 + i * 130, 3);
+
+
+
+            m_TextBoxes[i].Dock = System.Windows.Forms.DockStyle.Left;
+            m_TextBoxes[i].ScrollBars = RichTextBoxScrollBars.None;
+            m_TextBoxes[i].Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            m_TextBoxes[i].Location = new System.Drawing.Point(0, 0);
+            m_TextBoxes[i].ReadOnly = true;
+            m_TextBoxes[i].Size = new System.Drawing.Size(127, 751);
+            m_TextBoxes[i].TabIndex = 16+i;
+            m_TextBoxes[i].Text = "";
+            if( i == 26)    m_TextBoxes[i].Name = "Deck";
+            else            m_TextBoxes[i].Name = "m_TextBoxes[" + i + "]";
+
+            m_Labels[i].Dock = System.Windows.Forms.DockStyle.Left;
+            m_Labels[i].Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            m_Labels[i].Location = new System.Drawing.Point(0, 0);
+            if (i == 26)    m_Labels[i].Name = "Deck";
+            else            m_Labels[i].Name = "m_Labels[" + i + "]";
+            m_Labels[i].Size = new System.Drawing.Size(127, 25);
+            m_Labels[i].TabIndex = 6 + i;
+            if( i == 26)    m_Labels[i].Text = "Deck";
+            else            m_Labels[i].Text = "Player " + (i + 1);
+            m_Labels[i].TextAlign = ContentAlignment.MiddleCenter;
+
+            panelLabels.Controls.Add(m_Labels[i]);
+            splitContainer1.Panel1.Controls.Add(m_TextBoxes[i]);
+
+          //  m_TextBoxes[i].BringToFront();
+          //  m_Labels[i].BringToFront();
+            
+        }
+        #endregion
+
         #region UpdateUI()
         private void UpdateUI()
         {
             lock (m_Game)
             {
-                richTextBoxDeck.Text = m_Game.Deck;
-                richTextBoxPlayer1.Text = m_Game.GetPlayer(0);
-                richTextBoxPlayer2.Text = m_Game.GetPlayer(1);
+                m_TextBoxes[26].Text = m_Game.Deck;
 
-                if (m_Game.nPlayers >= 3) richTextBoxPlayer3.Text = m_Game.GetPlayer(2);
-                else richTextBoxPlayer3.Clear();
+                for (int i = 0; i < numericUpDownNPlayers.Value; i++)
+                {
+                    m_TextBoxes[i].Text = m_Game.GetPlayer(i);    
+                }
+                for (int i = (int)numericUpDownNPlayers.Value; i < 26; i++)
+                {
+                    m_TextBoxes[i].Clear();
+                }
+                if (!checkBoxShowOnlyActivePlayers.Checked)
+                {
+                    for (int i = 0; i < 27; i++)
+                    {
+                        if (m_TextBoxes[i].Text.Length == 0)
+                        {
+                            if (m_TextBoxes[i].Visible == true || m_Labels[i].Visible == true) m_bDirty = true;
+                            m_TextBoxes[i].Visible = false;
+                            m_Labels[i].Visible = false;
+                        }
+                        else
+                        {
+                            if (m_TextBoxes[i].Visible == false || m_Labels[i].Visible == false) m_bDirty = true;
+                            m_TextBoxes[i].Visible = true;
+                            m_Labels[i].Visible = true;
+                        }
+                    }
+                }
+                else
+                {
+                    if (m_TextBoxes[26].Visible == false || m_Labels[26].Visible == false) m_bDirty = true;
+                    m_TextBoxes[26].Visible = true;
+                    m_Labels[26].Visible = true;
+                    for (int i = 0; i < numericUpDownNPlayers.Value; i++)
+                    {
+                        if (m_TextBoxes[26].Visible == false || m_Labels[26].Visible == false) m_bDirty = true;
+                        m_TextBoxes[i].Visible = true;
+                        m_Labels[i].Visible = true;
+                    }
+                }
 
-                if (m_Game.nPlayers >= 4) richTextBoxPlayer4.Text = m_Game.GetPlayer(3);
-                else richTextBoxPlayer4.Clear();
+                ReOrderTextBoxes();
 
-                if (m_Game.nPlayers >= 5) richTextBoxPlayer5.Text = m_Game.GetPlayer(4);
-                else richTextBoxPlayer5.Clear();
-
-                if (m_Game.nPlayers >= 6) richTextBoxPlayer6.Text = m_Game.GetPlayer(5);
-                else richTextBoxPlayer6.Clear();
 
                 if (m_Game.WinnerOfLastTurn > -2)
                 {
@@ -80,64 +193,33 @@ namespace kbWar
         {
             ColorTextBoxeSelection(richTextBoxPot, "TIE!!", Color.White, Color.Black);
 
-            ColorTextBoxeSelection(richTextBoxPot, "Player 1 Won:", Color.White, Color.Maroon);
-            ColorTextBoxeSelection(richTextBoxPot, "Player 2 Won:", Color.White, Color.Blue);
-            ColorTextBoxeSelection(richTextBoxPot, "Player 3 Won:", Color.White, Color.Green);
-            ColorTextBoxeSelection(richTextBoxPot, "Player 4 Won:", Color.White, Color.Purple);
-            ColorTextBoxeSelection(richTextBoxPot, "Player 5 Won:", Color.Black, Color.Orange);
-            ColorTextBoxeSelection(richTextBoxPot, "Player 6 Won:", Color.Black, Color.Teal);
-
-            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 1 WINS!!!", Color.White, Color.Maroon);
-            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 2 WINS!!!", Color.White, Color.Blue);
-            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 3 WINS!!!", Color.White, Color.Green);
-            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 4 WINS!!!", Color.White, Color.Purple);
-            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 5 WINS!!!", Color.Black, Color.Orange);
-            ColorTextBoxeSelection(richTextBoxPot, "PLAYER 6 WINS!!!", Color.Black, Color.Teal);          
+            for (int i = 0; i < numericUpDownNPlayers.Value; i++)
+            {
+                ColorTextBoxeSelection(richTextBoxPot, "Player " + (i + 1) + " Won:", Color.Black, m_PlayerColors[i]);
+                ColorTextBoxeSelection(richTextBoxPot, "PLAYER " + (i + 1) + " WINS!!!", Color.Black, m_PlayerColors[i]);
+            }
 
             ColorTextBoxeSelection(richTextBoxPot, "Ace", Color.Red, Color.GreenYellow);
-            ColorTextBoxeSelection(richTextBoxDeck, "Ace", Color.Red, Color.GreenYellow);
-            ColorTextBoxeSelection(richTextBoxPlayer1, "Ace", Color.Red, Color.GreenYellow);
-            ColorTextBoxeSelection(richTextBoxPlayer2, "Ace", Color.Red, Color.GreenYellow);
-            ColorTextBoxeSelection(richTextBoxPlayer3, "Ace", Color.Red, Color.GreenYellow);
-            ColorTextBoxeSelection(richTextBoxPlayer4, "Ace", Color.Red, Color.GreenYellow);
-            ColorTextBoxeSelection(richTextBoxPlayer5, "Ace", Color.Red, Color.GreenYellow);
-            ColorTextBoxeSelection(richTextBoxPlayer6, "Ace", Color.Red, Color.GreenYellow);
-
             ColorTextBoxeSelection(richTextBoxPot, "Hearts", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxDeck, "Hearts", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer1, "Hearts", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer2, "Hearts", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer3, "Hearts", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer4, "Hearts", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer5, "Hearts", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer6, "Hearts", Color.White, Color.Red);
-
-            ColorTextBoxeSelection(richTextBoxDeck, "Diamonds", Color.White, Color.Red);
             ColorTextBoxeSelection(richTextBoxPot, "Diamonds", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer1, "Diamonds", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer2, "Diamonds", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer3, "Diamonds", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer4, "Diamonds", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer5, "Diamonds", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPlayer6, "Diamonds", Color.White, Color.Red);
-
-            ColorTextBoxeSelection(richTextBoxDeck, "Spades", Color.White, Color.Black);
             ColorTextBoxeSelection(richTextBoxPot, "Spades", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer1, "Spades", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer2, "Spades", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer3, "Spades", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer4, "Spades", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer5, "Spades", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer6, "Spades", Color.White, Color.Black);
-
-            ColorTextBoxeSelection(richTextBoxDeck, "Clubs", Color.White, Color.Black);
             ColorTextBoxeSelection(richTextBoxPot, "Clubs", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer1, "Clubs", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer2, "Clubs", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer3, "Clubs", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer4, "Clubs", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer5, "Clubs", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPlayer6, "Clubs", Color.White, Color.Black); 
+
+            ColorTextBoxeSelection(m_TextBoxes[26], "Ace", Color.Red, Color.GreenYellow);
+            ColorTextBoxeSelection(m_TextBoxes[26], "Hearts", Color.White, Color.Red);
+            ColorTextBoxeSelection(m_TextBoxes[26], "Diamonds", Color.White, Color.Red);
+            ColorTextBoxeSelection(m_TextBoxes[26], "Spades", Color.White, Color.Black);
+            ColorTextBoxeSelection(m_TextBoxes[26], "Clubs", Color.White, Color.Black);
+            
+
+            for (int i = 0; i < numericUpDownNPlayers.Value; i++)
+            {
+                ColorTextBoxeSelection(m_TextBoxes[i], "Ace", Color.Red, Color.GreenYellow);
+                ColorTextBoxeSelection(m_TextBoxes[i], "Hearts", Color.White, Color.Red);
+                ColorTextBoxeSelection(m_TextBoxes[i], "Diamonds", Color.White, Color.Red);
+                ColorTextBoxeSelection(m_TextBoxes[i], "Spades", Color.White, Color.Black);
+                ColorTextBoxeSelection(m_TextBoxes[i], "Clubs", Color.White, Color.Black);
+            }
         }
         #endregion
 
@@ -337,6 +419,7 @@ namespace kbWar
         private void buttonClearOutput_Click(object sender, EventArgs e)
         {
             textBoxOutput.Clear();
+            splitContainer1.Panel2Collapsed = true;
         }
         #endregion
 
@@ -659,6 +742,9 @@ namespace kbWar
                 UpdateCountersAtEndOfSim(m_WorkersOutput);
 
                 textBoxOutput.AppendText(GetOutputText(m_WorkersOutput));
+                splitContainer1.Panel2Collapsed = false;
+
+                splitContainer1.Panel2.Show();
 
                 if (checkBoxOutputFiles.Checked) SaveOutputFiles(m_WorkersOutput);
 
@@ -1038,6 +1124,8 @@ namespace kbWar
         }
         #endregion
 
+        bool m_bDirty = true;
+
         #region numbericUPDownNPlayers Value Changed
         /// <summary>
         /// When the number of players change, we change the window to make  
@@ -1045,70 +1133,50 @@ namespace kbWar
         /// </summary>
         private void numericUpDownNPlayers_ValueChanged(object sender, EventArgs e)
         {
-            // splitter distance is 936 when all 6 are visible.
-            // full window size is 1463 when all 6 are visible.
-            // textbox is 127 px wide plus 3 px margin, 130 per player.
+            AdjustColors();
+            int nPlayers = (int)numericUpDownNPlayers.Value;
 
-            int width = 1463;
-            int split = 936;
-            int playerSize = 130;
-
-            if (numericUpDownNPlayers.Value >= 6)
+            if (checkBoxShowOnlyActivePlayers.Checked)
             {
-                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = true;
-                labelPlayer3.Visible = labelPlayer4.Visible = labelPlayer5.Visible = labelPlayer6.Visible = true;
-                this.Width = width;
-                splitContainer1.SplitterDistance = split;
-            }
-            else if (numericUpDownNPlayers.Value == 5)
-            {
-                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = true;
-                labelPlayer3.Visible = labelPlayer4.Visible = labelPlayer5.Visible = true;
-
-                richTextBoxPlayer6.Visible = false;
-                labelPlayer6.Visible = false;
-
-                this.Width = width - (playerSize);
-                splitContainer1.SplitterDistance = split - (playerSize);
-
-            }
-            else if (numericUpDownNPlayers.Value == 4)
-            {
-                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = true;
-                labelPlayer3.Visible = labelPlayer4.Visible = true;
-
-                richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = false;
-                labelPlayer5.Visible = labelPlayer6.Visible = false;
-                
-                this.Width = width - (playerSize * 2);
-                splitContainer1.SplitterDistance = split - (playerSize * 2);
-            }
-            else if (numericUpDownNPlayers.Value == 3)
-            {
-                richTextBoxPlayer3.Visible = true;
-                labelPlayer3.Visible = true;
-
-                richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = false;
-                labelPlayer4.Visible = labelPlayer5.Visible = labelPlayer6.Visible = false;
-                
-                this.Width = width - (playerSize * 3);
-                splitContainer1.SplitterDistance = split - (playerSize * 3);
-            }
-            else if (numericUpDownNPlayers.Value <= 2)
-            {
-                richTextBoxPlayer3.Visible = richTextBoxPlayer4.Visible = richTextBoxPlayer5.Visible = richTextBoxPlayer6.Visible = false;
-                labelPlayer3.Visible = labelPlayer4.Visible = labelPlayer5.Visible = labelPlayer6.Visible = false;
-
-                this.Width = width - (playerSize * 4);
-                splitContainer1.SplitterDistance = split - (playerSize * 4);
+                for (int i = 0; i < nPlayers; i++)
+                {
+                    m_Labels[i].Visible = true;
+                    m_TextBoxes[i].Visible = true;
+                }
+                for (int i = nPlayers; i < 26; i++)
+                {
+                    m_Labels[i].Visible = false;
+                    m_TextBoxes[i].Visible = false;
+                }
             }
 
+            m_bDirty = true;
+            
             Restart();
             UpdateUI();
             UpdateCountsUI();
         }
         #endregion
 
+        private void checkBoxShowOnlyActivePlayers_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateUI();
+        }
+
+        private void ReOrderTextBoxes()
+        {
+            if (m_bDirty)
+            {
+                m_Labels[26].BringToFront();
+                m_TextBoxes[26].BringToFront();
+                for (int i = 0; i < 26; i++)
+                {
+                    m_Labels[i].BringToFront();
+                    m_TextBoxes[i].BringToFront();
+                }
+                m_bDirty = false;
+            }
+        }
     }
     #endregion
 }
