@@ -54,6 +54,8 @@
             this.label4 = new System.Windows.Forms.Label();
             this.buttonAutoThrow = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
+            this.checkBoxShowOnlyActivePlayers = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
             this.checkBoxShuffleResult = new System.Windows.Forms.CheckBox();
             this.buttonThrow = new System.Windows.Forms.Button();
@@ -64,22 +66,9 @@
             this.numericUpDownNPlayers = new System.Windows.Forms.NumericUpDown();
             this.label11 = new System.Windows.Forms.Label();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.richTextBoxPlayer6 = new System.Windows.Forms.RichTextBox();
-            this.labelPlayer6 = new System.Windows.Forms.Label();
-            this.richTextBoxPlayer5 = new System.Windows.Forms.RichTextBox();
-            this.labelPlayer5 = new System.Windows.Forms.Label();
-            this.richTextBoxPlayer4 = new System.Windows.Forms.RichTextBox();
-            this.labelPlayer4 = new System.Windows.Forms.Label();
-            this.richTextBoxPlayer3 = new System.Windows.Forms.RichTextBox();
-            this.labelPlayer3 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.richTextBoxPlayer2 = new System.Windows.Forms.RichTextBox();
-            this.labelPlayer2 = new System.Windows.Forms.Label();
-            this.richTextBoxPlayer1 = new System.Windows.Forms.RichTextBox();
-            this.labelPlayer1 = new System.Windows.Forms.Label();
-            this.richTextBoxDeck = new System.Windows.Forms.RichTextBox();
             this.textBoxOutput = new System.Windows.Forms.TextBox();
             this.workerAutoThrow = new System.ComponentModel.BackgroundWorker();
+            this.panelLabels = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -96,6 +85,7 @@
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSleep)).BeginInit();
             this.groupBox1.SuspendLayout();
+            this.tableLayoutPanel7.SuspendLayout();
             this.tableLayoutPanel6.SuspendLayout();
             this.tableLayoutPanel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNPlayers)).BeginInit();
@@ -124,7 +114,7 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.splitContainer1);
-            this.splitContainer2.Size = new System.Drawing.Size(1447, 781);
+            this.splitContainer2.Size = new System.Drawing.Size(541, 781);
             this.splitContainer2.SplitterDistance = 188;
             this.splitContainer2.TabIndex = 30;
             // 
@@ -132,9 +122,9 @@
             // 
             this.groupBox5.Controls.Add(this.richTextBoxPot);
             this.groupBox5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox5.Location = new System.Drawing.Point(0, 583);
+            this.groupBox5.Location = new System.Drawing.Point(0, 607);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(188, 175);
+            this.groupBox5.Size = new System.Drawing.Size(188, 151);
             this.groupBox5.TabIndex = 51;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Most Recently Won Cards";
@@ -146,7 +136,7 @@
             this.richTextBoxPot.Location = new System.Drawing.Point(3, 16);
             this.richTextBoxPot.Name = "richTextBoxPot";
             this.richTextBoxPot.ReadOnly = true;
-            this.richTextBoxPot.Size = new System.Drawing.Size(182, 156);
+            this.richTextBoxPot.Size = new System.Drawing.Size(182, 132);
             this.richTextBoxPot.TabIndex = 42;
             this.richTextBoxPot.Text = "";
             // 
@@ -154,7 +144,7 @@
             // 
             this.groupBox4.Controls.Add(this.textBoxCounts);
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox4.Location = new System.Drawing.Point(0, 390);
+            this.groupBox4.Location = new System.Drawing.Point(0, 414);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(188, 193);
             this.groupBox4.TabIndex = 50;
@@ -194,7 +184,7 @@
             this.groupBox3.Controls.Add(this.tableLayoutPanel2);
             this.groupBox3.Controls.Add(this.buttonRunManyGames);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox3.Location = new System.Drawing.Point(0, 225);
+            this.groupBox3.Location = new System.Drawing.Point(0, 249);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(188, 165);
             this.groupBox3.TabIndex = 49;
@@ -384,7 +374,7 @@
             this.groupBox2.Controls.Add(this.tableLayoutPanel1);
             this.groupBox2.Controls.Add(this.buttonAutoThrow);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox2.Location = new System.Drawing.Point(0, 158);
+            this.groupBox2.Location = new System.Drawing.Point(0, 182);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(188, 67);
             this.groupBox2.TabIndex = 48;
@@ -459,6 +449,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.tableLayoutPanel7);
             this.groupBox1.Controls.Add(this.tableLayoutPanel6);
             this.groupBox1.Controls.Add(this.buttonThrow);
             this.groupBox1.Controls.Add(this.buttonDeal);
@@ -468,10 +459,38 @@
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(188, 158);
+            this.groupBox1.Size = new System.Drawing.Size(188, 182);
             this.groupBox1.TabIndex = 47;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Interactive Controls";
+            // 
+            // tableLayoutPanel7
+            // 
+            this.tableLayoutPanel7.ColumnCount = 1;
+            this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel7.Controls.Add(this.checkBoxShowOnlyActivePlayers, 0, 0);
+            this.tableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutPanel7.Location = new System.Drawing.Point(3, 157);
+            this.tableLayoutPanel7.Name = "tableLayoutPanel7";
+            this.tableLayoutPanel7.RowCount = 1;
+            this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel7.Size = new System.Drawing.Size(182, 25);
+            this.tableLayoutPanel7.TabIndex = 49;
+            // 
+            // checkBoxShowOnlyActivePlayers
+            // 
+            this.checkBoxShowOnlyActivePlayers.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.checkBoxShowOnlyActivePlayers.AutoSize = true;
+            this.checkBoxShowOnlyActivePlayers.Checked = true;
+            this.checkBoxShowOnlyActivePlayers.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxShowOnlyActivePlayers.Location = new System.Drawing.Point(3, 4);
+            this.checkBoxShowOnlyActivePlayers.Name = "checkBoxShowOnlyActivePlayers";
+            this.checkBoxShowOnlyActivePlayers.Size = new System.Drawing.Size(175, 17);
+            this.checkBoxShowOnlyActivePlayers.TabIndex = 16;
+            this.checkBoxShowOnlyActivePlayers.Text = "Show Only Players With Cards?";
+            this.checkBoxShowOnlyActivePlayers.UseVisualStyleBackColor = true;
+            this.checkBoxShowOnlyActivePlayers.CheckedChanged += new System.EventHandler(this.checkBoxShowOnlyActivePlayers_CheckedChanged);
             // 
             // tableLayoutPanel6
             // 
@@ -483,6 +502,7 @@
             this.tableLayoutPanel6.Name = "tableLayoutPanel6";
             this.tableLayoutPanel6.RowCount = 1;
             this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
             this.tableLayoutPanel6.Size = new System.Drawing.Size(182, 25);
             this.tableLayoutPanel6.TabIndex = 48;
             // 
@@ -600,179 +620,21 @@
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.richTextBoxPlayer6);
-            this.splitContainer1.Panel1.Controls.Add(this.labelPlayer6);
-            this.splitContainer1.Panel1.Controls.Add(this.richTextBoxPlayer5);
-            this.splitContainer1.Panel1.Controls.Add(this.labelPlayer5);
-            this.splitContainer1.Panel1.Controls.Add(this.richTextBoxPlayer4);
-            this.splitContainer1.Panel1.Controls.Add(this.labelPlayer4);
-            this.splitContainer1.Panel1.Controls.Add(this.richTextBoxPlayer3);
-            this.splitContainer1.Panel1.Controls.Add(this.labelPlayer3);
-            this.splitContainer1.Panel1.Controls.Add(this.label1);
-            this.splitContainer1.Panel1.Controls.Add(this.richTextBoxPlayer2);
-            this.splitContainer1.Panel1.Controls.Add(this.labelPlayer2);
-            this.splitContainer1.Panel1.Controls.Add(this.richTextBoxPlayer1);
-            this.splitContainer1.Panel1.Controls.Add(this.labelPlayer1);
-            this.splitContainer1.Panel1.Controls.Add(this.richTextBoxDeck);
+            this.splitContainer1.Panel1.AutoScroll = true;
+            this.splitContainer1.Panel1.Controls.Add(this.panelLabels);
             // 
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.textBoxOutput);
-            this.splitContainer1.Size = new System.Drawing.Size(1255, 781);
-            this.splitContainer1.SplitterDistance = 936;
+            this.splitContainer1.Size = new System.Drawing.Size(349, 781);
+            this.splitContainer1.SplitterDistance = 30;
             this.splitContainer1.TabIndex = 18;
-            // 
-            // richTextBoxPlayer6
-            // 
-            this.richTextBoxPlayer6.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxPlayer6.Location = new System.Drawing.Point(801, 25);
-            this.richTextBoxPlayer6.Name = "richTextBoxPlayer6";
-            this.richTextBoxPlayer6.ReadOnly = true;
-            this.richTextBoxPlayer6.Size = new System.Drawing.Size(127, 751);
-            this.richTextBoxPlayer6.TabIndex = 25;
-            this.richTextBoxPlayer6.Text = "";
-            // 
-            // labelPlayer6
-            // 
-            this.labelPlayer6.AutoSize = true;
-            this.labelPlayer6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelPlayer6.ForeColor = System.Drawing.Color.Teal;
-            this.labelPlayer6.Location = new System.Drawing.Point(797, 2);
-            this.labelPlayer6.Name = "labelPlayer6";
-            this.labelPlayer6.Size = new System.Drawing.Size(73, 20);
-            this.labelPlayer6.TabIndex = 23;
-            this.labelPlayer6.Text = "Player 6";
-            // 
-            // richTextBoxPlayer5
-            // 
-            this.richTextBoxPlayer5.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxPlayer5.Location = new System.Drawing.Point(668, 25);
-            this.richTextBoxPlayer5.Name = "richTextBoxPlayer5";
-            this.richTextBoxPlayer5.ReadOnly = true;
-            this.richTextBoxPlayer5.Size = new System.Drawing.Size(127, 751);
-            this.richTextBoxPlayer5.TabIndex = 24;
-            this.richTextBoxPlayer5.Text = "";
-            // 
-            // labelPlayer5
-            // 
-            this.labelPlayer5.AutoSize = true;
-            this.labelPlayer5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelPlayer5.ForeColor = System.Drawing.Color.Orange;
-            this.labelPlayer5.Location = new System.Drawing.Point(664, 2);
-            this.labelPlayer5.Name = "labelPlayer5";
-            this.labelPlayer5.Size = new System.Drawing.Size(73, 20);
-            this.labelPlayer5.TabIndex = 22;
-            this.labelPlayer5.Text = "Player 5";
-            // 
-            // richTextBoxPlayer4
-            // 
-            this.richTextBoxPlayer4.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxPlayer4.Location = new System.Drawing.Point(535, 25);
-            this.richTextBoxPlayer4.Name = "richTextBoxPlayer4";
-            this.richTextBoxPlayer4.ReadOnly = true;
-            this.richTextBoxPlayer4.Size = new System.Drawing.Size(127, 751);
-            this.richTextBoxPlayer4.TabIndex = 21;
-            this.richTextBoxPlayer4.Text = "";
-            // 
-            // labelPlayer4
-            // 
-            this.labelPlayer4.AutoSize = true;
-            this.labelPlayer4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelPlayer4.ForeColor = System.Drawing.Color.Purple;
-            this.labelPlayer4.Location = new System.Drawing.Point(531, 2);
-            this.labelPlayer4.Name = "labelPlayer4";
-            this.labelPlayer4.Size = new System.Drawing.Size(73, 20);
-            this.labelPlayer4.TabIndex = 19;
-            this.labelPlayer4.Text = "Player 4";
-            // 
-            // richTextBoxPlayer3
-            // 
-            this.richTextBoxPlayer3.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxPlayer3.Location = new System.Drawing.Point(402, 25);
-            this.richTextBoxPlayer3.Name = "richTextBoxPlayer3";
-            this.richTextBoxPlayer3.ReadOnly = true;
-            this.richTextBoxPlayer3.Size = new System.Drawing.Size(127, 751);
-            this.richTextBoxPlayer3.TabIndex = 20;
-            this.richTextBoxPlayer3.Text = "";
-            // 
-            // labelPlayer3
-            // 
-            this.labelPlayer3.AutoSize = true;
-            this.labelPlayer3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelPlayer3.ForeColor = System.Drawing.Color.Green;
-            this.labelPlayer3.Location = new System.Drawing.Point(398, 2);
-            this.labelPlayer3.Name = "labelPlayer3";
-            this.labelPlayer3.Size = new System.Drawing.Size(73, 20);
-            this.labelPlayer3.TabIndex = 18;
-            this.labelPlayer3.Text = "Player 3";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(3, 3);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(50, 20);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "Deck";
-            // 
-            // richTextBoxPlayer2
-            // 
-            this.richTextBoxPlayer2.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxPlayer2.Location = new System.Drawing.Point(269, 26);
-            this.richTextBoxPlayer2.Name = "richTextBoxPlayer2";
-            this.richTextBoxPlayer2.ReadOnly = true;
-            this.richTextBoxPlayer2.Size = new System.Drawing.Size(127, 751);
-            this.richTextBoxPlayer2.TabIndex = 17;
-            this.richTextBoxPlayer2.Text = "";
-            // 
-            // labelPlayer2
-            // 
-            this.labelPlayer2.AutoSize = true;
-            this.labelPlayer2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelPlayer2.ForeColor = System.Drawing.Color.Blue;
-            this.labelPlayer2.Location = new System.Drawing.Point(265, 3);
-            this.labelPlayer2.Name = "labelPlayer2";
-            this.labelPlayer2.Size = new System.Drawing.Size(73, 20);
-            this.labelPlayer2.TabIndex = 7;
-            this.labelPlayer2.Text = "Player 2";
-            // 
-            // richTextBoxPlayer1
-            // 
-            this.richTextBoxPlayer1.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxPlayer1.Location = new System.Drawing.Point(136, 26);
-            this.richTextBoxPlayer1.Name = "richTextBoxPlayer1";
-            this.richTextBoxPlayer1.ReadOnly = true;
-            this.richTextBoxPlayer1.Size = new System.Drawing.Size(127, 751);
-            this.richTextBoxPlayer1.TabIndex = 16;
-            this.richTextBoxPlayer1.Text = "";
-            // 
-            // labelPlayer1
-            // 
-            this.labelPlayer1.AutoSize = true;
-            this.labelPlayer1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelPlayer1.ForeColor = System.Drawing.Color.Maroon;
-            this.labelPlayer1.Location = new System.Drawing.Point(132, 3);
-            this.labelPlayer1.Name = "labelPlayer1";
-            this.labelPlayer1.Size = new System.Drawing.Size(73, 20);
-            this.labelPlayer1.TabIndex = 6;
-            this.labelPlayer1.Text = "Player 1";
-            // 
-            // richTextBoxDeck
-            // 
-            this.richTextBoxDeck.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBoxDeck.Location = new System.Drawing.Point(3, 26);
-            this.richTextBoxDeck.Name = "richTextBoxDeck";
-            this.richTextBoxDeck.ReadOnly = true;
-            this.richTextBoxDeck.Size = new System.Drawing.Size(127, 751);
-            this.richTextBoxDeck.TabIndex = 15;
-            this.richTextBoxDeck.Text = "";
             // 
             // textBoxOutput
             // 
@@ -796,11 +658,20 @@
             this.workerAutoThrow.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.workerAutoThrow_ProgressChanged);
             this.workerAutoThrow.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerAutoThrow_RunWorkerCompleted);
             // 
+            // panelLabels
+            // 
+            this.panelLabels.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelLabels.Location = new System.Drawing.Point(0, 0);
+            this.panelLabels.Name = "panelLabels";
+            this.panelLabels.Size = new System.Drawing.Size(30, 25);
+            this.panelLabels.TabIndex = 0;
+            // 
             // kbWarMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1447, 781);
+            this.AutoScroll = true;
+            this.ClientSize = new System.Drawing.Size(541, 781);
             this.Controls.Add(this.splitContainer2);
             this.Name = "kbWarMainForm";
             this.Text = "kbWar!!!     A simulation of the simple card game WAR.";
@@ -825,13 +696,14 @@
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSleep)).EndInit();
             this.groupBox1.ResumeLayout(false);
+            this.tableLayoutPanel7.ResumeLayout(false);
+            this.tableLayoutPanel7.PerformLayout();
             this.tableLayoutPanel6.ResumeLayout(false);
             this.tableLayoutPanel6.PerformLayout();
             this.tableLayoutPanel5.ResumeLayout(false);
             this.tableLayoutPanel5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNPlayers)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -844,12 +716,6 @@
 
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.TextBox textBoxOutput;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label labelPlayer2;
-        private System.Windows.Forms.Label labelPlayer1;
-        private System.Windows.Forms.RichTextBox richTextBoxDeck;
-        private System.Windows.Forms.RichTextBox richTextBoxPlayer1;
-        private System.Windows.Forms.RichTextBox richTextBoxPlayer2;
         private System.ComponentModel.BackgroundWorker workerAutoThrow;
         private System.Windows.Forms.Button buttonClearOutput;
         private System.Windows.Forms.RichTextBox richTextBoxPot;
@@ -880,19 +746,14 @@
         private System.Windows.Forms.NumericUpDown numericUpDownNPlayers;
         private System.Windows.Forms.Button buttonDeal;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.CheckBox checkBoxShuffleResult;
         private System.Windows.Forms.Button buttonThrow;
         private System.Windows.Forms.Button buttonShuffle;
         private System.Windows.Forms.Button buttonRestart;
-        private System.Windows.Forms.RichTextBox richTextBoxPlayer6;
-        private System.Windows.Forms.Label labelPlayer6;
-        private System.Windows.Forms.RichTextBox richTextBoxPlayer5;
-        private System.Windows.Forms.Label labelPlayer5;
-        private System.Windows.Forms.RichTextBox richTextBoxPlayer4;
-        private System.Windows.Forms.Label labelPlayer4;
-        private System.Windows.Forms.RichTextBox richTextBoxPlayer3;
-        private System.Windows.Forms.Label labelPlayer3;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel7;
+        private System.Windows.Forms.CheckBox checkBoxShowOnlyActivePlayers;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
+        private System.Windows.Forms.CheckBox checkBoxShuffleResult;
+        private System.Windows.Forms.Panel panelLabels;
     }
 }
 
