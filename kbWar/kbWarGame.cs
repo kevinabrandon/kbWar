@@ -236,10 +236,10 @@ namespace kbWar
 
             // all active players need to throw down!
             int nWars = 0;
-            ThrowDown(players, ref nWars);
+            List<int> winners = ThrowDown(players, ref nWars);
 
-            if (players.Count > 1) m_iMostRecentWinner = -1;
-            else m_iMostRecentWinner = players[0];
+            if (winners.Count > 1) m_iMostRecentWinner = -1;
+            else m_iMostRecentWinner = winners[0];
 
             // add all the cards thrown into recently won hand
             m_MostRecentlyWonCards.Clear();
@@ -254,11 +254,11 @@ namespace kbWar
             // deal out cards to the winner/winners
             for (int iCard = 0; iCard < m_MostRecentlyWonCards.Count; iCard++)
             {
-                m_Players[players[iCard % players.Count]].AddToBottom(m_MostRecentlyWonCards[iCard]);
+                m_Players[winners[iCard % winners.Count]].AddToBottom(m_MostRecentlyWonCards[iCard]);
             }
             
             // update counters:
-            UpdateCounters(nWars, players);
+            UpdateCounters(nWars, winners);
 
             // adjust the game state and return it.
             if (this.Winner >= 0) m_State = GameState.eOverWithWinner;              // do we have a winner?
@@ -291,7 +291,8 @@ namespace kbWar
         /// </summary>
         /// <param name="Players">List of players that are about to throw down.  The winners are returned here.</param>
         /// <param name="recursionCount">A counter, to count how many times we recure (keeps track of the number of wars!)</param>
-        private void ThrowDown(List<int> Players, ref int recursionCount)
+        /// <returns>Returns a list of the winning players.</returns>
+        private List<int> ThrowDown(List<int> Players, ref int recursionCount)
         {
             foreach (int iPlayer in Players)
             {   // all players required to throw a card down throws.
@@ -314,10 +315,8 @@ namespace kbWar
             }
 
             if (winningPlayers.Count == 1)
-            {   // we have a winner!  return the winner through the Players list
-                Players.Clear();
-                Players.Add(winningPlayers[0]);
-                return;
+            {   // we have a winner! 
+                return winningPlayers;
             }
             else
             {   // we have multiple players with the highest card!
@@ -344,24 +343,16 @@ namespace kbWar
                 {   // we have a very rare TIE...
                     // we will return the winning players as winners
                     // so that they can split up the cards.
-                    Players.Clear();
-                    Players.AddRange(winningPlayers);
-                    return;
+                    return winningPlayers;
                 }
                 else if (PlayersReadyToThrowDown.Count == 1)
                 {   // there is only one player ready, they're the winner!!
-                    // return the winner through the Players list.
-                    Players.Clear();
-                    Players.Add(PlayersReadyToThrowDown[0]);
-                    return;
+                    return PlayersReadyToThrowDown;
                 }
                 else    // if(PlayersReadyToThrowDown.Count > 1)
                 {   // okay, let's throw down again, this time with our new winners
-                    Players.Clear();
-                    Players.AddRange(PlayersReadyToThrowDown);
-
                     recursionCount++;
-                    ThrowDown(Players, ref recursionCount);
+                    return ThrowDown(PlayersReadyToThrowDown, ref recursionCount);
                 }
             }
         }
