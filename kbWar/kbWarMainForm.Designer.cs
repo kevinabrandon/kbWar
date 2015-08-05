@@ -55,7 +55,7 @@
             this.buttonAutoThrow = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
-            this.checkBoxShowOnlyActivePlayers = new System.Windows.Forms.CheckBox();
+            this.checkBoxShowEmptyHands = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
             this.checkBoxShuffleResult = new System.Windows.Forms.CheckBox();
             this.buttonThrow = new System.Windows.Forms.Button();
@@ -367,7 +367,7 @@
             this.buttonRunManyGames.TabIndex = 46;
             this.buttonRunManyGames.Text = "Run Monte-Carlo Simulation";
             this.buttonRunManyGames.UseVisualStyleBackColor = true;
-            this.buttonRunManyGames.Click += new System.EventHandler(this.StartMonteCarloSimulation);
+            this.buttonRunManyGames.Click += new System.EventHandler(this.StartMonteCarloSimulationClicked);
             // 
             // groupBox2
             // 
@@ -468,7 +468,7 @@
             // 
             this.tableLayoutPanel7.ColumnCount = 1;
             this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel7.Controls.Add(this.checkBoxShowOnlyActivePlayers, 0, 0);
+            this.tableLayoutPanel7.Controls.Add(this.checkBoxShowEmptyHands, 0, 0);
             this.tableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel7.Location = new System.Drawing.Point(3, 157);
             this.tableLayoutPanel7.Name = "tableLayoutPanel7";
@@ -480,15 +480,15 @@
             // 
             // checkBoxShowOnlyActivePlayers
             // 
-            this.checkBoxShowOnlyActivePlayers.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.checkBoxShowOnlyActivePlayers.AutoSize = true;
-            this.checkBoxShowOnlyActivePlayers.Location = new System.Drawing.Point(28, 4);
-            this.checkBoxShowOnlyActivePlayers.Name = "checkBoxShowOnlyActivePlayers";
-            this.checkBoxShowOnlyActivePlayers.Size = new System.Drawing.Size(125, 17);
-            this.checkBoxShowOnlyActivePlayers.TabIndex = 16;
-            this.checkBoxShowOnlyActivePlayers.Text = "Show Empty Hands?";
-            this.checkBoxShowOnlyActivePlayers.UseVisualStyleBackColor = true;
-            this.checkBoxShowOnlyActivePlayers.CheckedChanged += new System.EventHandler(this.checkBoxShowOnlyActivePlayers_CheckedChanged);
+            this.checkBoxShowEmptyHands.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.checkBoxShowEmptyHands.AutoSize = true;
+            this.checkBoxShowEmptyHands.Location = new System.Drawing.Point(28, 4);
+            this.checkBoxShowEmptyHands.Name = "checkBoxShowOnlyActivePlayers";
+            this.checkBoxShowEmptyHands.Size = new System.Drawing.Size(125, 17);
+            this.checkBoxShowEmptyHands.TabIndex = 16;
+            this.checkBoxShowEmptyHands.Text = "Show Empty Hands?";
+            this.checkBoxShowEmptyHands.UseVisualStyleBackColor = true;
+            this.checkBoxShowEmptyHands.CheckedChanged += new System.EventHandler(this.checkBoxShowOnlyActivePlayers_CheckedChanged);
             // 
             // tableLayoutPanel6
             // 
@@ -602,7 +602,7 @@
             0,
             0,
             0});
-            this.numericUpDownNPlayers.ValueChanged += new System.EventHandler(this.numericUpDownNPlayers_ValueChanged);
+            this.numericUpDownNPlayers.ValueChanged += new System.EventHandler(this.NumberOfPlayersChanged);
             // 
             // label11
             // 
@@ -660,9 +660,9 @@
             // 
             this.workerAutoThrow.WorkerReportsProgress = true;
             this.workerAutoThrow.WorkerSupportsCancellation = true;
-            this.workerAutoThrow.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerAutoThrow_DoWork);
-            this.workerAutoThrow.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.workerAutoThrow_ProgressChanged);
-            this.workerAutoThrow.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerAutoThrow_RunWorkerCompleted);
+            this.workerAutoThrow.DoWork += new System.ComponentModel.DoWorkEventHandler(this.AutoThrow_DoWork);
+            this.workerAutoThrow.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.AutoThrow_ProgressChanged);
+            this.workerAutoThrow.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.AutoThrow_RunWorkerCompleted);
             // 
             // kbWarMainForm
             // 
@@ -748,7 +748,7 @@
         private System.Windows.Forms.Button buttonShuffle;
         private System.Windows.Forms.Button buttonRestart;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel7;
-        private System.Windows.Forms.CheckBox checkBoxShowOnlyActivePlayers;
+        private System.Windows.Forms.CheckBox checkBoxShowEmptyHands;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
         private System.Windows.Forms.CheckBox checkBoxShuffleResult;
         private System.Windows.Forms.Panel panelLabels;

@@ -12,117 +12,84 @@ using ColorDemo;
 
 namespace kbWar
 {
-    #region public partial class kbWarMainForm : Form
+    #region class kbWarMainForm
     public partial class kbWarMainForm : Form
     {
         #region private member vars...
 
-        private kbCardGameWar m_Game = new kbCardGameWar();     // the game to be used with the UI
-        
-        BackgroundWorker[] m_Workers = null;            // the background threads for the monte-carlo simulation.
-        BackgroundWorkerOutput m_WorkersOutput = null;  // used to collect output from the multitple workers.
+        private kbCardGameWar m_Game = new kbCardGameWar(); // the game to be used with the UI
 
+        BackgroundWorker[] m_Workers = null;                // the background threads for the monte-carlo simulation.
+        MonteCarloSimResult m_WorkersOutput = null;         // used to collect output from the multitple workers.
 
-        RichTextBox[] m_TextBoxes = new RichTextBox[27];
-        Label[] m_Labels = new Label[27];
-        Color[] m_PlayerColors = new Color[27];
+        RichTextBox[] m_TextBoxes = new RichTextBox[27];    // textboxes used to show the cards (one for each hand, the last one is the deck)
+        Label[] m_Labels = new Label[27];                   // labels used to show which player belongs to which textbox.
+        Color[] m_PlayerColors = new Color[27];             // the colors used to color the labels
 
         #endregion
 
         #region construction...
+
+        #region kbWarMainForm() Constructor!
         public kbWarMainForm()
         {
             InitializeComponent();
             
-            splitContainer1.Panel2Collapsed = true;
-            CreateColors();
-            CreateTextBoxes();
-
-            Restart();
-            UpdateUI();
-            UpdateCountsUI();
+            CreateTextBoxesAndColors();
             textBoxOutput.Clear();
+            splitContainer1.Panel2Collapsed = true;
             buttonCancel.Enabled = false;
             checkBoxVerbose.Enabled = false;
 
-            numericUpDownNPlayers_ValueChanged(this, new EventArgs());
+            NumberOfPlayersChanged(this, new EventArgs());
         }
         #endregion
 
-        #region CreateColors()
-        private void CreateColors()
+        #region CreateTextBoxesAndColors()
+        private void CreateTextBoxesAndColors()
         {
-            for (int i = 0; i < 27; i ++)
+            for (int i = 0; i < 27; i++)
             {
-                m_PlayerColors[i] = new HSLColor(240.0 * (double)i / 26.0, 240, 120);
-                //listView1.Items.Add(i.ToString()).BackColor = color;
                 if (i == 26) m_PlayerColors[i] = Color.Black;
-            }    
+                else m_PlayerColors[i] = new HSLColor(240.0 * (double)i / 26.0, 240, 120);
+
+                m_TextBoxes[i] = new RichTextBox();
+                m_Labels[i] = new Label();
+
+                Point textBoxLocation = new Point(136 + i * 130, 26);
+                Point labelLocation = new Point(132 + i * 130, 3);
+
+                m_TextBoxes[i].Dock = System.Windows.Forms.DockStyle.Left;
+                m_TextBoxes[i].ScrollBars = RichTextBoxScrollBars.None;
+                m_TextBoxes[i].Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                m_TextBoxes[i].Location = new System.Drawing.Point(0, 0);
+                m_TextBoxes[i].ReadOnly = true;
+                m_TextBoxes[i].Size = new System.Drawing.Size(127, 751);
+                m_TextBoxes[i].TabIndex = 16 + i;
+                m_TextBoxes[i].Text = "";
+                if (i == 26) m_TextBoxes[i].Name = "Deck";
+                else m_TextBoxes[i].Name = "m_TextBoxes[" + i + "]";
+
+                m_Labels[i].Dock = System.Windows.Forms.DockStyle.Left;
+                m_Labels[i].Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                m_Labels[i].Location = new System.Drawing.Point(0, 0);
+                if (i == 26) m_Labels[i].Name = "Deck";
+                else m_Labels[i].Name = "m_Labels[" + i + "]";
+                m_Labels[i].Size = new System.Drawing.Size(127, 25);
+                m_Labels[i].TabIndex = 6 + i;
+                if (i == 26) m_Labels[i].Text = "Deck";
+                else m_Labels[i].Text = "Player " + (i + 1);
+                m_Labels[i].TextAlign = ContentAlignment.MiddleCenter;
+
+                panelLabels.Controls.Add(m_Labels[i]);
+                splitContainer1.Panel1.Controls.Add(m_TextBoxes[i]);
+            }
         }
         #endregion
 
-        private void AdjustColors()
-        {
-            for (int i = 0; i < numericUpDownNPlayers.Value; i++)
-            {
-                m_PlayerColors[i] = new HSLColor(240.0 * (double)i / (double) numericUpDownNPlayers.Value, 240, 120);
-                m_Labels[i].BackColor = m_PlayerColors[i];
-                m_Labels[i].ForeColor = Color.Black;
-            }
-        }
-
-        #region CreateTextBoxes()
-        private void CreateTextBoxes()
-        {
-            //for (int i = 25; i >= 0; i--)
-            
-            for (int i = 25; i >= 0; i--)
-            {
-                CreateTextBox(i);
-            }
-            CreateTextBox(26);
-
-        }
-        private void CreateTextBox(int i)
-        {
-            m_TextBoxes[i] = new RichTextBox();
-            m_Labels[i] = new Label();
-
-            Point textBoxLocation = new Point(136 + i * 130, 26);
-            Point labelLocation = new Point(132 + i * 130, 3);
-
-
-
-            m_TextBoxes[i].Dock = System.Windows.Forms.DockStyle.Left;
-            m_TextBoxes[i].ScrollBars = RichTextBoxScrollBars.None;
-            m_TextBoxes[i].Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            m_TextBoxes[i].Location = new System.Drawing.Point(0, 0);
-            m_TextBoxes[i].ReadOnly = true;
-            m_TextBoxes[i].Size = new System.Drawing.Size(127, 751);
-            m_TextBoxes[i].TabIndex = 16+i;
-            m_TextBoxes[i].Text = "";
-            if( i == 26)    m_TextBoxes[i].Name = "Deck";
-            else            m_TextBoxes[i].Name = "m_TextBoxes[" + i + "]";
-
-            m_Labels[i].Dock = System.Windows.Forms.DockStyle.Left;
-            m_Labels[i].Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            m_Labels[i].Location = new System.Drawing.Point(0, 0);
-            if (i == 26)    m_Labels[i].Name = "Deck";
-            else            m_Labels[i].Name = "m_Labels[" + i + "]";
-            m_Labels[i].Size = new System.Drawing.Size(127, 25);
-            m_Labels[i].TabIndex = 6 + i;
-            if( i == 26)    m_Labels[i].Text = "Deck";
-            else            m_Labels[i].Text = "Player " + (i + 1);
-            m_Labels[i].TextAlign = ContentAlignment.MiddleCenter;
-
-            panelLabels.Controls.Add(m_Labels[i]);
-            splitContainer1.Panel1.Controls.Add(m_TextBoxes[i]);
-
-          //  m_TextBoxes[i].BringToFront();
-          //  m_Labels[i].BringToFront();
-            
-        }
         #endregion
+
+        #region UI update stuff...
 
         #region UpdateUI()
         private void UpdateUI()
@@ -131,47 +98,11 @@ namespace kbWar
             {
                 m_TextBoxes[26].Text = m_Game.Deck;
 
-                for (int i = 0; i < numericUpDownNPlayers.Value; i++)
+                for (int i = 0; i < 26; i++)
                 {
-                    m_TextBoxes[i].Text = m_Game.GetPlayer(i);    
+                    if( i < numericUpDownNPlayers.Value)    m_TextBoxes[i].Text = m_Game.GetPlayer(i);    
+                    else                                    m_TextBoxes[i].Clear();
                 }
-                for (int i = (int)numericUpDownNPlayers.Value; i < 26; i++)
-                {
-                    m_TextBoxes[i].Clear();
-                }
-                if (!checkBoxShowOnlyActivePlayers.Checked)
-                {
-                    for (int i = 0; i < 27; i++)
-                    {
-                        if (m_TextBoxes[i].Text.Length == 0)
-                        {
-                            if (m_TextBoxes[i].Visible == true || m_Labels[i].Visible == true) m_bDirty = true;
-                            m_TextBoxes[i].Visible = false;
-                            m_Labels[i].Visible = false;
-                        }
-                        else
-                        {
-                            if (m_TextBoxes[i].Visible == false || m_Labels[i].Visible == false) m_bDirty = true;
-                            m_TextBoxes[i].Visible = true;
-                            m_Labels[i].Visible = true;
-                        }
-                    }
-                }
-                else
-                {
-                    if (m_TextBoxes[26].Visible == false || m_Labels[26].Visible == false) m_bDirty = true;
-                    m_TextBoxes[26].Visible = true;
-                    m_Labels[26].Visible = true;
-                    for (int i = 0; i < numericUpDownNPlayers.Value; i++)
-                    {
-                        if (m_TextBoxes[26].Visible == false || m_Labels[26].Visible == false) m_bDirty = true;
-                        m_TextBoxes[i].Visible = true;
-                        m_Labels[i].Visible = true;
-                    }
-                }
-
-                ReOrderTextBoxes();
-
 
                 if (m_Game.WinnerOfLastTurn > -2)
                 {
@@ -184,7 +115,72 @@ namespace kbWar
                 }
                 else richTextBoxPot.Clear();
             }
+            ShowTextBoxes();
             ColorTextBoxes();
+        }
+        #endregion
+
+        #region ShowTextBoxes()
+        private void ShowTextBoxes()
+        {
+            bool bDirty = false;
+            if (!checkBoxShowEmptyHands.Checked)
+            {   // make sure only textboxes with text are shown...
+                for (int i = 0; i < 27; i++)
+                {
+                    if (m_TextBoxes[i].Text.Length == 0)
+                    {
+                        if (m_TextBoxes[i].Visible == true || m_Labels[i].Visible == true) bDirty = true;
+                        m_TextBoxes[i].Visible = false;
+                        m_Labels[i].Visible = false;
+                    }
+                    else
+                    {
+                        if (m_TextBoxes[i].Visible == false || m_Labels[i].Visible == false) bDirty = true;
+                        m_TextBoxes[i].Visible = true;
+                        m_Labels[i].Visible = true;
+                    }
+                }
+            }
+            else
+            {   // make sure all hands that are playing are shown (also the deck).
+                // first the deck (m_TextBoxes[26])
+                if (m_TextBoxes[26].Visible == false || m_Labels[26].Visible == false) bDirty = true;
+                m_TextBoxes[26].Visible = true;
+                m_Labels[26].Visible = true;
+
+                // then all the other players...
+                for (int i = 0; i < 26; i++)
+                {
+                    if (i < numericUpDownNPlayers.Value)
+                    {   // if they're playing show them...
+                        if (m_TextBoxes[i].Visible == false || m_Labels[i].Visible == false) bDirty = true;
+                        m_TextBoxes[i].Visible = true;
+                        m_Labels[i].Visible = true;
+                    }
+                    else
+                    {   // if they're not playing... hide them.
+                        if (m_TextBoxes[i].Visible == true || m_Labels[i].Visible == true) bDirty = true;
+                        m_TextBoxes[i].Visible = false;
+                        m_Labels[i].Visible = false;
+                    }
+                }
+            }
+            // reorder the textboxes...
+            if( bDirty) ReOrderTextBoxes();
+        }
+        #endregion
+
+        #region ReOrderTextBoxes()
+        private void ReOrderTextBoxes()
+        {
+            m_Labels[26].BringToFront();
+            m_TextBoxes[26].BringToFront();
+            for (int i = 0; i < 26; i++)
+            {
+                m_Labels[i].BringToFront();
+                m_TextBoxes[i].BringToFront();
+            }
         }
         #endregion
 
@@ -219,6 +215,21 @@ namespace kbWar
                 ColorTextBoxeSelection(m_TextBoxes[i], "Diamonds", Color.White, Color.Red);
                 ColorTextBoxeSelection(m_TextBoxes[i], "Spades", Color.White, Color.Black);
                 ColorTextBoxeSelection(m_TextBoxes[i], "Clubs", Color.White, Color.Black);
+            }
+        }
+        #endregion
+
+        #region AdjustColors()
+        /// <summary>
+        /// Adjusts the for the labels and textboxes.
+        /// </summary>
+        private void AdjustColors()
+        {
+            for (int i = 0; i < numericUpDownNPlayers.Value; i++)
+            {
+                m_PlayerColors[i] = new HSLColor(240.0 * (double)i / (double)numericUpDownNPlayers.Value, 240, 120);
+                m_Labels[i].BackColor = m_PlayerColors[i];
+                m_Labels[i].ForeColor = Color.Black;
             }
         }
         #endregion
@@ -269,9 +280,32 @@ namespace kbWar
         }
         #endregion
 
+        #region EnableUI()
+        private void EnableUI(bool bEnable)
+        {
+            foreach (Control c in splitContainer2.Panel1.Controls)
+            {
+                if (c.HasChildren)
+                {
+                    foreach (Control c2 in c.Controls)
+                    {   // disables all the controls inside the groupboxes without disabling the groupboxes themselves.
+                        c2.Enabled = bEnable;
+                    }
+                }
+                else c.Enabled = bEnable;
+            }
+            buttonCancel.Enabled = !bEnable;
+            if (checkBoxVerbose.Enabled) checkBoxVerbose.Enabled = checkBoxOutputFiles.Checked;
+        }
+        #endregion
+
+        #endregion
+
+        #region Interactive Game actions...
+
         #region Shuffle()
         /// <summary>
-        /// Shuffles everything, the deck and the player's hands.
+        /// Shuffles the deck.
         /// </summary>
         private void Shuffle()
         {
@@ -284,8 +318,7 @@ namespace kbWar
 
         #region Restart()
         /// <summary>
-        /// Clears the two hands, and resets the deck.
-        ///   also clears the counters.
+        /// Restarts the game.
         /// </summary>
         void Restart()
         {
@@ -310,6 +343,9 @@ namespace kbWar
         #endregion
 
         #region Throw()
+        /// <summary>
+        /// All players throw down!  (new turn)
+        /// </summary>
         private void Throw()
         {
             lock (m_Game)
@@ -318,8 +354,10 @@ namespace kbWar
             }
         }
         #endregion
-        
-        #region Button clicks...
+
+        #endregion
+
+        #region Button and other UI clicks...
 
         #region shuffle clicked
         private void buttonShuffle_Click(object sender, EventArgs e)
@@ -437,29 +475,38 @@ namespace kbWar
         }
         #endregion
 
-        #endregion
-
-        #region EnableUI()
-        private void EnableUI(bool bEnable)
+        #region NumberOfPlayersChanged
+        /// <summary>
+        /// When the number of players change, we need to 
+        /// adjust the colors, and show only active players.
+        /// </summary>
+        private void NumberOfPlayersChanged(object sender, EventArgs e)
         {
-            foreach (Control c in splitContainer2.Panel1.Controls)
-            {
-                if (c.HasChildren)
-                {
-                    foreach (Control c2 in c.Controls)
-                    {   // disables all the controls inside the groupboxes without disabling the groupboxes themselves.
-                        c2.Enabled = bEnable;
-                    }
-                }
-                else c.Enabled = bEnable;
-            }
-            buttonCancel.Enabled = !bEnable;
-            if (checkBoxVerbose.Enabled) checkBoxVerbose.Enabled = checkBoxOutputFiles.Checked;
+            AdjustColors();
+            Restart();
+            UpdateUI();
+            UpdateCountsUI();
         }
         #endregion
 
-        #region private class BackgroundWorkerOutput
-        private class BackgroundWorkerOutput
+        #region checkBoxShowOnlyActivePlayers Checked Changed
+        private void checkBoxShowOnlyActivePlayers_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateUI();
+        }
+        #endregion
+
+        #endregion
+
+        #region Monte Carlo Simulation...
+
+        #region MonteCarloSim classes for passing data to and from threads...
+
+        #region private class MonteCarloSimResult
+        /// <summary>
+        /// Class for the background threads to return their result.
+        /// </summary>
+        private class MonteCarloSimResult
         {
             public List<int> nThrowsList = new List<int>();
             public List<int> nTiesList = new List<int>();
@@ -476,37 +523,33 @@ namespace kbWar
             public int nInfiniteLoops = 0;
             public int iThread;
             public int nPlayers;
-        }
-        #endregion
 
-        #region private void CombineOutputs(BackgroundWorkerOutput bwo)
-        private void CombineOutputs(BackgroundWorkerOutput bwo)
-        {
-            if (m_WorkersOutput == null)
+            public void CombineResults(MonteCarloSimResult bwo)
             {
-                m_WorkersOutput = new BackgroundWorkerOutput();
+                this.iThread++;  // use this as a counter to know how many times we've combined outputs.
+                this.nPlayers = bwo.nPlayers;
+                this.nInfiniteLoops += bwo.nInfiniteLoops;
+                this.nRuns += bwo.nRuns;
+                this.iWinnerList.AddRange(bwo.iWinnerList);
+                this.nThrowsList.AddRange(bwo.nThrowsList);
+                this.nTiesList.AddRange(bwo.nTiesList);
+                this.nTotalWarsList.AddRange(bwo.nTotalWarsList);
+                this.nSingleWarsList.AddRange(bwo.nSingleWarsList);
+                this.nDoubleWarsList.AddRange(bwo.nDoubleWarsList);
+                this.nTripleWarsList.AddRange(bwo.nTripleWarsList);
+                this.nQuadWarsList.AddRange(bwo.nQuadWarsList);
+                this.nFiveWarsList.AddRange(bwo.nFiveWarsList);
+                this.nSixWarsList.AddRange(bwo.nSixWarsList);
+                this.nSevenWarsList.AddRange(bwo.nSevenWarsList);
             }
-
-            m_WorkersOutput.iThread++;  // use this as a counter to know how many times we've combined outputs.
-            m_WorkersOutput.nPlayers = bwo.nPlayers;
-            m_WorkersOutput.nInfiniteLoops += bwo.nInfiniteLoops;
-            m_WorkersOutput.nRuns += bwo.nRuns;
-            m_WorkersOutput.iWinnerList.AddRange(bwo.iWinnerList);
-            m_WorkersOutput.nThrowsList.AddRange(bwo.nThrowsList);
-            m_WorkersOutput.nTiesList.AddRange(bwo.nTiesList);
-            m_WorkersOutput.nTotalWarsList.AddRange(bwo.nTotalWarsList);
-            m_WorkersOutput.nSingleWarsList.AddRange(bwo.nSingleWarsList);
-            m_WorkersOutput.nDoubleWarsList.AddRange(bwo.nDoubleWarsList);
-            m_WorkersOutput.nTripleWarsList.AddRange(bwo.nTripleWarsList);
-            m_WorkersOutput.nQuadWarsList.AddRange(bwo.nQuadWarsList);
-            m_WorkersOutput.nFiveWarsList.AddRange(bwo.nFiveWarsList);
-            m_WorkersOutput.nSixWarsList.AddRange(bwo.nSixWarsList);
-            m_WorkersOutput.nSevenWarsList.AddRange(bwo.nSevenWarsList);
         }
         #endregion
 
-        #region private class BackgroundWorkerUpdate
-        private class BackgroundWorkerUpdate
+        #region private class MonteCarloSimState
+        /// <summary>
+        /// Class for the background threads to update their progress
+        /// </summary>
+        private class MonteCarloSimState
         {
             public int nRuns = 0;
             public int iThread = 0;
@@ -524,8 +567,11 @@ namespace kbWar
         }
         #endregion
 
-        #region private class ManyGamesArgs
-        private class ManyGamesArgs
+        #region private class MonteCarloSimArgs
+        /// <summary>
+        /// The arguments to pass to the Monte-Carlo Simulation threads
+        /// </summary>
+        private class MonteCarloSimArgs
         {
             public int nGames;
             public int nPlayers;
@@ -536,8 +582,10 @@ namespace kbWar
         }
         #endregion
 
-        #region StartMonteCarloSimulation
-        private void StartMonteCarloSimulation(object sender, EventArgs e)
+        #endregion
+
+        #region StartMonteCarloSimulationClicked
+        private void StartMonteCarloSimulationClicked(object sender, EventArgs e)
         {
             if (!workerAutoThrow.IsBusy || m_Workers != null)
             {
@@ -546,7 +594,7 @@ namespace kbWar
                 m_Workers = new BackgroundWorker[nThreads];
 
                 var rand = new Random();
-                m_WorkersOutput = new BackgroundWorkerOutput();
+                m_WorkersOutput = new MonteCarloSimResult();
                 m_WorkersOutput.iThread = 0;
 
                 for (int iThread = 0; iThread < nThreads; iThread++)
@@ -554,11 +602,11 @@ namespace kbWar
                     m_Workers[iThread] = new BackgroundWorker();
                     m_Workers[iThread].WorkerReportsProgress = true;
                     m_Workers[iThread].WorkerSupportsCancellation = true;
-                    m_Workers[iThread].DoWork += new DoWorkEventHandler(workerManyGames_DoWork);
-                    m_Workers[iThread].ProgressChanged += new ProgressChangedEventHandler(workerManyGames_ProgressChanged);
-                    m_Workers[iThread].RunWorkerCompleted += new RunWorkerCompletedEventHandler(workerManyGames_RunWorkerCompleted);
+                    m_Workers[iThread].DoWork += new DoWorkEventHandler(MonteCarloSim_DoWork);
+                    m_Workers[iThread].ProgressChanged += new ProgressChangedEventHandler(MonteCarloSim_ProgressChanged);
+                    m_Workers[iThread].RunWorkerCompleted += new RunWorkerCompletedEventHandler(MonteCarloSim_RunWorkerCompleted);
 
-                    ManyGamesArgs args = new ManyGamesArgs();
+                    MonteCarloSimArgs args = new MonteCarloSimArgs();
 
                     args.nGames = (int)numericUpDownNGames.Value / nThreads;
                     args.nPlayers = (int)numericUpDownNPlayers.Value;
@@ -570,16 +618,16 @@ namespace kbWar
                     m_Workers[iThread].RunWorkerAsync(args);
                 }
             }
-            else MessageBox.Show("Auto run already running!");
+            else MessageBox.Show("Simulation is already running!"); // should be an assert... because we should never be here.
         }
         #endregion
 
-        #region workerManyGames DoWork
-        private void workerManyGames_DoWork(object sender, DoWorkEventArgs e)
+        #region MonteCarloSim_DoWork()
+        private void MonteCarloSim_DoWork(object sender, DoWorkEventArgs e)
         {
-            ManyGamesArgs args = e.Argument as ManyGamesArgs;
+            MonteCarloSimArgs args = e.Argument as MonteCarloSimArgs;
             BackgroundWorker bw = sender as BackgroundWorker;
-            BackgroundWorkerOutput bwo = new BackgroundWorkerOutput();
+            MonteCarloSimResult bwo = new MonteCarloSimResult();
             bwo.iThread = args.iThread;
             bwo.nPlayers = args.nPlayers;
 
@@ -616,43 +664,19 @@ namespace kbWar
                 bwo.nRuns++;
                 if (i % 500 == 0)
                 {
-                    MultiAutoRunUpdateProgress(bw, bwo, i, args);
+                    MonteCarloSimUpdateProgress(bw, bwo, i, args);
                 }
             }
-            MultiAutoRunUpdateProgress(bw, bwo, args.nGames, args);
+            MonteCarloSimUpdateProgress(bw, bwo, args.nGames, args);
             
             e.Result = bwo;
         }
         #endregion
 
-        #region UpdateCountersAtEndOfSim()
-        private void UpdateCountersAtEndOfSim(BackgroundWorkerOutput bwo)
+        #region MonteCarloSimUpdateProgress()
+        private void MonteCarloSimUpdateProgress(BackgroundWorker bw, MonteCarloSimResult bwo, int iRun, MonteCarloSimArgs args)
         {
-            BackgroundWorkerUpdate update = new BackgroundWorkerUpdate();
-            update.nRuns = bwo.nRuns;
-            update.iThread = -1;
-            update.nTotalThrows = Sum(bwo.nThrowsList);
-            update.nInfinateLoops = bwo.nInfiniteLoops;
-            update.nTotalWars = Sum(bwo.nTotalWarsList);
-            update.nTotalTies = Sum(bwo.nTiesList);
-            update.nTotalSingleWars = Sum(bwo.nSingleWarsList);
-            update.nTotalDoubleWars = Sum(bwo.nDoubleWarsList);
-            update.nTotalTripleWars = Sum(bwo.nTripleWarsList);
-            update.nTotalQuadWars = Sum(bwo.nQuadWarsList);
-            update.nTotalFiveWars = Sum(bwo.nFiveWarsList);
-            update.nTotalSixWars = Sum(bwo.nSixWarsList);
-            update.nTotalSevenWars = Sum(bwo.nSevenWarsList);
-
-            int iProgress = 100;
-            workerManyGames_ProgressChanged(this, new ProgressChangedEventArgs(iProgress, update));
-
-        }
-        #endregion
-
-        #region MultiAutoRunUpdateProgress()
-        private void MultiAutoRunUpdateProgress(BackgroundWorker bw, BackgroundWorkerOutput bwo, int iRun, ManyGamesArgs args)
-        {
-            BackgroundWorkerUpdate update = new BackgroundWorkerUpdate();
+            MonteCarloSimState update = new MonteCarloSimState();
             update.nRuns = bwo.nRuns;
             update.iThread = args.iThread;
             update.nTotalThrows = Sum(bwo.nThrowsList);
@@ -671,12 +695,12 @@ namespace kbWar
         }
         #endregion
 
-        #region workerManyGames ProgressChanged
-        private void workerManyGames_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        #region MonteCarloSim_ProgressChanged()
+        private void MonteCarloSim_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             if (e.UserState != null)
             {
-                BackgroundWorkerUpdate update = e.UserState as BackgroundWorkerUpdate;
+                MonteCarloSimState update = e.UserState as MonteCarloSimState;
 
                 if (update.iThread == 0 || update.iThread == -1)
                 {   // here -1 means it's over and it's the main thread calling it.
@@ -719,8 +743,8 @@ namespace kbWar
         }
         #endregion
 
-        #region workerManyGames RunWorkerCompleted
-        private void workerManyGames_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        #region MonteCarloSim_RunWorkerCompleted()
+        private void MonteCarloSim_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (e.Cancelled || e.Error != null)
             {   // if it was cancelled or there was an error, just return
@@ -734,8 +758,7 @@ namespace kbWar
                 return; 
             }
 
-            BackgroundWorkerOutput bwo = e.Result as BackgroundWorkerOutput;
-            CombineOutputs(bwo);
+            m_WorkersOutput.CombineResults(e.Result as MonteCarloSimResult);
 
             if (CheckIfAllDone())
             {
@@ -757,7 +780,30 @@ namespace kbWar
         }
         #endregion
 
-        #region private bool CheckIfAllDone()
+        #region UpdateCountersAtEndOfSim()
+        private void UpdateCountersAtEndOfSim(MonteCarloSimResult bwo)
+        {
+            MonteCarloSimState update = new MonteCarloSimState();
+            update.nRuns = bwo.nRuns;
+            update.iThread = -1;
+            update.nTotalThrows = Sum(bwo.nThrowsList);
+            update.nInfinateLoops = bwo.nInfiniteLoops;
+            update.nTotalWars = Sum(bwo.nTotalWarsList);
+            update.nTotalTies = Sum(bwo.nTiesList);
+            update.nTotalSingleWars = Sum(bwo.nSingleWarsList);
+            update.nTotalDoubleWars = Sum(bwo.nDoubleWarsList);
+            update.nTotalTripleWars = Sum(bwo.nTripleWarsList);
+            update.nTotalQuadWars = Sum(bwo.nQuadWarsList);
+            update.nTotalFiveWars = Sum(bwo.nFiveWarsList);
+            update.nTotalSixWars = Sum(bwo.nSixWarsList);
+            update.nTotalSevenWars = Sum(bwo.nSevenWarsList);
+
+            int iProgress = 100;
+            MonteCarloSim_ProgressChanged(this, new ProgressChangedEventArgs(iProgress, update));
+        }
+        #endregion
+
+        #region CheckIfAllDone()
         /// <summary>
         /// Checks if all the background threads are complete.
         /// </summary>
@@ -775,7 +821,7 @@ namespace kbWar
         #endregion
 
         #region SaveOutputFiles()
-        private void SaveOutputFiles(BackgroundWorkerOutput bwo)
+        private void SaveOutputFiles(MonteCarloSimResult bwo)
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "CSV File|*.csv|Text File|*.txt|All Files|*.*";
@@ -800,7 +846,7 @@ namespace kbWar
             GetMaxMinAvgCount(bwo.nSevenWarsList, out nMaxSeven, out nMinSeven, out dAvgSeven, out nCountSeven);
             
             sw.WriteLine("Number of Games, " + bwo.nRuns);
-            int[] PlayerWins = GetPlayerWinners(bwo);
+            int[] PlayerWins = GetPlayerWins(bwo);
             for (int i = 0; i < bwo.nPlayers; i++)
             {
                 sw.WriteLine("Player " + (i+1) + " Wins, " + PlayerWins[i]);
@@ -882,16 +928,16 @@ namespace kbWar
         }
         #endregion
 
-        #region private int[] GetPlayerWinners(BackgroundWorkerOutput bwo)
-        private int[] GetPlayerWinners(BackgroundWorkerOutput bwo)
+        #region GetPlayerWins()
+        private int[] GetPlayerWins(MonteCarloSimResult bwo)
         {
-            int[] winners = new int[bwo.nPlayers + 1];
+            int[] playerwins = new int[bwo.nPlayers + 1];
             foreach (int winner in bwo.iWinnerList)
             {
-                if (winner < 0) winners[bwo.nPlayers]++;    // this is for when there was no winner.
-                else winners[winner]++;
+                if (winner < 0) playerwins[bwo.nPlayers]++;    // this is for when there was no winner.
+                else playerwins[winner]++;
             }
-            return winners;
+            return playerwins;
         }
         #endregion
 
@@ -899,7 +945,7 @@ namespace kbWar
         /// <summary>
         /// Gets the output text
         /// </summary>
-        private string GetOutputText(BackgroundWorkerOutput bwo)
+        private string GetOutputText(MonteCarloSimResult bwo)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("****************************************");
@@ -907,7 +953,7 @@ namespace kbWar
             if (checkBoxShuffleResult.Checked) sb.AppendLine("Shuffle the winning cards every turn");
             else sb.AppendLine("Perfect play, no shuffling of cards between turns, infinate loops possible!");
 
-            int[] PlayerWins = GetPlayerWinners(bwo);
+            int[] PlayerWins = GetPlayerWins(bwo);
             for (int i = 0; i < bwo.nPlayers; i++)
             {
                 sb.AppendLine("Player " + (i+1) + " Wins: " + PlayerWins[i].ToString("N0"));
@@ -1012,63 +1058,6 @@ namespace kbWar
         }
         #endregion
 
-        #region workerAutoThrow DoWork
-        private void workerAutoThrow_DoWork(object sender, DoWorkEventArgs e)
-        {
-            BackgroundWorker bw = sender as BackgroundWorker;
-
-            if (m_Game.State == kbCardGameWar.GameState.eNotStarted)
-            {
-                Restart();     // restart with a new deck
-                Shuffle();     // shuffle the deck
-                Deal();        // deal the deck out to the hands
-            }
-            int count = 0;
-            while (true)
-            {
-                if (bw.CancellationPending)
-                {
-                    e.Cancel = true;
-                    break;
-                }
-                lock(m_Game)
-                {    
-                    var state = m_Game.NewTurn();
-
-                    if (state == kbCardGameWar.GameState.eInfiniteLoop || state == kbCardGameWar.GameState.eOverWithWinner)
-                    {
-                        break;
-                    }
-                }
-                bw.ReportProgress(0);
-                
-                Thread.Sleep((int)numericUpDownSleep.Value);
-                count++;
-            }
-            bw.ReportProgress(0);
-        }
-        #endregion
-
-        #region workerAutoThrow progress changed
-        private void workerAutoThrow_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            UpdateUI();
-            UpdateCountsUI();
-        }
-        #endregion
-
-        #region workerAutoThrow RunWorkerCompleted
-        private void workerAutoThrow_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            lock (m_Game)
-            {
-                if (m_Game.State == kbCardGameWar.GameState.eInfiniteLoop) MessageBox.Show("Infinite Loop!!!");
-                if (m_Game.State == kbCardGameWar.GameState.eOverWithWinner) MessageBox.Show("Player " + (m_Game.Winner + 1).ToString() + " WINS!!! In " + m_Game.Counters.nTurns.ToString() + " turns.");
-            }
-            EnableUI(true);
-        }
-        #endregion
-
         #region GetMaxMinAvgCount()
         private void GetMaxMinAvgCount(List<int> input, out int max, out int min, out double avg, out Int64 count)
         {
@@ -1109,10 +1098,9 @@ namespace kbWar
             }
             avg = (double)count / (double)(input.Count - nInfiniteLoops);
         }
-
         #endregion
 
-        #region Sum values in a list
+        #region Sum()
         private Int64 Sum(List<int> l)
         {
             Int64 sum = 0;
@@ -1124,59 +1112,68 @@ namespace kbWar
         }
         #endregion
 
-        bool m_bDirty = true;
+        #endregion
 
-        #region numbericUPDownNPlayers Value Changed
-        /// <summary>
-        /// When the number of players change, we change the window to make  
-        /// the correct number of players visible.  Then we restart the game.
-        /// </summary>
-        private void numericUpDownNPlayers_ValueChanged(object sender, EventArgs e)
+        #region Auto Throw...
+
+        #region AutoThrow_DoWork()
+        private void AutoThrow_DoWork(object sender, DoWorkEventArgs e)
         {
-            AdjustColors();
-            int nPlayers = (int)numericUpDownNPlayers.Value;
+            BackgroundWorker bw = sender as BackgroundWorker;
 
-            if (checkBoxShowOnlyActivePlayers.Checked)
+            if (m_Game.State == kbCardGameWar.GameState.eNotStarted)
             {
-                for (int i = 0; i < nPlayers; i++)
-                {
-                    m_Labels[i].Visible = true;
-                    m_TextBoxes[i].Visible = true;
-                }
-                for (int i = nPlayers; i < 26; i++)
-                {
-                    m_Labels[i].Visible = false;
-                    m_TextBoxes[i].Visible = false;
-                }
+                Restart();     // restart with a new deck
+                Shuffle();     // shuffle the deck
+                Deal();        // deal the deck out to the hands
             }
+            int count = 0;
+            while (true)
+            {
+                if (bw.CancellationPending)
+                {
+                    e.Cancel = true;
+                    break;
+                }
+                lock(m_Game)
+                {    
+                    var state = m_Game.NewTurn();
 
-            m_bDirty = true;
-            
-            Restart();
+                    if (state == kbCardGameWar.GameState.eInfiniteLoop || state == kbCardGameWar.GameState.eOverWithWinner)
+                    {
+                        break;
+                    }
+                }
+                bw.ReportProgress(0);
+                
+                Thread.Sleep((int)numericUpDownSleep.Value);
+                count++;
+            }
+            bw.ReportProgress(0);
+        }
+        #endregion
+
+        #region AutoThrow_ProgressChanged()
+        private void AutoThrow_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
             UpdateUI();
             UpdateCountsUI();
         }
         #endregion
 
-        private void checkBoxShowOnlyActivePlayers_CheckedChanged(object sender, EventArgs e)
+        #region AutoThrow_RunWorkerCompleted()
+        private void AutoThrow_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            UpdateUI();
-        }
-
-        private void ReOrderTextBoxes()
-        {
-            if (m_bDirty)
+            lock (m_Game)
             {
-                m_Labels[26].BringToFront();
-                m_TextBoxes[26].BringToFront();
-                for (int i = 0; i < 26; i++)
-                {
-                    m_Labels[i].BringToFront();
-                    m_TextBoxes[i].BringToFront();
-                }
-                m_bDirty = false;
+                if (m_Game.State == kbCardGameWar.GameState.eInfiniteLoop) MessageBox.Show("Infinite Loop!!!");
+                if (m_Game.State == kbCardGameWar.GameState.eOverWithWinner) MessageBox.Show("Player " + (m_Game.Winner + 1).ToString() + " WINS!!! In " + m_Game.Counters.nTurns.ToString() + " turns.");
             }
+            EnableUI(true);
         }
+        #endregion
+
+        #endregion
     }
     #endregion
 }
