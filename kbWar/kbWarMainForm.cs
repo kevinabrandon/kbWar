@@ -94,6 +94,7 @@ namespace kbWar
 
 
             m_TextBoxes[i].Dock = System.Windows.Forms.DockStyle.Left;
+            m_TextBoxes[i].ScrollBars = RichTextBoxScrollBars.None;
             m_TextBoxes[i].Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             m_TextBoxes[i].Location = new System.Drawing.Point(0, 0);
             m_TextBoxes[i].ReadOnly = true;
@@ -138,7 +139,7 @@ namespace kbWar
                 {
                     m_TextBoxes[i].Clear();
                 }
-                if (checkBoxShowOnlyActivePlayers.Checked)
+                if (!checkBoxShowOnlyActivePlayers.Checked)
                 {
                     for (int i = 0; i < 27; i++)
                     {
@@ -1135,7 +1136,7 @@ namespace kbWar
             AdjustColors();
             int nPlayers = (int)numericUpDownNPlayers.Value;
 
-            if (!checkBoxShowOnlyActivePlayers.Checked)
+            if (checkBoxShowOnlyActivePlayers.Checked)
             {
                 for (int i = 0; i < nPlayers; i++)
                 {

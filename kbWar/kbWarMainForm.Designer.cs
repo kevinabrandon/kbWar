@@ -66,9 +66,9 @@
             this.numericUpDownNPlayers = new System.Windows.Forms.NumericUpDown();
             this.label11 = new System.Windows.Forms.Label();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.panelLabels = new System.Windows.Forms.Panel();
             this.textBoxOutput = new System.Windows.Forms.TextBox();
             this.workerAutoThrow = new System.ComponentModel.BackgroundWorker();
-            this.panelLabels = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -482,13 +482,11 @@
             // 
             this.checkBoxShowOnlyActivePlayers.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.checkBoxShowOnlyActivePlayers.AutoSize = true;
-            this.checkBoxShowOnlyActivePlayers.Checked = true;
-            this.checkBoxShowOnlyActivePlayers.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxShowOnlyActivePlayers.Location = new System.Drawing.Point(3, 4);
+            this.checkBoxShowOnlyActivePlayers.Location = new System.Drawing.Point(28, 4);
             this.checkBoxShowOnlyActivePlayers.Name = "checkBoxShowOnlyActivePlayers";
-            this.checkBoxShowOnlyActivePlayers.Size = new System.Drawing.Size(175, 17);
+            this.checkBoxShowOnlyActivePlayers.Size = new System.Drawing.Size(125, 17);
             this.checkBoxShowOnlyActivePlayers.TabIndex = 16;
-            this.checkBoxShowOnlyActivePlayers.Text = "Show Only Players With Cards?";
+            this.checkBoxShowOnlyActivePlayers.Text = "Show Empty Hands?";
             this.checkBoxShowOnlyActivePlayers.UseVisualStyleBackColor = true;
             this.checkBoxShowOnlyActivePlayers.CheckedChanged += new System.EventHandler(this.checkBoxShowOnlyActivePlayers_CheckedChanged);
             // 
@@ -636,6 +634,14 @@
             this.splitContainer1.SplitterDistance = 30;
             this.splitContainer1.TabIndex = 18;
             // 
+            // panelLabels
+            // 
+            this.panelLabels.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelLabels.Location = new System.Drawing.Point(0, 0);
+            this.panelLabels.Name = "panelLabels";
+            this.panelLabels.Size = new System.Drawing.Size(30, 25);
+            this.panelLabels.TabIndex = 0;
+            // 
             // textBoxOutput
             // 
             this.textBoxOutput.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -657,14 +663,6 @@
             this.workerAutoThrow.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerAutoThrow_DoWork);
             this.workerAutoThrow.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.workerAutoThrow_ProgressChanged);
             this.workerAutoThrow.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerAutoThrow_RunWorkerCompleted);
-            // 
-            // panelLabels
-            // 
-            this.panelLabels.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelLabels.Location = new System.Drawing.Point(0, 0);
-            this.panelLabels.Name = "panelLabels";
-            this.panelLabels.Size = new System.Drawing.Size(30, 25);
-            this.panelLabels.TabIndex = 0;
             // 
             // kbWarMainForm
             // 
