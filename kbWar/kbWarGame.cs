@@ -285,7 +285,7 @@ namespace kbWar
         }
         #endregion
 
-        #region private void ThrowDown(List<int> Players, ref int recursionCount)
+        #region private List<int> ThrowDown(List<int> Players, ref int recursionCount)
         /// <summary>
         /// Throw Down!
         /// </summary>

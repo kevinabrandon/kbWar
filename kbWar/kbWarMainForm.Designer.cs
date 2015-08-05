@@ -122,9 +122,9 @@
             // 
             this.groupBox5.Controls.Add(this.richTextBoxPot);
             this.groupBox5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox5.Location = new System.Drawing.Point(0, 607);
+            this.groupBox5.Location = new System.Drawing.Point(0, 610);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(188, 151);
+            this.groupBox5.Size = new System.Drawing.Size(188, 148);
             this.groupBox5.TabIndex = 51;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Most Recently Won Cards";
@@ -136,7 +136,7 @@
             this.richTextBoxPot.Location = new System.Drawing.Point(3, 16);
             this.richTextBoxPot.Name = "richTextBoxPot";
             this.richTextBoxPot.ReadOnly = true;
-            this.richTextBoxPot.Size = new System.Drawing.Size(182, 132);
+            this.richTextBoxPot.Size = new System.Drawing.Size(182, 129);
             this.richTextBoxPot.TabIndex = 42;
             this.richTextBoxPot.Text = "";
             // 
@@ -144,7 +144,7 @@
             // 
             this.groupBox4.Controls.Add(this.textBoxCounts);
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox4.Location = new System.Drawing.Point(0, 414);
+            this.groupBox4.Location = new System.Drawing.Point(0, 417);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(188, 193);
             this.groupBox4.TabIndex = 50;
@@ -184,7 +184,7 @@
             this.groupBox3.Controls.Add(this.tableLayoutPanel2);
             this.groupBox3.Controls.Add(this.buttonRunManyGames);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox3.Location = new System.Drawing.Point(0, 249);
+            this.groupBox3.Location = new System.Drawing.Point(0, 252);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(188, 165);
             this.groupBox3.TabIndex = 49;
@@ -374,7 +374,7 @@
             this.groupBox2.Controls.Add(this.tableLayoutPanel1);
             this.groupBox2.Controls.Add(this.buttonAutoThrow);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox2.Location = new System.Drawing.Point(0, 182);
+            this.groupBox2.Location = new System.Drawing.Point(0, 185);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(188, 67);
             this.groupBox2.TabIndex = 48;
@@ -459,7 +459,7 @@
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(188, 182);
+            this.groupBox1.Size = new System.Drawing.Size(188, 185);
             this.groupBox1.TabIndex = 47;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Interactive Controls";
