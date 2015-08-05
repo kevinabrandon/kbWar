@@ -236,7 +236,10 @@ namespace kbWar
 
             // all active players need to throw down!
             int nWars = 0;
-            m_iMostRecentWinner = ThrowDown(players, ref nWars);
+            List<int> winners = ThrowDown(players, ref nWars);
+
+            if (winners.Count > 1) m_iMostRecentWinner = -1;
+            else m_iMostRecentWinner = winners[0];
 
             // add all the cards thrown into recently won hand
             m_MostRecentlyWonCards.Clear();
@@ -248,25 +251,14 @@ namespace kbWar
             // if we need to, shuffle the winning cards.
             if (m_bShuffleRecentlyWonCards) m_MostRecentlyWonCards.Shuffle();
 
-            if (m_iMostRecentWinner < 0)
-            {   // tie!
-                // deal out cards to the tied players
-                m_Counters.nTies++;
-                for (int iCard = 0; iCard < m_MostRecentlyWonCards.Count; iCard++)
-                {
-                    m_Players[players[iCard % players.Count]].AddToBottom(m_MostRecentlyWonCards[iCard]);
-                }
+            // deal out cards to the winner/winners
+            for (int iCard = 0; iCard < m_MostRecentlyWonCards.Count; iCard++)
+            {
+                m_Players[winners[iCard % winners.Count]].AddToBottom(m_MostRecentlyWonCards[iCard]);
             }
-            else
-            {   // only one winner.
-                // add winning cards into bottom of winners hand
-                for (int iCard = 0; iCard < m_MostRecentlyWonCards.Count; iCard++)
-                {
-                    m_Players[m_iMostRecentWinner].AddToBottom(m_MostRecentlyWonCards[iCard]);
-                }
-            }
+            
             // update counters:
-            UpdateCounters(nWars);
+            UpdateCounters(nWars, winners);
 
             // adjust the game state and return it.
             if (this.Winner >= 0) m_State = GameState.eOverWithWinner;              // do we have a winner?
@@ -277,10 +269,11 @@ namespace kbWar
         }
         #endregion
 
-        #region private void UpdateCounters(int nWars)
-        private void UpdateCounters(int nWars)
+        #region private void UpdateCounters(int nWars, List<int> players)
+        private void UpdateCounters(int nWars, List<int> players)
         {
             m_Counters.nTurns++;
+            if (players.Count > 1) m_Counters.nTies++;
             m_Counters.nTotalWars += nWars;
             if (nWars == 1) m_Counters.nSingleWars++;
             else if (nWars == 2) m_Counters.nDoubleWars++;
@@ -292,14 +285,14 @@ namespace kbWar
         }
         #endregion
 
-        #region private int ThrowDown(List<int> Players, ref int recursionCount)
+        #region private void ThrowDown(List<int> Players, ref int recursionCount)
         /// <summary>
         /// Throw Down!
         /// </summary>
-        /// <param name="Players">List of players that are about to throw down.</param>
+        /// <param name="Players">List of players that are about to throw down.  The winners are returned here.</param>
         /// <param name="recursionCount">A counter, to count how many times we recure (keeps track of the number of wars!)</param>
-        /// <returns>Returns the index to the winning player.</returns>
-        private int ThrowDown(List<int> Players, ref int recursionCount)
+        /// <returns>Returns a list of the winning players.</returns>
+        private List<int> ThrowDown(List<int> Players, ref int recursionCount)
         {
             foreach (int iPlayer in Players)
             {   // all players required to throw a card down throws.
@@ -311,27 +304,33 @@ namespace kbWar
             int winningRank = 0;
             foreach (int iPlayer in Players)
             {
-                int rank = (int)m_ThrownCards[iPlayer][m_ThrownCards[iPlayer].Count - 1].rank;
+                int rank = (int)m_ThrownCards[iPlayer][m_ThrownCards[iPlayer].Count - 1].rank;  // get the most recently thrown card for the player
                 if (rank > winningRank)
-                {
+                {   // if the rank is higher than the current wining rank, then it's a winner, and the current winners are not
                     winningPlayers.Clear();
                     winningPlayers.Add(iPlayer);
                     winningRank = rank;
                 }
-                else if (rank == winningRank) winningPlayers.Add(iPlayer);
+                else if (rank == winningRank) winningPlayers.Add(iPlayer);  // if it has the same rank as the current winners, then it's a winner too
             }
 
-            if (winningPlayers.Count == 1) return winningPlayers[0];    // the turn is over! return the winner!
+            if (winningPlayers.Count == 1)
+            {   // we have a winner! 
+                return winningPlayers;
+            }
             else
-            {   // we have a war!
-                // all the winning players need to throw down an additional 3 cards - if they have them, before recursing.
+            {   // we have multiple players with the highest card!
+                // THIS MEANS WAR!!!
+                // all the winning players need to throw down an additional 3 cards - if they have them, before recursing to ThrowDown their final card.
                 List<int> PlayersReadyToThrowDown = new List<int>();
-                foreach(int iPlayer in winningPlayers)
+                foreach (int iPlayer in winningPlayers)
                 {
                     int nCardsToThrow = m_Players[iPlayer].Count;
 
                     if (nCardsToThrow == 0)
                     {   // if it doesn't have any more cards left to throw, 
+                        // then it's not ready to throw down... don't add
+                        // it to the list, just continue;
                         continue;
                     }
                     else PlayersReadyToThrowDown.Add(iPlayer);
@@ -341,15 +340,14 @@ namespace kbWar
                 }
 
                 if (PlayersReadyToThrowDown.Count == 0)
-                {   // we have a tie...
-                    // in this case we should split the winnings to the original winners...
-                    Players.Clear();
-                    Players.AddRange(winningPlayers);
-                    return -1;  // return -1 meaning there is no winner.
+                {   // we have a very rare TIE...
+                    // we will return the winning players as winners
+                    // so that they can split up the cards.
+                    return winningPlayers;
                 }
                 else if (PlayersReadyToThrowDown.Count == 1)
                 {   // there is only one player ready, they're the winner!!
-                    return PlayersReadyToThrowDown[0];    
+                    return PlayersReadyToThrowDown;
                 }
                 else    // if(PlayersReadyToThrowDown.Count > 1)
                 {   // okay, let's throw down again, this time with our new winners
