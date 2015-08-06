@@ -104,12 +104,15 @@ namespace kbWar
                     else                                    m_TextBoxes[i].Clear();
                 }
 
-                if (m_Game.WinnerOfLastTurn > -2)
+                if (m_Game.MostRecentWinners.Count > 0)
                 {
                     richTextBoxPot.Clear();
-                    if (m_Game.WinnerOfLastTurn < 0) richTextBoxPot.AppendText("TIE!!\n\n");
-                    else    richTextBoxPot.AppendText("Player " + (m_Game.WinnerOfLastTurn + 1).ToString() + " Won:\n\n");
-
+                    if (m_Game.MostRecentWinners.Count > 1) richTextBoxPot.AppendText("TIE!!\n");
+                    foreach (int iWinner in m_Game.MostRecentWinners)
+                    { 
+                        richTextBoxPot.AppendText("Player " + (iWinner + 1).ToString() + " Won:\n"); 
+                    }
+                    richTextBoxPot.AppendText("\n");
                     richTextBoxPot.AppendText(m_Game.MostRecentlyWonCards.ToString());
                     if(m_Game.Winner > 0) richTextBoxPot.AppendText("\nPLAYER " + (m_Game.Winner+1).ToString() + " WINS!!!");
                 }

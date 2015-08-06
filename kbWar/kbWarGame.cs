@@ -42,9 +42,7 @@ namespace kbWar
         private kbCardHand[] m_ThrownCards;             // an array of cards thrown to the middle pile
 
         private kbCardHand m_MostRecentlyWonCards;      // a copy of the most recently won cards.
-        private int m_iMostRecentWinner;                // an index to the most recent winner.
-                                                        // -2 means the game hasn't started, so there is no recent winner
-                                                        // -1 means the most recent turn resulted in a tie, so there were multiple winners.
+        private List<int> m_MostRecentWinners;          // a list of the most recent winners.
 
         private GameCounters m_Counters;                // Counters used to keep track of the game.
 
@@ -102,7 +100,7 @@ namespace kbWar
                 m_ThrownCards[i] = new kbCardHand(m_Rand);
             }
             m_MostRecentlyWonCards = new kb52CardDeck(m_Rand);
-            m_iMostRecentWinner = -2;
+            m_MostRecentWinners = new List<int>();
             
             m_State = GameState.eNotStarted;
 
@@ -218,13 +216,14 @@ namespace kbWar
 
         #region public GameState NewTurn()
         /// <summary>
-        /// It plays one turn of the game.
+        /// It plays one turn of the game.  Forces all players with cards to throw down.
         /// </summary>
-        /// <returns>It returns the game state.</returns>
+        /// <returns>Returns the game state.</returns>
         public GameState NewTurn()
         {
             if (m_State == GameState.eNotStarted)
-            {   // let's start the game by shuffling and dealing
+            {   // maybe we should just return the game state
+                // naw... let's start the game by shuffling and dealing
                 ShuffleDeck();
                 Deal();
             }
@@ -236,10 +235,7 @@ namespace kbWar
 
             // all active players need to throw down!
             int nWars = 0;
-            List<int> winners = ThrowDown(players, ref nWars);
-
-            if (winners.Count > 1) m_iMostRecentWinner = -1;
-            else m_iMostRecentWinner = winners[0];
+            m_MostRecentWinners = ThrowDown(players, ref nWars);
 
             // add all the cards thrown into recently won hand
             m_MostRecentlyWonCards.Clear();
@@ -254,11 +250,11 @@ namespace kbWar
             // deal out cards to the winner/winners
             for (int iCard = 0; iCard < m_MostRecentlyWonCards.Count; iCard++)
             {
-                m_Players[winners[iCard % winners.Count]].AddToBottom(m_MostRecentlyWonCards[iCard]);
+                m_Players[m_MostRecentWinners[iCard % m_MostRecentWinners.Count]].AddToBottom(m_MostRecentlyWonCards[iCard]);
             }
             
             // update counters:
-            UpdateCounters(nWars, winners);
+            UpdateCounters(nWars, m_MostRecentWinners);
 
             // adjust the game state and return it.
             if (this.Winner >= 0) m_State = GameState.eOverWithWinner;              // do we have a winner?
@@ -289,12 +285,12 @@ namespace kbWar
         /// <summary>
         /// Throw Down!
         /// </summary>
-        /// <param name="Players">List of players that are about to throw down.  The winners are returned here.</param>
+        /// <param name="players">List of players that are about to throw down.  The winners are returned here.</param>
         /// <param name="recursionCount">A counter, to count how many times we recure (keeps track of the number of wars!)</param>
         /// <returns>Returns a list of the winning players.</returns>
-        private List<int> ThrowDown(List<int> Players, ref int recursionCount)
+        private List<int> ThrowDown(List<int> players, ref int recursionCount)
         {
-            foreach (int iPlayer in Players)
+            foreach (int iPlayer in players)
             {   // all players required to throw a card down throws.
                 m_ThrownCards[iPlayer].AddToBottom(m_Players[iPlayer].DrawFromTop());
             }
@@ -302,14 +298,14 @@ namespace kbWar
             // find the max card, and the players that have it:
             List<int> winningPlayers = new List<int>();
             int winningRank = 0;
-            foreach (int iPlayer in Players)
-            {
-                int rank = (int)m_ThrownCards[iPlayer][m_ThrownCards[iPlayer].Count - 1].rank;  // get the most recently thrown card for the player
+            foreach (int iPlayer in players)
+            {   // get the rank of the most recently thrown card for the player
+                int rank = (int)m_ThrownCards[iPlayer][m_ThrownCards[iPlayer].Count - 1].rank;  
                 if (rank > winningRank)
                 {   // if the rank is higher than the current wining rank, then it's a winner, and the current winners are not
+                    winningRank = rank;
                     winningPlayers.Clear();
                     winningPlayers.Add(iPlayer);
-                    winningRank = rank;
                 }
                 else if (rank == winningRank) winningPlayers.Add(iPlayer);  // if it has the same rank as the current winners, then it's a winner too
             }
@@ -335,7 +331,10 @@ namespace kbWar
                     }
                     else PlayersReadyToThrowDown.Add(iPlayer);
 
+                    // if they have more than four to throw cap it at 4
                     if (nCardsToThrow > 4) nCardsToThrow = 4;
+                    
+                    // throw all the cards but one to their own piles.... the last one will be thrown when we recure.
                     for (int j = 0; j < nCardsToThrow - 1; j++) m_ThrownCards[iPlayer].AddToBottom(m_Players[iPlayer].DrawFromTop());
                 }
 
@@ -388,15 +387,13 @@ namespace kbWar
         }
         #endregion
 
-        #region public int WinnerOfLastTurn
+        #region public List<int> MostRecentWinners
         /// <summary>
-        /// Gets the index to the player who won the last turn.  
-        ///   -2 means there hasn't been a turn yet. 
-        ///   -1 means the last turn had no winner
+        /// Gets a list of the most recent winners.
         /// </summary>
-        public int WinnerOfLastTurn
+        public List<int> MostRecentWinners
         {
-            get { return m_iMostRecentWinner; }
+            get { return m_MostRecentWinners.ToList(); }
         }
         #endregion
 
