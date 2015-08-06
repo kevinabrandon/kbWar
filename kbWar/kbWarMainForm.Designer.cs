@@ -420,7 +420,7 @@
             this.numericUpDownSleep.TabIndex = 36;
             this.numericUpDownSleep.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.numericUpDownSleep.Value = new decimal(new int[] {
-            20,
+            50,
             0,
             0,
             0});
@@ -478,12 +478,12 @@
             this.tableLayoutPanel7.Size = new System.Drawing.Size(182, 25);
             this.tableLayoutPanel7.TabIndex = 49;
             // 
-            // checkBoxShowOnlyActivePlayers
+            // checkBoxShowEmptyHands
             // 
             this.checkBoxShowEmptyHands.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.checkBoxShowEmptyHands.AutoSize = true;
             this.checkBoxShowEmptyHands.Location = new System.Drawing.Point(28, 4);
-            this.checkBoxShowEmptyHands.Name = "checkBoxShowOnlyActivePlayers";
+            this.checkBoxShowEmptyHands.Name = "checkBoxShowEmptyHands";
             this.checkBoxShowEmptyHands.Size = new System.Drawing.Size(125, 17);
             this.checkBoxShowEmptyHands.TabIndex = 16;
             this.checkBoxShowEmptyHands.Text = "Show Empty Hands?";
@@ -583,7 +583,7 @@
             this.numericUpDownNPlayers.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.numericUpDownNPlayers.Location = new System.Drawing.Point(7, 3);
             this.numericUpDownNPlayers.Maximum = new decimal(new int[] {
-            26,
+            52,
             0,
             0,
             0});

@@ -9,12 +9,19 @@ namespace kbWar
     /// <summary>
     /// Simulates a game of war.  
     /// 
-    /// Allows between 2 and 26 players.
+    /// Allows between 2 and 52 players.
     /// </summary>
     class kbCardGameWar
     {
         #region public enum GameState
         public enum GameState { eNotStarted, eCurrentlyPlaying, eInfiniteLoop, eOverWithWinner }
+        #endregion
+
+        #region public const int MaxNumberOfPlayers
+        /// <summary>
+        /// The maximun number of players allowed.  52 cards... each player will start with exactly one card.
+        /// </summary>
+        public const int MaxNumberOfPlayers = 52;
         #endregion
 
         #region struct GameCounters
@@ -90,7 +97,7 @@ namespace kbWar
         /// <param name="nPlayers">The number of players in the game (default is 2 players).</param>
         public void Restart(int nPlayers = 2)
         {
-            if (nPlayers < 2 || nPlayers > 26) throw new Exception(nPlayers.ToString() + " Players!  Number of players must be between 2 and 26.");
+            if (nPlayers < 2 || nPlayers > MaxNumberOfPlayers) throw new Exception(nPlayers.ToString() + " Players!  Number of players must be between 2 and " + MaxNumberOfPlayers + ".");
             m_Deck = new kb52CardDeck(m_Rand);
             m_Players = new kbCardHand[nPlayers];
             m_ThrownCards = new kbCardHand[nPlayers];
