@@ -411,7 +411,7 @@
             0,
             0});
             this.numericUpDownSleep.Minimum = new decimal(new int[] {
-            10,
+            15,
             0,
             0,
             0});
@@ -517,6 +517,7 @@
             this.checkBoxShuffleResult.TabIndex = 31;
             this.checkBoxShuffleResult.Text = "Shuffle Winnings";
             this.checkBoxShuffleResult.UseVisualStyleBackColor = true;
+            this.checkBoxShuffleResult.CheckedChanged += new System.EventHandler(this.checkBoxShuffleResult_CheckedChanged);
             // 
             // buttonThrow
             // 

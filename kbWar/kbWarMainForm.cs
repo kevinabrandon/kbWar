@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.IO;
 using ColorDemo;
+using System.Runtime.InteropServices;
 
 namespace kbWar
 {
@@ -91,6 +92,7 @@ namespace kbWar
         #region UpdateUI()
         private void UpdateUI()
         {
+            DrawingControl.SuspendDrawing(splitContainer1.Panel1);
             lock (m_Game)
             {
                 m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers].Text = m_Game.Deck;
@@ -117,6 +119,8 @@ namespace kbWar
             }
             ShowTextBoxes();
             ColorTextBoxes();
+
+            DrawingControl.ResumeDrawing(splitContainer1.Panel1);
         }
         #endregion
 
@@ -1174,6 +1178,35 @@ namespace kbWar
         #endregion
 
         #endregion
+    }
+    #endregion
+
+    #region DrawingControl
+    /// <summary>
+    /// Used to suspend and resume drawing of controls
+    /// 
+    /// Found on stackoverflow
+    /// 
+    /// http://stackoverflow.com/questions/487661/how-do-i-suspend-painting-for-a-control-and-its-children
+    /// 
+    /// The answer was by user ng5000
+    /// </summary>
+    class DrawingControl
+    {
+        [DllImport("user32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
+        private const int WM_SETREDRAW = 11;
+
+        public static void SuspendDrawing(Control parent)
+        {
+            SendMessage(parent.Handle, WM_SETREDRAW, false, 0);
+        }
+
+        public static void ResumeDrawing(Control parent)
+        {
+            SendMessage(parent.Handle, WM_SETREDRAW, true, 0);
+            parent.Refresh();
+        }
     }
     #endregion
 }
