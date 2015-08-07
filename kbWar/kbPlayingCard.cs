@@ -51,6 +51,73 @@ namespace kbWar
         public Rank rank { get { return m_Rank; } }
         #endregion
 
+        #region public static operators and overrides...
+
+        #region override Equals()
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType()) return false;
+
+            kbPlayingCard card = obj as kbPlayingCard;
+            return card.rank == this.rank && card.suit == this.suit;
+        }
+        #endregion
+
+        #region GetHashCode()
+        /// <summary>
+        /// overrides GetHashCode()... I need to read up on this... 
+        /// All I know is that equal objects need to have the same hash code. 
+        /// I think this should do that...  I need to test it.
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return this.suit.GetHashCode() + this.rank.GetHashCode();
+        }
+        #endregion
+
+        #region <
+        /// <summary>
+        /// Checks to see if a is less than b in rank only.
+        /// </summary>
+        public static bool operator <(kbPlayingCard a, kbPlayingCard b)
+        {
+            return a.rank < b.rank;
+        }
+        #endregion
+
+        #region >
+        /// <summary>
+        /// Checks to see if a is greater than b in rank only.
+        /// </summary>
+        public static bool operator >(kbPlayingCard a, kbPlayingCard b)
+        {
+            return a.rank < b.rank;
+        }
+        #endregion
+
+        #region >=
+        /// <summary>
+        /// Checks to see if a is greater or equal to b in rank only.
+        /// </summary>
+        public static bool operator >=(kbPlayingCard a, kbPlayingCard b)
+        {
+            return a.rank <= b.rank;
+        }
+        #endregion
+
+        #region <=
+        /// <summary>
+        /// Checks to see if a is less than or equal to b in rank only.
+        /// </summary>
+        public static bool operator <=(kbPlayingCard a, kbPlayingCard b)
+        {
+            return a.rank <= b.rank;
+        }
+        #endregion
+
+        #endregion
+
         #region ToString()
         public override string ToString()
         {
@@ -238,6 +305,21 @@ namespace kbWar
                 sb.AppendLine(pc.ToString());
             }
             return sb.ToString();
+        }
+        #endregion
+
+        #region public SameHand()
+        /// <summary>
+        /// Returns true if this is the same hand as our own.
+        /// </summary>
+        public bool SameHand(kbCardHand hand)
+        {
+            if (hand.Count != this.Count) return false;
+            for (int i = 0; i < this.Count; i++)
+            {
+                if (!this[i].Equals(hand[i])) return false;
+            }
+            return true;
         }
         #endregion
     }

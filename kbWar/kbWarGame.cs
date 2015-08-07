@@ -57,6 +57,8 @@ namespace kbWar
 
         private Random m_Rand;                          // The random number generator used for shuffling.
 
+        private List<kbCardHand[]> m_PreviousTurns;     // a list of hands from previous turns... used for infinite loop checks.
+
         #endregion
 
         #region constructors...
@@ -101,6 +103,7 @@ namespace kbWar
             m_Deck = new kb52CardDeck(m_Rand);
             m_Players = new kbCardHand[nPlayers];
             m_ThrownCards = new kbCardHand[nPlayers];
+            m_PreviousTurns = new List<kbCardHand[]>();
             for (int i = 0; i < nPlayers; i++)
             {
                 m_Players[i] = new kbCardHand(m_Rand);
@@ -263,12 +266,67 @@ namespace kbWar
             // update counters:
             UpdateCounters(nWars, m_MostRecentWinners);
 
+            if (!m_bShuffleRecentlyWonCards)
+            {   // if we aren't shuffling our recently won cards
+                // then lets check to see if we've been here before
+                // if we have, then it's an infinte loop
+                if (HaveWeBeenHereBefore())
+                {
+                    m_State = GameState.eInfiniteLoop;
+                    return m_State;
+                }
+            }
+
             // adjust the game state and return it.
             if (this.Winner >= 0) m_State = GameState.eOverWithWinner;              // do we have a winner?
-            else if (m_Counters.nTurns > 20000) m_State = GameState.eInfiniteLoop;  // do we have an infinite loop?
+            else if (m_Counters.nTurns > 20000) m_State = GameState.eInfiniteLoop; // do we have an infinite loop?
             else m_State = GameState.eCurrentlyPlaying;                             // we're still playing
 
             return m_State;
+        }
+        #endregion
+
+        #region private bool HaveWeBeenHereBefore()
+        /// <summary>
+        /// Have we been here before?
+        /// </summary>
+        /// <returns>Returns true if we've seen this hand before</returns>
+        private bool HaveWeBeenHereBefore()
+        {
+            // make a copy of the current turn
+            kbCardHand[] currentTurn = new kbCardHand[nPlayers];
+            for (int iPlayer = 0; iPlayer < nPlayers; iPlayer++)
+            {
+                currentTurn[iPlayer] = new kbCardHand();
+
+                for (int iCard = 0; iCard < m_Players[iPlayer].Count; iCard++)
+                {
+                    currentTurn[iPlayer].AddToBottom(m_Players[iPlayer][iCard]);
+                }
+            }
+
+            // check the current turn against the turn exactly 52 before us.
+            bool bSeenBefore = false;
+            if (m_PreviousTurns.Count == 52)
+            {   
+                bSeenBefore = true;
+                for (int iPlayer = 0; iPlayer < nPlayers; iPlayer++)
+                {
+                    if (!m_PreviousTurns[0][iPlayer].SameHand(currentTurn[iPlayer]))
+                    {
+                        bSeenBefore = false;
+                        break;
+                    }
+                }
+            }
+
+            // add the current turn to our list
+            m_PreviousTurns.Add(currentTurn);
+
+            // keep the list to only the previous 52 turns.
+            if (m_PreviousTurns.Count > 52) m_PreviousTurns.RemoveAt(0);
+
+            return bSeenBefore;
         }
         #endregion
 
