@@ -62,7 +62,7 @@ namespace kbWar
                 m_TextBoxes[i].Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
                 m_TextBoxes[i].Location = new System.Drawing.Point(0, 0);
                 m_TextBoxes[i].ReadOnly = true;
-                m_TextBoxes[i].Size = new System.Drawing.Size(127, 751);
+                m_TextBoxes[i].Size = new System.Drawing.Size(150, 751);
                 m_TextBoxes[i].TabIndex = 16 + i;
                 m_TextBoxes[i].Text = "";
                 if (i == kbCardGameWar.MaxNumberOfPlayers) m_TextBoxes[i].Name = "Deck";
@@ -73,7 +73,7 @@ namespace kbWar
                 m_Labels[i].Location = new System.Drawing.Point(0, 0);
                 if (i == kbCardGameWar.MaxNumberOfPlayers) m_Labels[i].Name = "Deck";
                 else m_Labels[i].Name = "m_Labels[" + i + "]";
-                m_Labels[i].Size = new System.Drawing.Size(127, 25);
+                m_Labels[i].Size = new System.Drawing.Size(150, 25);
                 m_Labels[i].TabIndex = 6 + i;
                 if (i == kbCardGameWar.MaxNumberOfPlayers) m_Labels[i].Text = "Deck";
                 else m_Labels[i].Text = "Player " + (i + 1);
