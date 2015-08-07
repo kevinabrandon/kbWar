@@ -23,10 +23,10 @@ namespace kbWar
         BackgroundWorker[] m_Workers = null;                // the background threads for the monte-carlo simulation.
         MonteCarloSimResult m_WorkersOutput = null;         // used to collect output from the multitple workers.
 
-        RichTextBox[] m_TextBoxes = new RichTextBox[kbCardGameWar.MaxNumberOfPlayers+1];    // textboxes used to show the cards (one for each hand, the last one is the deck)
+        Panel[] m_Panels = new Panel[kbCardGameWar.MaxNumberOfPlayers + 1];                 // panels that hold the TextBoxes and Labels.
+        RichTextBox[] m_TextBoxes = new RichTextBox[kbCardGameWar.MaxNumberOfPlayers + 1];  // textboxes used to show the cards (one for each hand, the last one is the deck)
         Label[] m_Labels = new Label[kbCardGameWar.MaxNumberOfPlayers+1];                   // labels used to show which player belongs to which textbox.
-        Color[] m_PlayerColors = new Color[kbCardGameWar.MaxNumberOfPlayers+1];             // the colors used to color the labels
-
+        
         #endregion
 
         #region construction...
@@ -51,36 +51,33 @@ namespace kbWar
         {
             for (int i = 0; i < kbCardGameWar.MaxNumberOfPlayers+1; i++)
             {
-                if (i == kbCardGameWar.MaxNumberOfPlayers) m_PlayerColors[i] = Color.Black;
-                else m_PlayerColors[i] = new HSLColor(240.0 * (double)i / kbCardGameWar.MaxNumberOfPlayers, 240, 120);
-
+                int nWidth = 127;   // width of the card hands
+                
+                // panel that holds the textboxes with their label
+                m_Panels[i] = new Panel();
+                m_Panels[i].Dock = DockStyle.Left;
+                m_Panels[i].Width = nWidth;
+                
                 m_TextBoxes[i] = new RichTextBox();
-                m_Labels[i] = new Label();
-
-                m_TextBoxes[i].Dock = System.Windows.Forms.DockStyle.Left;
+                m_TextBoxes[i].Dock = DockStyle.Fill;
+                m_TextBoxes[i].WordWrap = false;
                 m_TextBoxes[i].ScrollBars = RichTextBoxScrollBars.None;
-                m_TextBoxes[i].Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-                m_TextBoxes[i].Location = new System.Drawing.Point(0, 0);
+                m_TextBoxes[i].Font = new Font("Courier New", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0)));
                 m_TextBoxes[i].ReadOnly = true;
-                m_TextBoxes[i].Size = new System.Drawing.Size(150, 751);
-                m_TextBoxes[i].TabIndex = 16 + i;
-                m_TextBoxes[i].Text = "";
-                if (i == kbCardGameWar.MaxNumberOfPlayers) m_TextBoxes[i].Name = "Deck";
-                else m_TextBoxes[i].Name = "m_TextBoxes[" + i + "]";
+                m_TextBoxes[i].Name = "m_TextBoxes[" + i + "]";
 
-                m_Labels[i].Dock = System.Windows.Forms.DockStyle.Left;
-                m_Labels[i].Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-                m_Labels[i].Location = new System.Drawing.Point(0, 0);
-                if (i == kbCardGameWar.MaxNumberOfPlayers) m_Labels[i].Name = "Deck";
-                else m_Labels[i].Name = "m_Labels[" + i + "]";
-                m_Labels[i].Size = new System.Drawing.Size(150, 25);
-                m_Labels[i].TabIndex = 6 + i;
+                m_Labels[i] = new Label();
+                m_Labels[i].Dock = DockStyle.Top;
+                m_Labels[i].Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, ((byte)(0)));
+                m_Labels[i].Name = "m_Labels[" + i + "]";
+                m_Labels[i].TextAlign = ContentAlignment.MiddleCenter;
                 if (i == kbCardGameWar.MaxNumberOfPlayers) m_Labels[i].Text = "Deck";
                 else m_Labels[i].Text = "Player " + (i + 1);
-                m_Labels[i].TextAlign = ContentAlignment.MiddleCenter;
 
-                panelLabels.Controls.Add(m_Labels[i]);
-                splitContainer1.Panel1.Controls.Add(m_TextBoxes[i]);
+                m_Panels[i].Controls.Add(m_TextBoxes[i]);
+                m_Panels[i].Controls.Add(m_Labels[i]);
+
+                splitContainer1.Panel1.Controls.Add(m_Panels[i]);
             }
         }
         #endregion
@@ -134,39 +131,34 @@ namespace kbWar
                 {
                     if (m_TextBoxes[i].Text.Length == 0)
                     {
-                        if (m_TextBoxes[i].Visible == true || m_Labels[i].Visible == true) bDirty = true;
-                        m_TextBoxes[i].Visible = false;
-                        m_Labels[i].Visible = false;
+                        if (m_Panels[i].Visible == true) bDirty = true;
+                        m_Panels[i].Visible = false;
                     }
                     else
                     {
-                        if (m_TextBoxes[i].Visible == false || m_Labels[i].Visible == false) bDirty = true;
-                        m_TextBoxes[i].Visible = true;
-                        m_Labels[i].Visible = true;
+                        if (m_Panels[i].Visible == false) bDirty = true;
+                        m_Panels[i].Visible = true;
                     }
                 }
             }
             else
             {   // make sure all hands that are playing are shown (also the deck).
                 // first the deck (m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers])
-                if (m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers].Visible == false || m_Labels[kbCardGameWar.MaxNumberOfPlayers].Visible == false) bDirty = true;
-                m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers].Visible = true;
-                m_Labels[kbCardGameWar.MaxNumberOfPlayers].Visible = true;
+                if (m_Panels[kbCardGameWar.MaxNumberOfPlayers].Visible == false) bDirty = true;
+                m_Panels[kbCardGameWar.MaxNumberOfPlayers].Visible = true;
 
                 // then all the other players...
                 for (int i = 0; i < kbCardGameWar.MaxNumberOfPlayers; i++)
                 {
                     if (i < numericUpDownNPlayers.Value)
                     {   // if they're playing show them...
-                        if (m_TextBoxes[i].Visible == false || m_Labels[i].Visible == false) bDirty = true;
-                        m_TextBoxes[i].Visible = true;
-                        m_Labels[i].Visible = true;
+                        if (m_Panels[i].Visible == false) bDirty = true;
+                        m_Panels[i].Visible = true;
                     }
                     else
                     {   // if they're not playing... hide them.
-                        if (m_TextBoxes[i].Visible == true || m_Labels[i].Visible == true) bDirty = true;
-                        m_TextBoxes[i].Visible = false;
-                        m_Labels[i].Visible = false;
+                        if (m_Panels[i].Visible == true) bDirty = true;
+                        m_Panels[i].Visible = false;
                     }
                 }
             }
@@ -178,12 +170,10 @@ namespace kbWar
         #region ReOrderTextBoxes()
         private void ReOrderTextBoxes()
         {
-            m_Labels[kbCardGameWar.MaxNumberOfPlayers].BringToFront();
-            m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers].BringToFront();
+            m_Panels[kbCardGameWar.MaxNumberOfPlayers].BringToFront();
             for (int i = 0; i < kbCardGameWar.MaxNumberOfPlayers; i++)
             {
-                m_Labels[i].BringToFront();
-                m_TextBoxes[i].BringToFront();
+                m_Panels[i].BringToFront();
             }
         }
         #endregion
@@ -195,31 +185,31 @@ namespace kbWar
 
             for (int i = 0; i < numericUpDownNPlayers.Value; i++)
             {
-                ColorTextBoxeSelection(richTextBoxPot, "Player " + (i + 1) + " Won:", Color.Black, m_PlayerColors[i]);
-                ColorTextBoxeSelection(richTextBoxPot, "PLAYER " + (i + 1) + " WINS!!!", Color.Black, m_PlayerColors[i]);
+                ColorTextBoxeSelection(richTextBoxPot, "Player " + (i + 1) + " Won:", Color.Black, GetPlayerColor(i));
+                ColorTextBoxeSelection(richTextBoxPot, "PLAYER " + (i + 1) + " WINS!!!", Color.Black, GetPlayerColor(i));
             }
 
-            ColorTextBoxeSelection(richTextBoxPot, "Ace", Color.Red, Color.GreenYellow);
-            ColorTextBoxeSelection(richTextBoxPot, "Hearts", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPot, "Diamonds", Color.White, Color.Red);
-            ColorTextBoxeSelection(richTextBoxPot, "Spades", Color.White, Color.Black);
-            ColorTextBoxeSelection(richTextBoxPot, "Clubs", Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPot, kbPlayingCard.Rank.Ace.ToString(), Color.Red, Color.GreenYellow);
+            ColorTextBoxeSelection(richTextBoxPot, kbPlayingCard.Suit.Hearts.ToString(), Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPot, kbPlayingCard.Suit.Diamonds.ToString(), Color.White, Color.Red);
+            ColorTextBoxeSelection(richTextBoxPot, kbPlayingCard.Suit.Spades.ToString(), Color.White, Color.Black);
+            ColorTextBoxeSelection(richTextBoxPot, kbPlayingCard.Suit.Clubs.ToString(), Color.White, Color.Black);
 
-            ColorTextBoxeSelection(m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers], "Ace", Color.Red, Color.GreenYellow);
-            ColorTextBoxeSelection(m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers], "Hearts", Color.White, Color.Red);
-            ColorTextBoxeSelection(m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers], "Diamonds", Color.White, Color.Red);
-            ColorTextBoxeSelection(m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers], "Spades", Color.White, Color.Black);
-            ColorTextBoxeSelection(m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers], "Clubs", Color.White, Color.Black);
+            ColorTextBoxeSelection(m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers], kbPlayingCard.Rank.Ace.ToString(), Color.Red, Color.GreenYellow);
+            ColorTextBoxeSelection(m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers], kbPlayingCard.Suit.Hearts.ToString(), Color.White, Color.Red);
+            ColorTextBoxeSelection(m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers], kbPlayingCard.Suit.Diamonds.ToString(), Color.White, Color.Red);
+            ColorTextBoxeSelection(m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers], kbPlayingCard.Suit.Spades.ToString(), Color.White, Color.Black);
+            ColorTextBoxeSelection(m_TextBoxes[kbCardGameWar.MaxNumberOfPlayers], kbPlayingCard.Suit.Clubs.ToString(), Color.White, Color.Black);
             
-
             for (int i = 0; i < numericUpDownNPlayers.Value; i++)
             {
-                ColorTextBoxeSelection(m_TextBoxes[i], "Ace", Color.Red, Color.GreenYellow);
-                ColorTextBoxeSelection(m_TextBoxes[i], "Hearts", Color.White, Color.Red);
-                ColorTextBoxeSelection(m_TextBoxes[i], "Diamonds", Color.White, Color.Red);
-                ColorTextBoxeSelection(m_TextBoxes[i], "Spades", Color.White, Color.Black);
-                ColorTextBoxeSelection(m_TextBoxes[i], "Clubs", Color.White, Color.Black);
+                ColorTextBoxeSelection(m_TextBoxes[i], kbPlayingCard.Rank.Ace.ToString(), Color.Red, Color.GreenYellow);
+                ColorTextBoxeSelection(m_TextBoxes[i], kbPlayingCard.Suit.Hearts.ToString(), Color.White, Color.Red);
+                ColorTextBoxeSelection(m_TextBoxes[i], kbPlayingCard.Suit.Diamonds.ToString(), Color.White, Color.Red);
+                ColorTextBoxeSelection(m_TextBoxes[i], kbPlayingCard.Suit.Spades.ToString(), Color.White, Color.Black);
+                ColorTextBoxeSelection(m_TextBoxes[i], kbPlayingCard.Suit.Clubs.ToString(), Color.White, Color.Black);
             }
+            
         }
         #endregion
 
@@ -231,10 +221,21 @@ namespace kbWar
         {
             for (int i = 0; i < numericUpDownNPlayers.Value; i++)
             {
-                m_PlayerColors[i] = new HSLColor(240.0 * (double)i / (double)numericUpDownNPlayers.Value, 240, 120);
-                m_Labels[i].BackColor = m_PlayerColors[i];
+                m_Labels[i].BackColor = GetPlayerColor(i);
                 m_Labels[i].ForeColor = Color.Black;
             }
+        }
+        #endregion
+
+        #region GetPlayerColor()
+        /// <summary>
+        /// Gets the color for a player
+        /// </summary>
+        /// <param name="iPlayer">The player index.</param>
+        /// <returns>The color for a player</returns>
+        private Color GetPlayerColor(int iPlayer)
+        {
+            return new HSLColor(240.0 * (double)iPlayer / (double)numericUpDownNPlayers.Value, 240, 120);
         }
         #endregion
 
@@ -261,6 +262,8 @@ namespace kbWar
 
         #region ColorTextBoxeSelection()
         /// <summary>
+        /// This changes the color a string inside of a richtextbox
+        /// 
         /// This is mostly a copy and paste of a bit I found online (probably stack exchange)
         /// </summary>
         private void ColorTextBoxeSelection(RichTextBox textBox, string s, Color textColor, Color backColor)

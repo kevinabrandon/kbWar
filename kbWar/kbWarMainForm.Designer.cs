@@ -66,7 +66,6 @@
             this.numericUpDownNPlayers = new System.Windows.Forms.NumericUpDown();
             this.label11 = new System.Windows.Forms.Label();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.panelLabels = new System.Windows.Forms.Panel();
             this.textBoxOutput = new System.Windows.Forms.TextBox();
             this.workerAutoThrow = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
@@ -90,7 +89,6 @@
             this.tableLayoutPanel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNPlayers)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
@@ -626,7 +624,6 @@
             // splitContainer1.Panel1
             // 
             this.splitContainer1.Panel1.AutoScroll = true;
-            this.splitContainer1.Panel1.Controls.Add(this.panelLabels);
             // 
             // splitContainer1.Panel2
             // 
@@ -634,14 +631,6 @@
             this.splitContainer1.Size = new System.Drawing.Size(349, 781);
             this.splitContainer1.SplitterDistance = 30;
             this.splitContainer1.TabIndex = 18;
-            // 
-            // panelLabels
-            // 
-            this.panelLabels.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelLabels.Location = new System.Drawing.Point(0, 0);
-            this.panelLabels.Name = "panelLabels";
-            this.panelLabels.Size = new System.Drawing.Size(30, 25);
-            this.panelLabels.TabIndex = 0;
             // 
             // textBoxOutput
             // 
@@ -702,7 +691,6 @@
             this.tableLayoutPanel5.ResumeLayout(false);
             this.tableLayoutPanel5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNPlayers)).EndInit();
-            this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -752,7 +740,6 @@
         private System.Windows.Forms.CheckBox checkBoxShowEmptyHands;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
         private System.Windows.Forms.CheckBox checkBoxShuffleResult;
-        private System.Windows.Forms.Panel panelLabels;
     }
 }
 
