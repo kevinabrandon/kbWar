@@ -646,9 +646,7 @@ namespace kbWar
 
             kbCardGameWar game = new kbCardGameWar(args.nPlayers, new Random(args.iSeed));
             game.ShuffleRecentlyWonCards = args.bShuffleWinnings;
-            game.bCheckOnly52nd = checkBoxCheck52.Checked;
-            game.bOnlyCheckAfter2000 = checkBox2000.Checked;
-            game.bCheckForInfinteLoop = checkBoxCheckLoop.Checked;
+
 
             for (int i = 0; i < args.nGames; i++)
             {
@@ -1208,15 +1206,7 @@ namespace kbWar
 
         #endregion
 
-        private void checkBoxLoopDetectionChanged(object sender, EventArgs e)
-        {
-            lock (m_Game)
-            {
-                m_Game.bCheckForInfinteLoop = checkBoxCheckLoop.Checked;
-                m_Game.bCheckOnly52nd = checkBoxCheck52.Checked;
-                m_Game.bOnlyCheckAfter2000 = checkBox2000.Checked;
-            }
-        }
+
 
     }
     #endregion

@@ -268,18 +268,19 @@ namespace kbWar
             // update counters:
             UpdateCounters(nWars, m_MostRecentWinners);
 
+            // every 1K turns, check to see if we're in an infinite loop.
+            if (m_Counters.nTurns % 1000 == 0) bCheckForInfinteLoop = true; 
+
             if (!m_bShuffleRecentlyWonCards && bCheckForInfinteLoop)
             {   // if we aren't shuffling our recently won cards
                 // then lets check to see if we've been here before
                 // if we have, then it's an infinte loop
-                if (!bOnlyCheckAfter2000 || m_Counters.nTurns > 2000)
+                if (HaveWeBeenHereBefore())
                 {
-                    if (HaveWeBeenHereBefore())
-                    {
-                        m_State = GameState.eInfiniteLoop;
-                        return m_State;
-                    }
+                    m_State = GameState.eInfiniteLoop;
+                    return m_State;
                 }
+
             }
 
             // adjust the game state and return it.
@@ -314,43 +315,29 @@ namespace kbWar
 
             // check the current turn against the turn exactly 52 before us.
             bool bSeenBefore = false;
-            if (bCheckOnly52nd)
+            if (m_PreviousTurns.Count == 53)
             {
-                if (m_PreviousTurns.Count == 52)
+                
+                for (int iTurn = 0; iTurn < 2; iTurn++)
                 {
                     bSeenBefore = true;
                     for (int iPlayer = 0; iPlayer < nPlayers; iPlayer++)
                     {
-                        if (!m_PreviousTurns[0][iPlayer].SameHand(currentTurn[iPlayer]))
+                        if (!m_PreviousTurns[iTurn][iPlayer].SameHand(currentTurn[iPlayer]))
                         {
                             bSeenBefore = false;
                             break;
                         }
                     }
+                    if (bSeenBefore) break;
                 }
-                else
-                {
-                    foreach (kbCardHand[] turn in m_PreviousTurns)
-                    {
-                        bSeenBefore = true;
-                        for (int iPlayer = 0; iPlayer < nPlayers; iPlayer++)
-                        {
-                            if (!turn[iPlayer].SameHand(currentTurn[iPlayer]))
-                            {
-                                bSeenBefore = false;
-                                break;
-                            }
-                        }
-                        if (bSeenBefore) break;
-                    }
-                }
+
+                m_PreviousTurns.Clear();
+                bCheckForInfinteLoop = false;
             }
 
             // add the current turn to our list
             m_PreviousTurns.Add(currentTurn);
-
-            // keep the list to only the previous 52 turns.
-            if (bCheckOnly52nd && m_PreviousTurns.Count > 52) m_PreviousTurns.RemoveAt(0);
 
             if (bSeenBefore) bHaveWeBeenHereBefore = true;
 
@@ -497,10 +484,10 @@ namespace kbWar
         public int nPlayers { get { return m_Players.Length; } }
         #endregion
 
-        public bool bCheckOnly52nd = true;
-        public bool bOnlyCheckAfter2000 = true;
-        public bool bCheckForInfinteLoop = true;
+        private bool bCheckForInfinteLoop = true;
+
         public bool bHaveWeBeenHereBefore = false;
+
     }
     #endregion
 }
