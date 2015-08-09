@@ -115,6 +115,8 @@ namespace kbWar
             m_State = GameState.eNotStarted;
 
             m_Counters = new GameCounters();
+
+            bHaveWeBeenHereBefore = false;
         }
         #endregion
 
@@ -266,14 +268,17 @@ namespace kbWar
             // update counters:
             UpdateCounters(nWars, m_MostRecentWinners);
 
-            if (!m_bShuffleRecentlyWonCards)
+            if (!m_bShuffleRecentlyWonCards && bCheckForInfinteLoop)
             {   // if we aren't shuffling our recently won cards
                 // then lets check to see if we've been here before
                 // if we have, then it's an infinte loop
-                if (HaveWeBeenHereBefore())
+                if (!bOnlyCheckAfter2000 || m_Counters.nTurns > 2000)
                 {
-                    m_State = GameState.eInfiniteLoop;
-                    return m_State;
+                    if (HaveWeBeenHereBefore())
+                    {
+                        m_State = GameState.eInfiniteLoop;
+                        return m_State;
+                    }
                 }
             }
 
@@ -285,6 +290,8 @@ namespace kbWar
             return m_State;
         }
         #endregion
+
+        
 
         #region private bool HaveWeBeenHereBefore()
         /// <summary>
@@ -307,15 +314,34 @@ namespace kbWar
 
             // check the current turn against the turn exactly 52 before us.
             bool bSeenBefore = false;
-            if (m_PreviousTurns.Count == 52)
-            {   
-                bSeenBefore = true;
-                for (int iPlayer = 0; iPlayer < nPlayers; iPlayer++)
+            if (bCheckOnly52nd)
+            {
+                if (m_PreviousTurns.Count == 52)
                 {
-                    if (!m_PreviousTurns[0][iPlayer].SameHand(currentTurn[iPlayer]))
+                    bSeenBefore = true;
+                    for (int iPlayer = 0; iPlayer < nPlayers; iPlayer++)
                     {
-                        bSeenBefore = false;
-                        break;
+                        if (!m_PreviousTurns[0][iPlayer].SameHand(currentTurn[iPlayer]))
+                        {
+                            bSeenBefore = false;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (kbCardHand[] turn in m_PreviousTurns)
+                    {
+                        bSeenBefore = true;
+                        for (int iPlayer = 0; iPlayer < nPlayers; iPlayer++)
+                        {
+                            if (!turn[iPlayer].SameHand(currentTurn[iPlayer]))
+                            {
+                                bSeenBefore = false;
+                                break;
+                            }
+                        }
+                        if (bSeenBefore) break;
                     }
                 }
             }
@@ -324,7 +350,9 @@ namespace kbWar
             m_PreviousTurns.Add(currentTurn);
 
             // keep the list to only the previous 52 turns.
-            if (m_PreviousTurns.Count > 52) m_PreviousTurns.RemoveAt(0);
+            if (bCheckOnly52nd && m_PreviousTurns.Count > 52) m_PreviousTurns.RemoveAt(0);
+
+            if (bSeenBefore) bHaveWeBeenHereBefore = true;
 
             return bSeenBefore;
         }
@@ -469,6 +497,10 @@ namespace kbWar
         public int nPlayers { get { return m_Players.Length; } }
         #endregion
 
+        public bool bCheckOnly52nd = true;
+        public bool bOnlyCheckAfter2000 = true;
+        public bool bCheckForInfinteLoop = true;
+        public bool bHaveWeBeenHereBefore = false;
     }
     #endregion
 }

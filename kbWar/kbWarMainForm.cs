@@ -10,6 +10,7 @@ using System.Threading;
 using System.IO;
 using ColorDemo;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace kbWar
 {
@@ -528,6 +529,7 @@ namespace kbWar
             public List<int> nSevenWarsList = new List<int>();
             public int nRuns = 0;
             public int nInfiniteLoops = 0;
+            public int nSeenBefores = 0;
             public int iThread;
             public int nPlayers;
 
@@ -536,6 +538,7 @@ namespace kbWar
                 this.iThread++;  // use this as a counter to know how many times we've combined outputs.
                 this.nPlayers = bwo.nPlayers;
                 this.nInfiniteLoops += bwo.nInfiniteLoops;
+                this.nSeenBefores += bwo.nSeenBefores;
                 this.nRuns += bwo.nRuns;
                 this.iWinnerList.AddRange(bwo.iWinnerList);
                 this.nThrowsList.AddRange(bwo.nThrowsList);
@@ -604,6 +607,9 @@ namespace kbWar
                 m_WorkersOutput = new MonteCarloSimResult();
                 m_WorkersOutput.iThread = 0;
 
+                m_StopWatch.Reset();
+                m_StopWatch.Start();
+
                 for (int iThread = 0; iThread < nThreads; iThread++)
                 {
                     m_Workers[iThread] = new BackgroundWorker();
@@ -640,6 +646,9 @@ namespace kbWar
 
             kbCardGameWar game = new kbCardGameWar(args.nPlayers, new Random(args.iSeed));
             game.ShuffleRecentlyWonCards = args.bShuffleWinnings;
+            game.bCheckOnly52nd = checkBoxCheck52.Checked;
+            game.bOnlyCheckAfter2000 = checkBox2000.Checked;
+            game.bCheckForInfinteLoop = checkBoxCheckLoop.Checked;
 
             for (int i = 0; i < args.nGames; i++)
             {
@@ -658,6 +667,7 @@ namespace kbWar
                 else bwo.nThrowsList.Add(game.Counters.nTurns);
 
                 if (game.State == kbCardGameWar.GameState.eInfiniteLoop) bwo.nInfiniteLoops++;
+                if (game.bHaveWeBeenHereBefore) bwo.nSeenBefores++;
                 bwo.iWinnerList.Add(game.Winner);
                 bwo.nTiesList.Add(game.Counters.nTies);
                 bwo.nTotalWarsList.Add(game.Counters.nTotalWars);
@@ -769,6 +779,9 @@ namespace kbWar
 
             if (CheckIfAllDone())
             {
+                m_StopWatch.Stop();
+                labelTimer.Text = m_StopWatch.Elapsed.ToString(@"mm\:ss\.ff");
+
                 UpdateCountersAtEndOfSim(m_WorkersOutput);
 
                 textBoxOutput.AppendText(GetOutputText(m_WorkersOutput));
@@ -957,6 +970,7 @@ namespace kbWar
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("****************************************");
             sb.AppendLine("Number of games played: " + bwo.nRuns.ToString("N0"));
+            sb.AppendLine(" Total elapsed time: " + m_StopWatch.Elapsed.ToString(@"mm\:ss\.ff"));
             if (checkBoxShuffleResult.Checked) sb.AppendLine("Shuffle the winning cards every turn");
             else sb.AppendLine("Perfect play, no shuffling of cards between turns, infinate loops possible!");
 
@@ -966,7 +980,8 @@ namespace kbWar
                 sb.AppendLine("Player " + (i+1) + " Wins: " + PlayerWins[i].ToString("N0"));
             }
             sb.AppendLine("Number of infinite loops: " + bwo.nInfiniteLoops.ToString("N0"));
-            sb.AppendLine("");
+            sb.AppendLine("Number of \"Seen-Befores\": " + bwo.nSeenBefores.ToString("N0"));
+            sb.AppendLine();
 
             int nMinThrows, nMaxThrows;
             Int64 nCountThrows;
@@ -1180,7 +1195,29 @@ namespace kbWar
         }
         #endregion
 
+        Stopwatch m_StopWatch = new Stopwatch();
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (m_StopWatch.IsRunning)
+            {
+                labelTimer.Text = m_StopWatch.Elapsed.ToString(@"mm\:ss\.ff");
+            }
+
+        }
+
         #endregion
+
+        private void checkBoxLoopDetectionChanged(object sender, EventArgs e)
+        {
+            lock (m_Game)
+            {
+                m_Game.bCheckForInfinteLoop = checkBoxCheckLoop.Checked;
+                m_Game.bCheckOnly52nd = checkBoxCheck52.Checked;
+                m_Game.bOnlyCheckAfter2000 = checkBox2000.Checked;
+            }
+        }
+
     }
     #endregion
 

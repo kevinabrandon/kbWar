@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(kbWarMainForm));
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
@@ -36,6 +37,11 @@
             this.textBoxCounts = new System.Windows.Forms.TextBox();
             this.buttonClearOutput = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.checkBoxCheckLoop = new System.Windows.Forms.CheckBox();
+            this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
+            this.checkBox2000 = new System.Windows.Forms.CheckBox();
+            this.checkBoxCheck52 = new System.Windows.Forms.CheckBox();
+            this.labelTimer = new System.Windows.Forms.Label();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
@@ -68,6 +74,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.textBoxOutput = new System.Windows.Forms.TextBox();
             this.workerAutoThrow = new System.ComponentModel.BackgroundWorker();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -75,6 +82,7 @@
             this.groupBox5.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.tableLayoutPanel8.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNThreads)).BeginInit();
@@ -112,7 +120,7 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.splitContainer1);
-            this.splitContainer2.Size = new System.Drawing.Size(541, 781);
+            this.splitContainer2.Size = new System.Drawing.Size(541, 858);
             this.splitContainer2.SplitterDistance = 188;
             this.splitContainer2.TabIndex = 30;
             // 
@@ -120,9 +128,9 @@
             // 
             this.groupBox5.Controls.Add(this.richTextBoxPot);
             this.groupBox5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox5.Location = new System.Drawing.Point(0, 610);
+            this.groupBox5.Location = new System.Drawing.Point(0, 689);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(188, 148);
+            this.groupBox5.Size = new System.Drawing.Size(188, 146);
             this.groupBox5.TabIndex = 51;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Most Recently Won Cards";
@@ -134,7 +142,7 @@
             this.richTextBoxPot.Location = new System.Drawing.Point(3, 16);
             this.richTextBoxPot.Name = "richTextBoxPot";
             this.richTextBoxPot.ReadOnly = true;
-            this.richTextBoxPot.Size = new System.Drawing.Size(182, 129);
+            this.richTextBoxPot.Size = new System.Drawing.Size(182, 127);
             this.richTextBoxPot.TabIndex = 42;
             this.richTextBoxPot.Text = "";
             // 
@@ -142,7 +150,7 @@
             // 
             this.groupBox4.Controls.Add(this.textBoxCounts);
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox4.Location = new System.Drawing.Point(0, 417);
+            this.groupBox4.Location = new System.Drawing.Point(0, 496);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(188, 193);
             this.groupBox4.TabIndex = 50;
@@ -165,7 +173,7 @@
             // buttonClearOutput
             // 
             this.buttonClearOutput.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.buttonClearOutput.Location = new System.Drawing.Point(0, 758);
+            this.buttonClearOutput.Location = new System.Drawing.Point(0, 835);
             this.buttonClearOutput.Name = "buttonClearOutput";
             this.buttonClearOutput.Size = new System.Drawing.Size(188, 23);
             this.buttonClearOutput.TabIndex = 40;
@@ -175,6 +183,9 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.checkBoxCheckLoop);
+            this.groupBox3.Controls.Add(this.tableLayoutPanel8);
+            this.groupBox3.Controls.Add(this.labelTimer);
             this.groupBox3.Controls.Add(this.buttonCancel);
             this.groupBox3.Controls.Add(this.progressBar1);
             this.groupBox3.Controls.Add(this.tableLayoutPanel3);
@@ -184,10 +195,71 @@
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox3.Location = new System.Drawing.Point(0, 252);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(188, 165);
+            this.groupBox3.Size = new System.Drawing.Size(188, 244);
             this.groupBox3.TabIndex = 49;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Monte-Carlo Simulation";
+            // 
+            // checkBoxCheckLoop
+            // 
+            this.checkBoxCheckLoop.Dock = System.Windows.Forms.DockStyle.Top;
+            this.checkBoxCheckLoop.Location = new System.Drawing.Point(3, 192);
+            this.checkBoxCheckLoop.Name = "checkBoxCheckLoop";
+            this.checkBoxCheckLoop.Size = new System.Drawing.Size(182, 16);
+            this.checkBoxCheckLoop.TabIndex = 54;
+            this.checkBoxCheckLoop.Text = "Check for Infinite Loop?";
+            this.checkBoxCheckLoop.UseVisualStyleBackColor = true;
+            this.checkBoxCheckLoop.CheckedChanged += new System.EventHandler(this.checkBoxLoopDetectionChanged);
+            // 
+            // tableLayoutPanel8
+            // 
+            this.tableLayoutPanel8.ColumnCount = 2;
+            this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 46.7033F));
+            this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 53.2967F));
+            this.tableLayoutPanel8.Controls.Add(this.checkBox2000, 0, 0);
+            this.tableLayoutPanel8.Controls.Add(this.checkBoxCheck52, 0, 0);
+            this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutPanel8.Location = new System.Drawing.Point(3, 170);
+            this.tableLayoutPanel8.Name = "tableLayoutPanel8";
+            this.tableLayoutPanel8.RowCount = 1;
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+            this.tableLayoutPanel8.Size = new System.Drawing.Size(182, 22);
+            this.tableLayoutPanel8.TabIndex = 53;
+            // 
+            // checkBox2000
+            // 
+            this.checkBox2000.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.checkBox2000.AutoSize = true;
+            this.checkBox2000.Location = new System.Drawing.Point(93, 3);
+            this.checkBox2000.Name = "checkBox2000";
+            this.checkBox2000.Size = new System.Drawing.Size(81, 16);
+            this.checkBox2000.TabIndex = 44;
+            this.checkBox2000.Text = "After 2000?";
+            this.checkBox2000.UseVisualStyleBackColor = true;
+            this.checkBox2000.CheckedChanged += new System.EventHandler(this.checkBoxLoopDetectionChanged);
+            // 
+            // checkBoxCheck52
+            // 
+            this.checkBoxCheck52.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.checkBoxCheck52.AutoSize = true;
+            this.checkBoxCheck52.Location = new System.Drawing.Point(3, 3);
+            this.checkBoxCheck52.Name = "checkBoxCheck52";
+            this.checkBoxCheck52.Size = new System.Drawing.Size(78, 16);
+            this.checkBoxCheck52.TabIndex = 45;
+            this.checkBoxCheck52.Text = "Check 52?";
+            this.checkBoxCheck52.UseVisualStyleBackColor = true;
+            this.checkBoxCheck52.CheckedChanged += new System.EventHandler(this.checkBoxLoopDetectionChanged);
+            // 
+            // labelTimer
+            // 
+            this.labelTimer.Dock = System.Windows.Forms.DockStyle.Top;
+            this.labelTimer.Location = new System.Drawing.Point(3, 157);
+            this.labelTimer.Name = "labelTimer";
+            this.labelTimer.Size = new System.Drawing.Size(182, 13);
+            this.labelTimer.TabIndex = 52;
+            this.labelTimer.Text = "0:0:0.00";
+            this.labelTimer.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // buttonCancel
             // 
@@ -628,7 +700,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.textBoxOutput);
-            this.splitContainer1.Size = new System.Drawing.Size(349, 781);
+            this.splitContainer1.Size = new System.Drawing.Size(349, 858);
             this.splitContainer1.SplitterDistance = 30;
             this.splitContainer1.TabIndex = 18;
             // 
@@ -641,7 +713,7 @@
             this.textBoxOutput.Name = "textBoxOutput";
             this.textBoxOutput.ReadOnly = true;
             this.textBoxOutput.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxOutput.Size = new System.Drawing.Size(315, 781);
+            this.textBoxOutput.Size = new System.Drawing.Size(315, 858);
             this.textBoxOutput.TabIndex = 39;
             this.textBoxOutput.Text = "****************************************";
             this.textBoxOutput.WordWrap = false;
@@ -654,12 +726,17 @@
             this.workerAutoThrow.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.AutoThrow_ProgressChanged);
             this.workerAutoThrow.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.AutoThrow_RunWorkerCompleted);
             // 
+            // timer1
+            // 
+            this.timer1.Enabled = true;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // kbWarMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(541, 781);
+            this.ClientSize = new System.Drawing.Size(541, 858);
             this.Controls.Add(this.splitContainer2);
             this.Name = "kbWarMainForm";
             this.Text = "kbWar!!!     A simulation of the simple card game WAR.";
@@ -671,6 +748,8 @@
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.groupBox3.ResumeLayout(false);
+            this.tableLayoutPanel8.ResumeLayout(false);
+            this.tableLayoutPanel8.PerformLayout();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
             this.tableLayoutPanel4.ResumeLayout(false);
@@ -740,6 +819,12 @@
         private System.Windows.Forms.CheckBox checkBoxShowEmptyHands;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
         private System.Windows.Forms.CheckBox checkBoxShuffleResult;
+        private System.Windows.Forms.Label labelTimer;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel8;
+        private System.Windows.Forms.CheckBox checkBox2000;
+        private System.Windows.Forms.CheckBox checkBoxCheck52;
+        private System.Windows.Forms.CheckBox checkBoxCheckLoop;
     }
 }
 
